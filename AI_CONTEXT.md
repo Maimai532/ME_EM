@@ -171,7 +171,7 @@ QUAN TRỌNG
 * Ưu tiên beginner-friendly
 * Ưu tiên scalability và maintainability
 
-==================================================
+=================
 THỨ TỰ PHÁT TRIỂN
 =================
 
@@ -184,21 +184,9 @@ THỨ TỰ PHÁT TRIỂN
 7. Playlist system
 8. Admin dashboard
 
-==================================================
-TRẠNG THÁI HIỆN TẠI
-===================
 
-* Đã setup monorepo
-* Đã tạo client/server
-* Đã thiết kế architecture
-* Đã thiết kế database
-
-==================================================
 HƯỚNG DẪN CHO AI
-================
-
 Khi hỗ trợ project này:
-
 * Luôn follow architecture hiện tại
 * Giữ code modular
 * Không overengineering
@@ -206,3 +194,9 @@ Khi hỗ trợ project này:
 * Giữ folder structure scalable
 * Giải thích rõ các phần quan trọng
 * Generate code theo hướng production-lite
+
+TRẠNG THÁI HIỆN TẠI
+* Đã setup monorepo
+* Đã tạo client/server
+* Đã thiết kế architecture
+* Đã thiết kế database

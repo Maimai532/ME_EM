@@ -1,9 +1,6 @@
-# music-app
-
-A full-stack music streaming application scaffold.
+# ME_EM
 
 ## Tech Stack
-
 - Frontend: React + Vite, Tailwind CSS, React Router DOM, Axios, Lucide React
 - Backend: Node.js, Express.js, MongoDB (Mongoose), JWT, Multer
 

@@ -1,31 +1,33 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import MainLayout from '../layouts/MainLayout'
-import Admin from '../pages/Admin'
-import Home from '../pages/Home'
-import Library from '../pages/Library'
-import Login from '../pages/Login'
-import Playlist from '../pages/Playlist'
-import Profile from '../pages/Profile'
-import Register from '../pages/Register'
-import Search from '../pages/Search'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function AppRoutes() {
+import AuthLayout from "../layouts/AuthLayout";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import Home from "../pages/Home";
+import Admin from "../pages/Admin";
+import Profile from "../pages/Profile";
+import Playlist from "../pages/Playlist";
+import Library from "../pages/Library";
+
+
+//Muốn truy cập URL nào → phải khai báo Route cho URL đó
+const AppRoutes = () => {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/library" element={<Library />} />
-        <Route path="/playlist/:id" element={<Playlist />} />
-        <Route path="/profile" element={<Profile />} />
-      </Route>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AuthLayout />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/Register" element={<Register />} />
+          <Route path="/Home" element={<Home />} />
+          <Route path="/Admin" element={<Admin />} />
+          <Route path="/Profile" element={<Profile/>} />
+          <Route path="/Playlist" element={<Playlist />} />
+          <Route path="/Library" element={<Library />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/admin" element={<Admin />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
-}
-
-export default AppRoutes
+export default AppRoutes;

@@ -1,0 +1,17 @@
+{
+  "name": "me_em",
+  "version": "1.0.0",
+  "description": "## Tech Stack - Frontend: React + Vite, Tailwind CSS, React Router DOM, Axios, Lucide React - Backend: Node.js, Express.js, MongoDB (Mongoose), JWT, Multer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "antd": "^6.3.7"
+  },
+  "editor.colorDecorators": true
+  
+}

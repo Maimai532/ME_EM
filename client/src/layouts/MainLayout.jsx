@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar'
 import Player from '../components/Player'
 import Sidebar from '../components/Sidebar'
 
+//Lắp ráp giao diện chính của app: Navbar + Sidebar + Player + Outlet
+
 function MainLayout() {
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-slate-950 text-slate-100">
