@@ -1,0 +1,32 @@
+# music-app
+
+A full-stack music streaming application scaffold.
+
+## Tech Stack
+
+- Frontend: React + Vite, Tailwind CSS, React Router DOM, Axios, Lucide React
+- Backend: Node.js, Express.js, MongoDB (Mongoose), JWT, Multer
+
+## Project Structure
+
+- `client/`: frontend app
+- `server/`: backend API
+
+## Run Locally
+
+### Client
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+### Server
+
+```bash
+cd server
+npm install
+npm run dev
+```
+# ME_EM
