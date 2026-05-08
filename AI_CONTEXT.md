@@ -56,10 +56,7 @@ client/src/
 ├── assets/
 ├── components/
 │   ├── ui/
-│   ├── player/
 │   ├── song/
-│   ├── playlist/
-│   └── layout/
 │
 ├── pages/
 ├── layouts/
@@ -73,6 +70,9 @@ client/src/
 │
 ├── App.jsx
 └── main.jsx
+└── main.css
+└── App.css
+
 
 ================
 CẤU TRÚC BACKEND
@@ -194,8 +194,3 @@ Khi hỗ trợ project này:
 * Giải thích rõ các phần quan trọng
 * Generate code theo hướng production-lite
 
-TRẠNG THÁI HIỆN TẠI
-* Đã setup monorepo
-* Đã tạo client/server
-* Đã thiết kế architecture
-* Đã thiết kế database

@@ -49,15 +49,14 @@ const styles = {
     fontSize: "14px",
     maxWidth: "350px",
   },
-
 };
 
-function Navbar({ isOpen, setIsOpen,  onLogout }) {
+function Navbar({ isOpen, setIsOpen, onLogout }) {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const userMenuItems = [
-    { key: "1", label: <Link to="/Profile">Profile</Link> },
-    { key: "2", label: <Link to="/Settings">Settings</Link> },
+    { key: "1", label: <Link to="/profile">Profile</Link> },
+    { key: "2", label: <Link to="/settings">Settings</Link> },
     {
       key: "3",
       label: (
@@ -106,9 +105,12 @@ function Navbar({ isOpen, setIsOpen,  onLogout }) {
     <nav style={getNavStyle(visible)}>
       <header style={styles.navbar}>
         <div className="flex items-center gap-4">
-
-
-          <img src="/logo.png" alt="Logo" style={styles.logo} onClick={() => setIsOpen(!isOpen)} />
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={styles.logo}
+            onClick={() => setIsOpen(!isOpen)}
+          />
         </div>
 
         <nav style={styles.navMenu}>
@@ -135,21 +137,27 @@ function Navbar({ isOpen, setIsOpen,  onLogout }) {
               <Button
                 type="primary"
                 style={styles.greenButton}
-                onClick={() => navigate("/Login")}
+                onClick={() => navigate("/login")}
               >
                 Login
               </Button>
-              <Link to="/Register">
-                <Button type="primary" style={styles.greenButton}>
-                  Register
-                </Button>
-              </Link>
 
-              <Link to="/Admin">
-                <Button type="primary" style={styles.greenButton}>
-                  Admin
-                </Button>
-              </Link>
+              <Button
+                type="primary"
+                style={styles.greenButton}
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </Button>
+              <Button
+                type="primary"
+                style={styles.greenButton}
+                onClick={() => navigate("/admin")}
+              >
+                Admin
+              </Button>
+
+          
             </>
           )}
         </div>

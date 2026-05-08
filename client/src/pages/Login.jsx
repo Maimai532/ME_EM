@@ -3,7 +3,7 @@ import Button from "../components/ui/Button";
 import { useAuth } from "../context/AuthContext";
 
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const styles = {
   box: {
@@ -28,6 +28,7 @@ function Login() {
   useEffect(() => {
     document.title = "Login";
   }, []);
+
   // PHẦN 1: STATE — lưu dữ liệu người dùng nhập
   // useState như "ô nhớ" — React dùng nó để theo dõi
   // dữ liệu thay đổi theo thời gian thực
@@ -42,7 +43,7 @@ function Login() {
     console.log(email, password); //email, password có gtri đc nhập
 
     login(); // ← cập nhật isLoggedIn = true
-    navigate("/Home");
+    navigate("/home");
 
     // Sau này sẽ gọi API ở đây
   };
@@ -83,15 +84,13 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Button type="submit" onClick={handleSubmit}>
-            Đăng nhập
-          </Button>
+          <Button type="submit">Đăng nhập</Button>
 
           <Link
-            to="/Register"
+            to="/register"
             className="text-sm text-blue-400 hover:underline text-center"
           >
-            Chưa có tài khoản? Đăng ký
+            Đăng Ký
           </Link>
         </form>
       </div>

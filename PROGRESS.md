@@ -26,7 +26,11 @@
 * Setup, commmit Git
 * Setup Tailwind CSS
 * Tạo layout cơ bản cho login, singup, Navbar
-* Render có điều kiện(login, navbar)
+* Render có điều kiện (login, navbar)
+* tạo song card, section; ui home,nav,sidebar cơ bản;
+
+
+
 
 ## Đang tập trung
 * JavaScript cơ bản

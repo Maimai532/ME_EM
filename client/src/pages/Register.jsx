@@ -2,6 +2,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 
 import { useState } from 'react'
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 
@@ -56,7 +57,7 @@ function Register() {
           <Button type="submit" >Đăng ký</Button>
 
           <Link
-            to="/Login"
+            to="/login"
             className="text-sm text-blue-400 hover:underline text-center"
           >
             Đã có tài khoản? Đăng nhập

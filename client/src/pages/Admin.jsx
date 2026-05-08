@@ -145,31 +145,31 @@ function Admin() {
           <img src="/logo.png" alt="Logo" style={styles.logo} />
         </div>
         <nav style={styles.navMenu}>
-          <Link to="/Home" style={styles.tag} className="hover:bg-zinc-300">
+          <Link to="/home" style={styles.tag} className="hover:bg-zinc-300">
             Home
           </Link>
           <Link
-            to="/Song_Admin"
+            to="/song-admin"
             style={styles.tag}
             className="hover:bg-zinc-300"
           >
             Song
           </Link>
           <Link
-            to="/Playlist_Admin"
+            to="/playlist-admin"
             style={styles.tag}
             className="hover:bg-zinc-300"
           >
             Playlist
           </Link>
           <Link
-            to="/User_Admin"
+            to="/user-admin"
             style={styles.tag}
             className="hover:bg-zinc-300"
           >
             User
           </Link>
-          <Link to="/Login" style={styles.tag} className="hover:bg-zinc-300">
+          <Link to="/login" style={styles.tag} className="hover:bg-zinc-300">
             Logout
           </Link>
         </nav>

@@ -1,108 +1,66 @@
 import { Link } from "react-router-dom";
 
 const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    zIndex: 998,
-  },
-
   aside: {
-    position: "fixed",
-    top: "64px",
-    left: 0,
-    width: "220px",
-    height: "100vh",
+    width: "150px",
+    minWidth: "150px",
+    height: "calc(100vh - 64px)",
     backgroundColor: "#e3e8ed",
     borderRight: "1px solid #e4e4e7",
     padding: "10px",
-    zIndex: 999,
-
-    transition: "transform 0.3s ease",
+    position: "sticky",
+    top: "64px",
+    alignSelf: "flex-start",
+    transition: "all 0.3s ease",
+    overflow: "hidden",
   },
-
+  asideClosed: {
+    width: "0px",
+    minWidth: "0px",
+    padding: "0px",
+  },
   navMenu: {
     display: "flex",
     flexDirection: "column",
     gap: "5px",
+    width: "160px", // giữ cố định để không bị vỡ khi đóng
   },
-
   tag: {
     width: "100%",
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: "10px",
     padding: "12px 16px",
-    color: "#374151",
+    color: "#18263d",
     textDecoration: "none",
     borderRadius: "5px",
+    whiteSpace: "nowrap",
+  },
+  img: {
+    width: "20px",
+    height: "20px",
+    flexShrink: 0,
   },
 };
 
-function Sidebar({ isOpen, setIsOpen }) {
+function Sidebar({ isOpen }) {
   return (
-    <>
-      {/* nền tối */}
-      {isOpen && (
-        <div
-          style={styles.overlay}
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* sidebar */}
-      <aside
-        style={{
-          ...styles.aside,
-          transform: isOpen
-            ? "translateX(0)"
-            : "translateX(-100%)",
-        }}
-      >
-        <nav style={styles.navMenu}>
-          <Link
-            to="/"
-            style={styles.tag}
-            className="hover:bg-zinc-500"
-          >
-            Home
-          </Link>
-
-          <Link
-            to="/library"
-            style={styles.tag}
-            className="hover:bg-zinc-500"
-          >
-            Library
-          </Link>
-
-          <Link
-            to="/favorite"
-            style={styles.tag}
-            className="hover:bg-zinc-500"
-          >
-            Favorite
-          </Link>
-
-          <Link
-            to="/history"
-            style={styles.tag}
-            className="hover:bg-zinc-500"
-          >
-            History
-          </Link>
-
-          <Link
-            to="/search"
-            style={styles.tag}
-            className="hover:bg-zinc-500"
-          >
-            Search
-          </Link>
-        </nav>
-      </aside>
-    </>
+    <aside style={{ ...styles.aside, ...(isOpen ? {} : styles.asideClosed) }}>
+      <nav style={styles.navMenu}>
+        <Link to="/library" style={styles.tag} className="hover:bg-zinc-300">
+          <img src="/library.png" alt="Library" style={styles.img} />
+          Library
+        </Link>
+        <Link to="/favorite" style={styles.tag} className="hover:bg-zinc-300">
+          <img src="/favorite.png" alt="Favorite" style={styles.img} />
+          Favorite
+        </Link>
+        <Link to="/history" style={styles.tag} className="hover:bg-zinc-300">
+          <img src="/history.png" alt="History" style={styles.img} />
+          History
+        </Link>
+      </nav>
+    </aside>
   );
 }
 

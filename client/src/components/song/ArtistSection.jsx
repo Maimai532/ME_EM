@@ -1,6 +1,5 @@
-// SongSection.jsx
 
-import SongCard from "./SongCard";
+import ArtistCard from "./ArtistCard";
 
 // layout = "scroll" : hàng ngang cuộn
 // layout = "grid"   : lưới nhiều cột
@@ -13,7 +12,7 @@ const styles = {
     padding: "20px",
     overflow: "hidden",
   },
-  song: {
+  artist: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
@@ -21,13 +20,10 @@ const styles = {
   },
   button: {
     fontSize: "14px",
-    color: "#235c98",
-    border: "1px solid #ccc",
-    borderRadius: "10px",
-    padding: "6px 12px",
-    backgroundColor: "white",
+    color: "#007bff",
+    background: "none",
+    border: "none",
     cursor: "pointer",
- 
   },
   title: {
     fontSize: "20px",
@@ -36,8 +32,7 @@ const styles = {
   },
 };
 
-function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
-  //props mặc định: scroll
+function ArtistSection({ title, artist = [], onPlay, layout = "scroll" }) {
 
   const gridStyle = {
     scroll: {
@@ -57,24 +52,24 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
       flexDirection: "column",
       gap: "8px",
       height: "300px",
+      innerWidth: "100%",
       overflowY: "auto",
+      
     },
   };
 
   return (
     <section style={styles.section}>
-      <div style={styles.song}>
+      <div style={styles.artist}>
         <h2 style={styles.title}>{title}</h2>
-        <button style={styles.button} onClick={onPlay}>
-          Phát
-        </button>
+        <button style={styles.button}>Xem tất cả</button>
       </div>
 
       <div style={gridStyle[layout]}>
-        {songs.map((song) => (
-          <SongCard
-            key={song._id}
-            song={song}
+        {artist.map((artist) => (
+          <ArtistCard
+            key={artist._id}
+            artist={artist}
             onPlay={onPlay}
             layout={layout}
           />
@@ -84,4 +79,4 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
   );
 }
 
-export default SongSection;
+export default ArtistSection;
