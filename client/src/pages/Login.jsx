@@ -1,9 +1,9 @@
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import { useAuth } from "../context/AuthContext";
 
-import { Link,useNavigate } from "react-router-dom";
-import { useState } from 'react'
-
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const styles = {
   box: {
@@ -13,41 +13,39 @@ const styles = {
     width: "100%",
     maxWidth: "400px",
     border: "1px solid #4e4e95",
-   
   },
   Title: {
     color: "white",
     fontSize: "1.5rem",
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: "1.5rem"
-  }
+    marginBottom: "1.5rem",
+  },
 };
 
 function Login() {
-
+  //title page
+  useEffect(() => {
+    document.title = "Login";
+  }, []);
   // PHẦN 1: STATE — lưu dữ liệu người dùng nhập
   // useState như "ô nhớ" — React dùng nó để theo dõi
   // dữ liệu thay đổi theo thời gian thực
 
-  const [email, setEmail] = useState('')
-  //     ↑ đọc    ↑ ghi      ↑ giá trị ban đầu
-  const [password, setPassword] = useState('')
-
-  // PHẦN 2: HANDLER — xử lý khi bấm nút Login
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const handleSubmit = (e) => {
+    e.preventDefault(); // ← ngăn trình duyệt reload trang (quan trọng!)
+    console.log(email, password); //email, password có gtri đc nhập
 
+    login(); // ← cập nhật isLoggedIn = true
     navigate("/Home");
-    e.preventDefault()  // ← ngăn trình duyệt reload trang (quan trọng!)
-
-    // Lúc này email và password đã có giá trị người dùng nhập
-    console.log(email, password)
 
     // Sau này sẽ gọi API ở đây
   };
-
 
   // PHẦN 3: JSX — giao diện hiển thị ra màn hình
   return (
@@ -57,23 +55,23 @@ function Login() {
     // Phải có flex thì items-center và justify-center mới có tác dụng.
 
     <div className="min-h-screen bg-black flex items-center justify-center">
-
       <div style={styles.box}>
-
         {/* Tiêu đề */}
-        <h1 className="text-white text-2xl font-bold text-center mb-6" style={styles.Title}>
+        <h1
+          className="text-white text-2xl font-bold text-center mb-6"
+          style={styles.Title}
+        >
           Đăng nhập
         </h1>
 
         {/* Form — onSubmit gọi handler khi bấm nút */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
           {/* Input email — onChange cập nhật state mỗi lần gõ */}
           <Input
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)} 
+            onChange={(e) => setEmail(e.target.value)}
             //         ↑                    ↑
             //  event object         giá trị ô input
           />
@@ -89,19 +87,16 @@ function Login() {
             Đăng nhập
           </Button>
 
-
           <Link
             to="/Register"
             className="text-sm text-blue-400 hover:underline text-center"
           >
             Chưa có tài khoản? Đăng ký
           </Link>
-
-
         </form>
       </div>
     </div>
   );
 }
 
-export default Login //Cho phép file khác import file
+export default Login; //Cho phép file khác import file

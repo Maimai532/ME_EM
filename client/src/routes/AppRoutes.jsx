@@ -7,7 +7,9 @@ import Home from "../pages/Home";
 import Admin from "../pages/Admin";
 import Profile from "../pages/Profile";
 import Playlist from "../pages/Playlist";
-import Library from "../pages/Library";
+import Playlist_Admin from "../pages/Playlist_Admin";
+import Song_Admin from "../pages/Song_Admin";
+import User_Admin from "../pages/User_Admin";
 
 
 //Muốn truy cập URL nào → phải khai báo Route cho URL đó
@@ -23,7 +25,9 @@ const AppRoutes = () => {
           <Route path="/Admin" element={<Admin />} />
           <Route path="/Profile" element={<Profile/>} />
           <Route path="/Playlist" element={<Playlist />} />
-          <Route path="/Library" element={<Library />} />
+          <Route path="/Playlist_Admin" element={<Playlist_Admin />} />
+          <Route path="/Song_Admin" element={<Song_Admin />} />
+          <Route path="/User_Admin" element={<User_Admin />} />
         </Route>
       </Routes>
     </BrowserRouter>

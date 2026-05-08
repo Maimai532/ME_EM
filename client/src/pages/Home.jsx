@@ -1,32 +1,147 @@
-import Input from "../components/ui/Input";
-import Button from "../components/ui/Button";
+import { useEffect } from "react";
+
 import Navbar from "../components/ui/Navbar";
+import Sidebar from "../components/ui/Sidebar";
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
-import { Link,useNavigate } from "react-router-dom";
-import { useState } from 'react'
+import SongSection from "../components/song/SongSection";
+// Mock data tạm — sau này thay bằng useEffect + axios
 
-
+const mockSongs = [
+  {
+    _id: "1",
+    title: "Chạy Ngay Đi",
+    artist: "Sơn Tùng M-TP",
+    imageUrl: "https://picsum.photos/seed/s1/200/200",
+  },
+  {
+    _id: "2",
+    title: "Hoa Nở Không Màu",
+    artist: "Hoài Lâm",
+    imageUrl: "https://picsum.photos/seed/s2/200/200",
+  },
+  {
+    _id: "3",
+    title: "Người Lạ Ơi",
+    artist: "Karik ft Orange",
+    imageUrl: "https://picsum.photos/seed/s3/200/200",
+  },
+  {
+    _id: "4",
+    title: "Đừng Làm Trái Tim Anh Đau",
+    artist: "Sơn Tùng M-TP",
+    imageUrl: "https://picsum.photos/seed/s4/200/200",
+  },
+  {
+    _id: "5",
+    title: "Có Chắc Yêu Là Đây",
+    artist: "Sơn Tùng M-TP",
+    imageUrl: "https://picsum.photos/seed/s5/200/200",
+  },
+  {
+    _id: "6",
+    title: "Waiting For You",
+    artist: "MONO",
+    imageUrl: "https://picsum.photos/seed/s6/200/200",
+  },
+  {
+    _id: "7",
+    title: "Em Gái Mưa",
+    artist: "Hương Tràm",
+    imageUrl: "https://picsum.photos/seed/s7/200/200",
+  },
+  {
+    _id: "8",
+    title: "Bạc Phận",
+    artist: "Jack ft K-ICM",
+    imageUrl: "https://picsum.photos/seed/s8/200/200",
+  },
+  {
+    _id: "9",
+    title: "Muộn Rồi Mà Sao Còn",
+    artist: "Sơn Tùng M-TP",
+    imageUrl: "https://picsum.photos/seed/s9/200/200",
+  },
+  {
+    _id: "10",
+    title: "Thích Em Hơi Nhiều",
+    artist: "Wren Evans",
+    imageUrl: "https://picsum.photos/seed/s10/200/200",
+  },
+  {
+    _id: "11",
+    title: "Lạ Lùng",
+    artist: "Vũ",
+    imageUrl: "https://picsum.photos/seed/s11/200/200",
+  },
+];
+const styles = {
+  content: {
+    padding: "20px",
+    minWidth: 0, //content div để nó không tràn qua Sidebar
+    overflow: "hidden",
+  },
+};
 function Home() {
-  return(
-    <div className="min-h-screen bg-white w-full">
+  const [isOpen, setIsOpen] = useState(true);
+  const { isLoggedIn, logout } = useAuth();
 
-      <Navbar className="w-full" />
+  //title page
+  useEffect(() => {
+    document.title = "Home";
+  }, []);
 
-      
-      <div className="p-4">  
-        <h1 className="text-2xl font-semibold text-green-800">Home Page</h1>
+  function handlePlay(song) {
+    console.log("Phát bài:", song.title);
+    // TODO: gọi playerContext.playSong(song) sau
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-white ">
+      <Navbar
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        isLoggedIn={isLoggedIn}
+        onLogout={logout}
+      />
+
+      <div style={{ paddingTop: "64px" }}>
+        <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+
+        <div style={styles.content}>
+          <h1 className="text-2xl font-semibold text-blue-900 ">
+            Nghe nhạc bằng cả tính mạng
+          </h1>
+
+          <SongSection
+            layout="scroll"
+            title="🔥 Trending"
+            songs={mockSongs}
+            onPlay={handlePlay}
+          />
+          <SongSection
+            layout="grid"
+            title="🎵 Mới phát hành"
+            songs={mockSongs}
+            onPlay={handlePlay}
+          />
+          <SongSection
+            layout="list"
+            title="Danh sách phát gần đây"
+            songs={mockSongs}
+            onPlay={handlePlay}
+          />
+        </div>
       </div>
 
-        {/* <main>
-          <Sidebar />
-          <Content />
-        </main>
-
-        <Player /> */}
-
-
+      <footer className="w-full text-center p-4 bg-gray-200">
+        <p className="text-sm text-gray-600">
+          &copy; 2024 me_em. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }
 
-export default Home
+export default Home;

@@ -1,13 +1,22 @@
-import { createContext, useMemo, useState } from 'react'
+//Bọc toàn bộ web
 
-export const AuthContext = createContext(null)
+import { createContext, useContext, useState } from "react";
 
-function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+const AuthContext = createContext(null);
 
-  const value = useMemo(() => ({ user, setUser }), [user])
+export function AuthProvider({ children }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  const login = () => setIsLoggedIn(true);
+  const logout = () => setIsLoggedIn(false);
+
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export default AuthProvider
+export function useAuth() {
+  return useContext(AuthContext);
+}

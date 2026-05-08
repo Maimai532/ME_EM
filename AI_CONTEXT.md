@@ -115,9 +115,8 @@ USER:
 * Xoá tài khoản
 
 ADMIN:
-* Thêm / sửa / xoá nhạc
+* Thêm / sửa / xoá nhạc 
 * Quản lý playlist
-* Quản lý nhạc trending / mới
 * Quản lý người dùng
 
 =================
@@ -131,9 +130,9 @@ Collections:
 * histories
 
 Quan hệ chính:
-* User likedSongs[]
-* User playlists[]
-* Playlist songs[]
+* User likedSongs
+* User playlists
+* Playlist songs
 * History liên kết User + Song
 
 MongoDB CHỈ lưu:

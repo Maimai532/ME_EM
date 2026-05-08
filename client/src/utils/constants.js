@@ -1,1 +1,1 @@
-export const APP_NAME = 'Music App'
+export const APP_NAME = 'me_em'

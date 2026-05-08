@@ -18,3 +18,5 @@ client/src/
 
 Flow: index.html -> main.jsx -> App.jsx -> AppRoutes -> Pages
 
+// inline style ưu tiên cao hơn Tailwind
+

@@ -7,6 +7,10 @@ import { Link } from "react-router-dom";
 
 
 function Register() {
+    //title page
+    useEffect(() => {
+      document.title = "Register";
+    }, []);
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')

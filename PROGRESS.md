@@ -19,16 +19,16 @@
 * Chưa vững React/backend/database
 
 ## Đã làm
-* [] Setup project structure
-* [] Tạo client/server
-* [] Setup Vite
-* [✔] Setup Express server
-* [✔] Thiết kế architecture
-* [✔] Thiết kế database cơ bản
-* [✔] Setup Git/GitHub
+* Setup project structure
+* Tạo client/server
+* Setup Vite
+* Thiết kế architecture
+* Setup, commmit Git
+* Setup Tailwind CSS
+* Tạo layout cơ bản cho login, singup, Navbar
+* Render có điều kiện(login, navbar)
 
 ## Đang tập trung
-
 * JavaScript cơ bản
 * UI layout
 * DOM manipulation
@@ -36,7 +36,6 @@
 * Học Git workflow
 
 ## Cần học thêm
-
 * DOM
 * Array methods
 * Async/Await
@@ -47,7 +46,6 @@
 * Git branch/commit workflow
 
 ## Git Workflow
-
 * Commit sau mỗi task nhỏ
 * Commit message rõ ràng
 * Push code thường xuyên lên GitHub
@@ -60,14 +58,10 @@
 * Không overengineering
 
 ## Task tiếp theo
-* [ ] Setup Tailwind CSS
-* [ ] Tạo layout cơ bản
-* [ ] Build Sidebar
-* [ ] Build Navbar
-* [ ] Build Music Player UI
-* [ ] Play/Pause bằng JavaScript
 
-## Last Updated
-2026-05-07
+* Build Sidebar, home, profile
+<!-- * Build Music Player UI
+* Play/Pause bằng JavaScript -->
+
 
 
