@@ -29,16 +29,49 @@ export const createSong = async (req, res) => {
   try {
     const { title, artist, album, genre, duration } = req.body;
 
-    // Lấy URL: ưu tiên file upload, nếu không có thì dùng URL nhập tay
-    const audioUrl = req.files?.audio?.[0]?.path || req.body.audioUrl;
-    const imageUrl = req.files?.image?.[0]?.path || req.body.imageUrl;
+    const audioFile = req.files?.audio?.[0];
+    const imageFile = req.files?.image?.[0];
+
+    // multer-storage-cloudinary trả URL trong path.
+    const audioUrl =
+      audioFile?.path ||
+      audioFile?.secure_url ||
+      audioFile?.url ||
+      req.body.audioUrl;
+    const imageUrl =
+      imageFile?.path ||
+      imageFile?.secure_url ||
+      imageFile?.url ||
+      req.body.imageUrl;
 
     // Xác định nguồn upload
-    const sourceType = req.files?.audio ? "upload" : "url";
+    const sourceType = audioFile ? "upload" : "url";
 
     if (!audioUrl) {
       return res.status(400).json({ success: false, message: "Cần có audio (file hoặc URL)" });
     }
+
+    if (!title || !artist) {
+      return res.status(400).json({ success: false, message: "Thiếu trường bắt buộc: title/artist" });
+    }
+
+    // Debug upload pipeline: body + files sau khi qua multer
+    console.log("[createSong] body:", req.body);
+    console.log(
+      "[createSong] files:",
+      Object.fromEntries(
+        Object.entries(req.files || {}).map(([key, files]) => [
+          key,
+          files.map((f) => ({
+            mimetype: f.mimetype,
+            path: f.path,
+            secure_url: f.secure_url,
+            url: f.url,
+            originalname: f.originalname,
+          })),
+        ])
+      )
+    );
 
     const song = await Song.create({
       title,
@@ -70,6 +103,17 @@ export const updateSong = async (req, res) => {
     if (req.files?.image?.[0]) {
       updateData.imageUrl = req.files.image[0].path;
     }
+
+    console.log("[updateSong] body:", req.body);
+    console.log(
+      "[updateSong] files:",
+      Object.fromEntries(
+        Object.entries(req.files || {}).map(([key, files]) => [
+          key,
+          files.map((f) => ({ mimetype: f.mimetype, path: f.path })),
+        ])
+      )
+    );
 
     const song = await Song.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!song)

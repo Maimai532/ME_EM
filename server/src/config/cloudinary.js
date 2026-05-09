@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
-import dotenv from "dotenv";
+
 // Kết nối với Cloudinary bằng thông tin trong .env
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,28 +9,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cấu hình nơi lưu file audio
-const audioStorage = new CloudinaryStorage({
+// Dùng 1 middleware duy nhất cho multipart/form-data để tránh đọc stream 2 lần.
+const songMediaStorage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "me_em/audio",        // tên folder trên Cloudinary
-    resource_type: "video",       // audio phải dùng "video" — Cloudinary quy định vậy
-    allowed_formats: ["mp3", "wav", "ogg", "m4a"],
+  params: (req, file) => {
+    if (file.fieldname === "audio") {
+      return {
+        folder: "me_em/audio",
+        resource_type: "video", // audio trên Cloudinary phải dùng resource_type=video
+      };
+    }
+
+    return {
+      folder: "me_em/images",
+      resource_type: "image",
+    };
   },
 });
 
-// Cấu hình nơi lưu ảnh bìa
-const imageStorage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "me_em/images",
-    resource_type: "image",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-  },
-});
-
-// Tạo 2 middleware upload riêng biệt
-export const uploadAudio = multer({ storage: audioStorage });
-export const uploadImage = multer({ storage: imageStorage });
+export const uploadSongMedia = multer({ storage: songMediaStorage });
 
 export default cloudinary;

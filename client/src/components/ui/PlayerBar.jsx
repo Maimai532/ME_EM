@@ -40,7 +40,7 @@ export default function PlayerBar() {
       <div className="player-bar__song">
         <Link to={`/player/${currentSong._id}`}>
           <img
-            src={currentSong.imageUrl}
+            src={currentSong.imageUrl || "/placeholder.jpg"}
             alt={currentSong.title}
             className="player-bar__thumb"
           />

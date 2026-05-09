@@ -32,6 +32,11 @@ const songSchema = new mongoose.Schema(
       type: String,
       default: "", // link ảnh bìa
     },
+    sourceType: {
+      type: String,
+      enum: ["url", "upload"],
+      default: "url",
+    },
     plays: {
       type: Number,
       default: 0, // đếm lượt nghe

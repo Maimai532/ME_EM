@@ -59,6 +59,15 @@ const styles = {
     borderRadius: "6px",
     backgroundColor: "#e5e7eb",
   },
+  preview: {
+    width: "120px",
+    height: "120px",
+    objectFit: "cover",
+    borderRadius: "8px",
+    marginTop: "10px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "#f3f4f6",
+  },
   overlay: {
     position: "fixed",
     inset: 0,
@@ -132,15 +141,55 @@ const emptyForm = {
   sourceType: "url",
 };
 
+function normalizeSongForm(input = {}) {
+  return {
+    title: input.title ?? "",
+    artist: input.artist ?? "",
+    album: input.album ?? "",
+    genre: input.genre ?? "",
+    duration: input.duration ?? "",
+    audioUrl: input.audioUrl ?? "",
+    imageUrl: input.imageUrl ?? "",
+    sourceType: input.sourceType ?? "url",
+    _id: input._id,
+  };
+}
+
 function SongModal({ song, onClose, onSaved, token }) {
-  const isEdit = !!song._id;
-  const [form, setForm] = useState({ ...emptyForm, ...song });
+  const safeSong = normalizeSongForm({ ...emptyForm, ...(song || {}) });
+  const isEdit = !!safeSong._id;
+  const [form, setForm] = useState(safeSong);
   const [audioFile, setAudioFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(safeSong.imageUrl || "");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview(form.imageUrl || "");
+      return undefined;
+    }
+
+    const previewUrl = URL.createObjectURL(imageFile);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [imageFile, form.imageUrl]);
+
   function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "sourceType") {
+      if (value === "url") {
+        setAudioFile(null);
+      }
+      setForm((prev) => ({
+        ...prev,
+        sourceType: value,
+        audioUrl: value === "upload" ? "" : prev.audioUrl,
+      }));
+      return;
+    }
+    setForm((prev) => ({ ...prev, [name]: value ?? "" }));
   }
 
   async function handleSubmit() {
@@ -149,29 +198,53 @@ function SongModal({ song, onClose, onSaved, token }) {
       const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
       if (audioFile || imageFile) {
+        if (!audioFile && !(form.audioUrl || "").trim()) {
+          alert("Vui lòng chọn file audio hoặc nhập audio URL");
+          setLoading(false);
+          return;
+        }
+
         const fd = new FormData();
-        Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+        Object.entries(form).forEach(([k, v]) => {
+          if (v !== undefined && v !== null) {
+            fd.append(k, v);
+          }
+        });
         if (audioFile) fd.append("audio", audioFile);
         if (imageFile) fd.append("image", imageFile);
+        // Debug payload multipart gửi từ frontend
+        console.log("[SongModal] FormData entries:");
+        for (const [k, v] of fd.entries()) {
+          console.log(" -", k, v);
+        }
 
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         };
         isEdit
-          ? await axios.put(`${API_URL}/songs/${song._id}`, fd, config)
+          ? await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config)
           : await axios.post(`${API_URL}/songs`, fd, config);
       } else {
+        if (!(form.audioUrl || "").trim()) {
+          alert("Vui lòng nhập audio URL hoặc chọn upload file");
+          setLoading(false);
+          return;
+        }
+
+        console.log("[SongModal] JSON payload:", form);
         isEdit
-          ? await axios.put(`${API_URL}/songs/${song._id}`, form, authHeader)
+          ? await axios.put(`${API_URL}/songs/${safeSong._id}`, form, authHeader)
           : await axios.post(`${API_URL}/songs`, form, authHeader);
       }
 
       onSaved();
       onClose();
     } catch (err) {
+      console.log("[SongModal] submit error raw:", err);
+      console.log("[SongModal] submit error data:", err.response?.data);
+      console.log("[SongModal] submit error message:", err.response?.data?.message || err.message);
       alert(err.response?.data?.message || "Có lỗi xảy ra");
     } finally {
       setLoading(false);
@@ -189,7 +262,7 @@ function SongModal({ song, onClose, onSaved, token }) {
         <input
           style={styles.input}
           name="title"
-          value={form.title}
+          value={form.title || ""}
           onChange={handleChange}
           placeholder="VD: Chạy Ngay Đi"
         />
@@ -198,7 +271,7 @@ function SongModal({ song, onClose, onSaved, token }) {
         <input
           style={styles.input}
           name="artist"
-          value={form.artist}
+          value={form.artist || ""}
           onChange={handleChange}
           placeholder="VD: Sơn Tùng M-TP"
         />
@@ -207,7 +280,7 @@ function SongModal({ song, onClose, onSaved, token }) {
         <input
           style={styles.input}
           name="album"
-          value={form.album}
+          value={form.album || ""}
           onChange={handleChange}
         />
 
@@ -215,7 +288,7 @@ function SongModal({ song, onClose, onSaved, token }) {
         <input
           style={styles.input}
           name="genre"
-          value={form.genre}
+          value={form.genre || ""}
           onChange={handleChange}
           placeholder="VD: Pop, Ballad..."
         />
@@ -225,7 +298,7 @@ function SongModal({ song, onClose, onSaved, token }) {
           style={styles.input}
           name="duration"
           type="number"
-          value={form.duration}
+          value={form.duration ?? ""}
           onChange={handleChange}
           placeholder="VD: 213"
         />
@@ -237,7 +310,7 @@ function SongModal({ song, onClose, onSaved, token }) {
               type="radio"
               name="sourceType"
               value="url"
-              checked={form.sourceType === "url"}
+              checked={(form.sourceType || "url") === "url"}
               onChange={handleChange}
             />{" "}
             Dán link URL
@@ -247,18 +320,18 @@ function SongModal({ song, onClose, onSaved, token }) {
               type="radio"
               name="sourceType"
               value="upload"
-              checked={form.sourceType === "upload"}
+              checked={(form.sourceType || "url") === "upload"}
               onChange={handleChange}
             />{" "}
             Upload file
           </label>
         </div>
 
-        {form.sourceType === "url" ? (
+        {(form.sourceType || "url") === "url" ? (
           <input
             style={{ ...styles.input, marginTop: "8px" }}
             name="audioUrl"
-            value={form.audioUrl}
+            value={form.audioUrl || ""}
             onChange={handleChange}
             placeholder="https://..."
           />
@@ -267,7 +340,13 @@ function SongModal({ song, onClose, onSaved, token }) {
             style={{ ...styles.input, marginTop: "8px" }}
             type="file"
             accept="audio/*"
-            onChange={(e) => setAudioFile(e.target.files[0])}
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setAudioFile(file);
+            if (file) {
+              setForm((prev) => ({ ...prev, sourceType: "upload", audioUrl: "" }));
+            }
+          }}
           />
         )}
 
@@ -275,7 +354,7 @@ function SongModal({ song, onClose, onSaved, token }) {
         <input
           style={styles.input}
           name="imageUrl"
-          value={form.imageUrl}
+          value={form.imageUrl || ""}
           onChange={handleChange}
           placeholder="https://... (hoặc để trống)"
         />
@@ -283,8 +362,17 @@ function SongModal({ song, onClose, onSaved, token }) {
           style={{ ...styles.input, marginTop: "6px" }}
           type="file"
           accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setImageFile(file);
+            if (file) {
+              setForm((prev) => ({ ...prev, imageUrl: "" }));
+            }
+          }}
         />
+        {imagePreview ? (
+          <img src={imagePreview} alt="Xem trước ảnh bìa" style={styles.preview} />
+        ) : null}
 
         <div style={styles.modalFooter}>
           <button style={styles.btnCancel} onClick={onClose}>
@@ -455,6 +543,7 @@ function Song_Admin() {
 
       {modal && (
         <SongModal
+          key={modal?._id || "new-song"}
           song={modal}
           token={token}
           onClose={() => setModal(null)}

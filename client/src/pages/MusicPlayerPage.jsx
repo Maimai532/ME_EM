@@ -68,7 +68,7 @@ export default function MusicPlayerPage() {
       <div className="player-page__left">
         <div className="player-page__cover-wrap">
           <img
-            src={song.imageUrl}
+            src={song.imageUrl || "/placeholder.jpg"}
             alt={song.title}
             className={`player-page__cover ${isPlaying ? "spinning" : ""}`}
           />
@@ -153,7 +153,7 @@ export default function MusicPlayerPage() {
                   navigate(`/player/${s._id}`);
                 }}
               >
-                <img src={s.imageUrl} alt={s.title} className="queue-item__thumb" />
+                <img src={s.imageUrl || "/placeholder.jpg"} alt={s.title} className="queue-item__thumb" />
                 <div className="queue-item__info">
                   <p className="queue-item__title">{s.title}</p>
                   <p className="queue-item__artist">{s.artist}</p>
