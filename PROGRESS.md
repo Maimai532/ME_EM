@@ -29,6 +29,8 @@
 * Render có điều kiện (login, navbar)
 * tạo song card, section; ui home,nav,sidebar cơ bản;
 
+* Auth API, User API, crud user
+
 
 
 

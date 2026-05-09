@@ -4,3 +4,8 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.box {
+  color: #ff0000;
+  background: rgb(0,255,0);
+}

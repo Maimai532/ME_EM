@@ -151,6 +151,7 @@ Frontend:
 * Component phải reusable
 * Pages phải gọn
 * Logic nên tách vào services/hooks
+* Ưu tiên dùng css hơn tailwind
 
 Backend:
 * Theo mô hình MVC

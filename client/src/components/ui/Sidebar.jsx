@@ -59,6 +59,7 @@ function Sidebar({ isOpen }) {
           <img src="/history.png" alt="History" style={styles.img} />
           History
         </Link>
+
       </nav>
     </aside>
   );

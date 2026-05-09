@@ -7,7 +7,6 @@ import { useAuth } from "../context/AuthContext";
 
 import SongSection from "../components/song/SongSection";
 import ArtistSection from "../components/song/ArtistSection";
-// Mock data tạm — sau này thay bằng useEffect + axios
 
 const mockSongs = [
   {

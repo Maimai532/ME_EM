@@ -11,7 +11,5 @@
   "license": "ISC",
   "dependencies": {
     "antd": "^6.3.7"
-  },
-  "editor.colorDecorators": true
-  
+  }
 }

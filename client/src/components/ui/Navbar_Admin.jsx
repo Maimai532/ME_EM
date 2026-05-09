@@ -10,7 +10,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "16px 60px",
+    padding: "16px 24px",
     backgroundColor: "white",
     borderBottom: "1px solid #e4e4e7",
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
@@ -47,11 +47,11 @@ const styles = {
     border: "1px solid #e4e4e7",
     outline: "none",
     fontSize: "14px",
-    width: "450px",
+    maxWidth: "350px",
   },
 };
 
-function Navbar({ isOpen, setIsOpen, onLogout }) {
+function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const userMenuItems = [
@@ -149,6 +149,14 @@ function Navbar({ isOpen, setIsOpen, onLogout }) {
               >
                 Register
               </Button>
+              <Button
+                type="primary"
+                style={styles.greenButton}
+                onClick={() => navigate("/admin")}
+              >
+                Admin
+              </Button>
+
           
             </>
           )}
@@ -158,4 +166,4 @@ function Navbar({ isOpen, setIsOpen, onLogout }) {
   );
 }
 
-export default Navbar;
+export default Navbar_Admin;
