@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-.box {
-  color: #ff0000;
-  background: rgb(0,255,0);
+body {
+  padding-top: 65px;
+  background-color: black;
 }

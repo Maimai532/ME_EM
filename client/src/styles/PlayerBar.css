@@ -1,0 +1,189 @@
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 72px;
+  background-color: #1a1a2e;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+  
+}
+
+/* Bài đang phát */
+.player-bar__song {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 25%;
+  min-width: 0;
+}
+
+.player-bar__thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.player-bar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.player-bar__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-bar__title:hover {
+  text-decoration: underline;
+}
+
+.player-bar__artist {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Center - controls + progress */
+.player-bar__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.player-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.player-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  padding: 4px;
+}
+
+.player-btn:hover {
+  color: white;
+}
+
+.player-btn.active {
+  color: #4ade80;
+}
+
+.player-btn--play {
+  width: 36px;
+  height: 36px;
+  background: white;
+  color: #1a1a2e;
+  border-radius: 50%;
+}
+
+.player-btn--play:hover {
+  transform: scale(1.05);
+  color: #1a1a2e;
+}
+
+/* Progress */
+.player-bar__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.player-bar__time {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 36px;
+  text-align: center;
+}
+
+.player-bar__seek {
+  flex: 1;
+  height: 4px;
+  accent-color: white;
+  cursor: pointer;
+}
+
+/* Volume */
+.player-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 25%;
+  justify-content: flex-end;
+}
+
+.player-bar__volume {
+  width: 80px;
+  height: 4px;
+  accent-color: white;
+  cursor: pointer;
+}
+
+
+/* Full width đã có rồi vì left:0 right:0 */
+
+/* Nút ẩn/hiện */
+.player-bar__toggle {
+  position: fixed;
+  bottom: 80px; /* ngay trên playerbar */
+  right: 10px;
+  z-index: 1001;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+/* hide/show */
+.player-bar__toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Khi ẩn playerbar thì nút xuống dưới cùng */
+.player-bar__toggle--hidden {
+  bottom: 16px;
+}
+
+/* Ẩn playerbar */
+.player-bar--hidden {
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.player-bar {
+  transition: transform 0.3s ease;
+}

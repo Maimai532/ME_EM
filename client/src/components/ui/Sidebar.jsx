@@ -4,15 +4,16 @@ const styles = {
   aside: {
     width: "150px",
     minWidth: "150px",
-    height: "calc(100vh - 64px)",
+    height: "calc(100vh - 65px)",
     backgroundColor: "#e3e8ed",
     borderRight: "1px solid #e4e4e7",
     padding: "10px",
     position: "sticky",
-    top: "64px",
+    top: "65px",
     alignSelf: "flex-start",
     transition: "all 0.3s ease",
     overflow: "hidden",
+   
   },
   asideClosed: {
     width: "0px",

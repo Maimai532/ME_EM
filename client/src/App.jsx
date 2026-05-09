@@ -1,3 +1,4 @@
+// App.jsx - bỏ import và <PlayerBar /> đi
 import AppRoutes from "./routes/AppRoutes";
 import { PlayerProvider } from "./context/PlayerContext";
 import "./styles/player.css";

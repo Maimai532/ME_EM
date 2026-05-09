@@ -107,7 +107,7 @@ function Home() {
         onLogout={logout}
       />
 
-      <div style={{ paddingTop: "64px" }}>
+      <div style={styles.page}>
         <div style={{ display: "flex", alignItems: "flex-start" }}>
           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
@@ -129,11 +129,6 @@ function Home() {
               ))
             )}
 
-            <ArtistSection
-              layout="scroll"
-              title="Nghệ sĩ nổi bật"
-              artist={mockArtists}
-            />
           </div>
         </div>
       </div>
