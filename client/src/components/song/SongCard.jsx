@@ -1,5 +1,7 @@
 import { Play, Heart } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { usePlayer } from "../../context/PlayerContext";
 
 const scrollStyles = {
   card: {
@@ -175,11 +177,24 @@ const listStyles = {
   },
 };
 
-function SongCard({ song, onPlay, layout = "scroll" }) {
+function SongCard({ song, songList = [], layout = "scroll" }) {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
+  const { playSong } = usePlayer();
 
   if (!song) return null;
+
+  function handlePlay(e) {
+    e?.stopPropagation();
+    playSong(song, songList);
+    navigate(`/player/${song._id}`);
+  }
+
+  function handleLike(e) {
+    e.stopPropagation();
+    setLiked(!liked);
+  }
 
   if (layout === "scroll") {
     const s = scrollStyles;
@@ -188,22 +203,21 @@ function SongCard({ song, onPlay, layout = "scroll" }) {
         style={s.card}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onClick={handlePlay}
       >
         <div style={s.coverWrap}>
           <img src={song.imageUrl || "/placeholder.jpg"} alt={song.title} style={s.img} />
           {hovered && (
-            <button style={s.playBtn} onClick={() => onPlay && onPlay(song)}>
+            <button style={s.playBtn} onClick={handlePlay}>
               <Play size={18} fill="black" color="black" />
             </button>
           )}
         </div>
-
         <div style={s.info}>
           <p style={s.title} title={song.title}>{song.title}</p>
           <p style={s.artist}>{song.artist}</p>
         </div>
-
-        <button style={s.likeBtn} onClick={() => setLiked(!liked)}>
+        <button style={s.likeBtn} onClick={handleLike}>
           <Heart size={16} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
         </button>
       </div>
@@ -217,7 +231,7 @@ function SongCard({ song, onPlay, layout = "scroll" }) {
         style={s.card}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => onPlay && onPlay(song)}
+        onClick={handlePlay}
       >
         <div style={s.coverWrap}>
           <img src={song.imageUrl || "/placeholder.jpg"} alt={song.title} style={s.img} />
@@ -227,13 +241,11 @@ function SongCard({ song, onPlay, layout = "scroll" }) {
             </div>
           )}
         </div>
-
         <div style={s.info}>
           <p style={s.title}>{song.title}</p>
           <p style={s.artist}>{song.artist}</p>
         </div>
-
-        <button style={s.likeBtn} onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}>
+        <button style={s.likeBtn} onClick={handleLike}>
           <Heart size={14} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
         </button>
       </div>
@@ -247,7 +259,7 @@ function SongCard({ song, onPlay, layout = "scroll" }) {
         style={s.card}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={() => onPlay && onPlay(song)}
+        onClick={handlePlay}
       >
         <div style={s.coverWrap}>
           <img src={song.imageUrl || "/placeholder.jpg"} alt={song.title} style={s.img} />
@@ -257,15 +269,13 @@ function SongCard({ song, onPlay, layout = "scroll" }) {
             </div>
           )}
         </div>
-
         <div style={s.info}>
           <p style={s.title}>{song.title}</p>
           <p style={s.artist}>{song.artist}</p>
         </div>
-
         <button
           style={{ ...s.likeBtn, opacity: hovered ? 1 : 0 }}
-          onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
+          onClick={handleLike}
         >
           <Heart size={13} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
         </button>

@@ -9,96 +9,6 @@ import useSections from "../hooks/useSections";
 import SongSection from "../components/song/SongSection";
 import ArtistSection from "../components/song/ArtistSection";
 
-const mockSongs = [
-  {
-    _id: "1",
-    title: "Chạy Ngay Đi",
-    artist: "Sơn Tùng M-TP",
-    imageUrl: "https://picsum.photos/seed/s1/200/200",
-  },
-  {
-    _id: "2",
-    title: "Hoa Nở Không Màu",
-    artist: "Hoài Lâm",
-    imageUrl: "https://picsum.photos/seed/s2/200/200",
-  },
-  {
-    _id: "3",
-    title: "Người Lạ Ơi",
-    artist: "Karik ft Orange",
-    imageUrl: "https://picsum.photos/seed/s3/200/200",
-  },
-  {
-    _id: "4",
-    title: "Đừng Làm Trái Tim Anh Đau",
-    artist: "Sơn Tùng M-TP",
-    imageUrl: "https://picsum.photos/seed/s4/200/200",
-  },
-  {
-    _id: "5",
-    title: "Có Chắc Yêu Là Đây",
-    artist: "Sơn Tùng M-TP",
-    imageUrl: "https://picsum.photos/seed/s5/200/200",
-  },
-  {
-    _id: "6",
-    title: "Waiting For You",
-    artist: "MONO",
-    imageUrl: "https://picsum.photos/seed/s6/200/200",
-  },
-  {
-    _id: "7",
-    title: "Em Gái Mưa",
-    artist: "Hương Tràm",
-    imageUrl: "https://picsum.photos/seed/s7/200/200",
-  },
-  {
-    _id: "8",
-    title: "Bạc Phận",
-    artist: "Jack ft K-ICM",
-    imageUrl: "https://picsum.photos/seed/s8/200/200",
-  },
-  {
-    _id: "9",
-    title: "Muộn Rồi Mà Sao Còn",
-    artist: "Sơn Tùng M-TP",
-    imageUrl: "https://picsum.photos/seed/s9/200/200",
-  },
-  {
-    _id: "10",
-    title: "Thích Em Hơi Nhiều",
-    artist: "Wren Evans",
-    imageUrl: "https://picsum.photos/seed/s10/200/200",
-  },
-  {
-    _id: "11",
-    title: "Lạ Lùng",
-    artist: "Vũ",
-    imageUrl: "https://picsum.photos/seed/s11/200/200",
-  },
-];
-
-const mockSections = [
-  {
-    _id: "sec1",
-    name: "Xu hướng",
-    layout: "scroll",
-    songs: mockSongs.slice(0, 6),
-  },
-  {
-    _id: "sec2",
-    name: "Nổi bật",
-    layout: "grid",
-    songs: mockSongs.slice(3, 9),
-  },
-  {
-    _id: "sec3",
-    name: "Nghe lại",
-    layout: "list",
-    songs: mockSongs.slice(6, 11),
-  },
-];
-
 const mockArtists = [
   {
     _id: "1",
@@ -214,7 +124,7 @@ function Home() {
                   title={section.name}
                   songs={section.songs}
                   layout={section.layout}
-                  onPlay={handlePlay}
+                  songList={section.songs}
                 />
               ))
             )}

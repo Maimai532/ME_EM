@@ -9,6 +9,7 @@ import Home from "../pages/Home";
 import Profile from "../pages/Profile";
 import Playlist from "../pages/Playlist";
 import Library from "../pages/Library";
+import MusicPlayerPage from "../pages/MusicPlayerPage";
 
 import Admin from "../pages/Admin";
 import Playlist_Admin from "../pages/Playlist_Admin";
@@ -34,6 +35,8 @@ const AppRoutes = () => {
           <Route path="/history" element={<Library />} />
           <Route path="/settings" element={<Profile />} />
           <Route path="/playlist" element={<Playlist />} />
+
+          <Route path="/player/:id" element={<MusicPlayerPage />} />
         </Route>
 
         {/* Admin routes */}
