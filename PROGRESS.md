@@ -5,12 +5,12 @@
 * Hiểu logic thay vì copy code
 * Build web nghe nhạc từng bước
 
-## Công nghệ đang dùng
+## Công nghệ đang học
 * HTML
 * CSS
 * JavaScript
-* React (sắp học)
-* Node.js (sắp học)
+* React 
+* Node.js 
 * Git + GitHub
 
 ## Trình độ hiện tại
@@ -30,6 +30,8 @@
 * tạo song card, section; ui home,nav,sidebar cơ bản;
 
 * Auth API, User API, crud user
+* Admin crud song, section, Grid các section, Home load section lên
+
 
 
 
@@ -65,9 +67,7 @@
 
 ## Task tiếp theo
 
-* Build Sidebar, home, profile
-<!-- * Build Music Player UI
-* Play/Pause bằng JavaScript -->
+* 
 
 
 

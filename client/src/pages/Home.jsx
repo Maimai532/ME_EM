@@ -4,6 +4,7 @@ import Navbar from "../components/ui/Navbar";
 import Sidebar from "../components/ui/Sidebar";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import useSections from "../hooks/useSections";
 
 import SongSection from "../components/song/SongSection";
 import ArtistSection from "../components/song/ArtistSection";
@@ -76,6 +77,28 @@ const mockSongs = [
     imageUrl: "https://picsum.photos/seed/s11/200/200",
   },
 ];
+
+const mockSections = [
+  {
+    _id: "sec1",
+    name: "Xu hướng",
+    layout: "scroll",
+    songs: mockSongs.slice(0, 6),
+  },
+  {
+    _id: "sec2",
+    name: "Nổi bật",
+    layout: "grid",
+    songs: mockSongs.slice(3, 9),
+  },
+  {
+    _id: "sec3",
+    name: "Nghe lại",
+    layout: "list",
+    songs: mockSongs.slice(6, 11),
+  },
+];
+
 const mockArtists = [
   {
     _id: "1",
@@ -154,7 +177,7 @@ const styles = {
 function Home() {
   const [isOpen, setIsOpen] = useState(true);
   const { isLoggedIn, logout } = useAuth();
-
+  const { sections, loading } = useSections();
   //title page
   useEffect(() => {
     document.title = "Home";
@@ -182,25 +205,19 @@ function Home() {
             <h1 className="text-2xl font-semibold text-blue-900 ">
               Nghe nhạc bằng cả tính mạng
             </h1>
-
-            <SongSection
-              layout="scroll"
-              title="🔥 Trending"
-              songs={mockSongs}
-              onPlay={handlePlay}
-            />
-            <SongSection
-              layout="grid"
-              title="🎵 Mới phát hành"
-              songs={mockSongs}
-              onPlay={handlePlay}
-            />
-            <SongSection
-              layout="list"
-              title="Danh sách phát gần đây"
-              songs={mockSongs}
-              onPlay={handlePlay}
-            />
+            {loading ? (
+              <p>Đang tải...</p>
+            ) : (
+              sections.map((section) => (
+                <SongSection
+                  key={section._id}
+                  title={section.name}
+                  songs={section.songs}
+                  layout={section.layout}
+                  onPlay={handlePlay}
+                />
+              ))
+            )}
 
             <ArtistSection
               layout="scroll"

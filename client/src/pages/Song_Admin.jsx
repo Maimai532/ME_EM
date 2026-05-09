@@ -1,15 +1,210 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Input, Button, Dropdown } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function Song_Admin() {
+const API_URL = "http://localhost:8080/api";
+
+const styles = {
+  container: { padding: "20px" },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" },
+  title: { fontSize: "22px", fontWeight: "600", color: "#1e3a5f" },
+  btnAdd: { padding: "8px 16px", backgroundColor: "#2563eb", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "14px" },
+  table: { width: "100%", borderCollapse: "collapse" },
+  th: { textAlign: "left", padding: "10px 12px", backgroundColor: "#dbe8f6", color: "#1e3a5f", fontSize: "14px" },
+  td: { padding: "10px 12px", borderBottom: "1px solid #e5e7eb", fontSize: "14px" },
+  btnEdit: { padding: "4px 10px", marginRight: "8px", backgroundColor: "#f0f9ff", border: "1px solid #2563eb", borderRadius: "6px", color: "#2563eb", cursor: "pointer" },
+  btnDel: { padding: "4px 10px", backgroundColor: "#fff0f0", border: "1px solid #dc2626", borderRadius: "6px", color: "#dc2626", cursor: "pointer" },
+  img: { width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", backgroundColor: "#e5e7eb" },
+  // Modal
+  overlay: { position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 },
+  modal: { backgroundColor: "white", borderRadius: "12px", padding: "28px", width: "480px", maxHeight: "90vh", overflowY: "auto" },
+  modalTitle: { fontSize: "18px", fontWeight: "600", marginBottom: "20px", color: "#1e3a5f" },
+  label: { display: "block", fontSize: "13px", color: "#555", marginBottom: "4px", marginTop: "12px" },
+  input: { width: "100%", padding: "8px 10px", border: "1px solid #d1d5db", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" },
+  radioGroup: { display: "flex", gap: "16px", marginTop: "4px" },
+  modalFooter: { display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "24px" },
+  btnCancel: { padding: "8px 16px", border: "1px solid #d1d5db", borderRadius: "8px", backgroundColor: "white", cursor: "pointer" },
+  btnSave: { padding: "8px 16px", backgroundColor: "#2563eb", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" },
+};
+
+const emptyForm = {
+  title: "", artist: "", album: "", genre: "",
+  duration: "", audioUrl: "", imageUrl: "", sourceType: "url",
+};
+
+function SongModal({ song, onClose, onSaved, token }) {
+  const isEdit = !!song._id;
+  const [form, setForm] = useState(song);
+  const [audioFile, setAudioFile] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSubmit() {
+    setLoading(true);
+    try {
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+      // Nếu có file upload thì dùng FormData
+      if (audioFile || imageFile) {
+        const fd = new FormData();
+        Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+        if (audioFile) fd.append("audio", audioFile);
+        if (imageFile) fd.append("image", imageFile);
+
+        const config = { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } };
+        isEdit
+          ? await axios.put(`${API_URL}/songs/${song._id}`, fd, config)
+          : await axios.post(`${API_URL}/songs`, fd, config);
+      } else {
+        // Chỉ dùng URL
+        isEdit
+          ? await axios.put(`${API_URL}/songs/${song._id}`, form, authHeader)
+          : await axios.post(`${API_URL}/songs`, form, authHeader);
+      }
+
+      onSaved();
+      onClose();
+    } catch (err) {
+      alert(err.response?.data?.message || "Có lỗi xảy ra");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Song Admin</h1>
+    <div style={styles.overlay}>
+      <div style={styles.modal}>
+        <h2 style={styles.modalTitle}>{isEdit ? "Sửa bài hát" : "Thêm bài hát"}</h2>
+
+        <label style={styles.label}>Tên bài hát *</label>
+        <input style={styles.input} name="title" value={form.title} onChange={handleChange} placeholder="VD: Chạy Ngay Đi" />
+
+        <label style={styles.label}>Nghệ sĩ *</label>
+        <input style={styles.input} name="artist" value={form.artist} onChange={handleChange} placeholder="VD: Sơn Tùng M-TP" />
+
+        <label style={styles.label}>Album</label>
+        <input style={styles.input} name="album" value={form.album} onChange={handleChange} />
+
+        <label style={styles.label}>Thể loại</label>
+        <input style={styles.input} name="genre" value={form.genre} onChange={handleChange} placeholder="VD: Pop, Ballad..." />
+
+        <label style={styles.label}>Thời lượng (giây)</label>
+        <input style={styles.input} name="duration" type="number" value={form.duration} onChange={handleChange} placeholder="VD: 213" />
+
+        {/* Audio */}
+        <label style={styles.label}>Audio</label>
+        <div style={styles.radioGroup}>
+          <label><input type="radio" name="sourceType" value="url" checked={form.sourceType === "url"} onChange={handleChange} /> Dán link URL</label>
+          <label><input type="radio" name="sourceType" value="upload" checked={form.sourceType === "upload"} onChange={handleChange} /> Upload file</label>
+        </div>
+
+        {form.sourceType === "url" ? (
+          <input style={{ ...styles.input, marginTop: "8px" }} name="audioUrl" value={form.audioUrl} onChange={handleChange} placeholder="https://..." />
+        ) : (
+          <input style={{ ...styles.input, marginTop: "8px" }} type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files[0])} />
+        )}
+
+        {/* Ảnh bìa */}
+        <label style={styles.label}>Ảnh bìa</label>
+        <input style={styles.input} name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://... (hoặc để trống)" />
+        <input style={{ ...styles.input, marginTop: "6px" }} type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+
+        <div style={styles.modalFooter}>
+          <button style={styles.btnCancel} onClick={onClose}>Huỷ</button>
+          <button style={styles.btnSave} onClick={handleSubmit} disabled={loading}>
+            {loading ? "Đang lưu..." : "Lưu"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default Song_Admin
+function Song_Admin() {
+  const { token } = useAuth();
+  const [songs, setSongs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null); // null | song object
+
+  function fetchSongs() {
+    setLoading(true);
+    axios.get(`${API_URL}/songs`)
+      .then((res) => setSongs(res.data.data))
+      .catch(() => setSongs([]))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => { fetchSongs(); }, []);
+
+  async function handleDelete(id) {
+    if (!window.confirm("Xoá bài hát này?")) return;
+    try {
+      await axios.delete(`${API_URL}/songs/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchSongs();
+    } catch {
+      alert("Xoá thất bại");
+    }
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={styles.title}>Quản lý bài hát</h1>
+        <button style={styles.btnAdd} onClick={() => setModal(emptyForm)}>
+          + Thêm bài hát
+        </button>
+      </div>
+
+      {loading ? (
+        <p>Đang tải...</p>
+      ) : (
+        <table style={styles.table}>
+          <thead>
+            <tr>
+              <th style={styles.th}>Ảnh</th>
+              <th style={styles.th}>Tên bài</th>
+              <th style={styles.th}>Nghệ sĩ</th>
+              <th style={styles.th}>Thể loại</th>
+              <th style={styles.th}>Lượt nghe</th>
+              <th style={styles.th}>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {songs.map((song) => (
+              <tr key={song._id}>
+                <td style={styles.td}>
+                  <img style={styles.img} src={song.imageUrl || "https://picsum.photos/48"} alt={song.title} />
+                </td>
+                <td style={styles.td}>{song.title}</td>
+                <td style={styles.td}>{song.artist}</td>
+                <td style={styles.td}>{song.genre || "—"}</td>
+                <td style={styles.td}>{song.plays}</td>
+                <td style={styles.td}>
+                  <button style={styles.btnEdit} onClick={() => setModal(song)}>Sửa</button>
+                  <button style={styles.btnDel} onClick={() => handleDelete(song._id)}>Xoá</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {modal && (
+        <SongModal
+          song={modal}
+          token={token}
+          onClose={() => setModal(null)}
+          onSaved={fetchSongs}
+        />
+      )}
+    </div>
+  );
+}
+
+export default Song_Admin;
