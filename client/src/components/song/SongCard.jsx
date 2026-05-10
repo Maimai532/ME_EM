@@ -53,9 +53,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           </p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        <button type="button" className="song-card__like-btn" onClick={handleLike}>
-          <Heart size={16} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
-        </button>
+
       </div>
     );
   }
@@ -84,9 +82,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        <button type="button" className="song-card__like-btn" onClick={handleLike}>
-          <Heart size={14} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
-        </button>
+
       </div>
     );
   }
@@ -115,9 +111,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        <button type="button" className="song-card__like-btn" onClick={handleLike}>
-          <Heart size={13} fill={liked ? "red" : "none"} color={liked ? "red" : "#aaa"} />
-        </button>
+
       </div>
     );
   }

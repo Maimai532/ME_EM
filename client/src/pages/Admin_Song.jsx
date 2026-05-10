@@ -48,10 +48,18 @@ function ConfirmModal({ message, onConfirm, onCancel }) {
       <div className="song-admin-modal song-admin-modal--narrow">
         <p className="song-admin-modal__message">{message}</p>
         <div className="song-admin-modal__footer">
-          <button type="button" className="song-admin__btn-cancel" onClick={onCancel}>
+          <button
+            type="button"
+            className="song-admin__btn-cancel"
+            onClick={onCancel}
+          >
             Huỷ
           </button>
-          <button type="button" className="song-admin__btn-save song-admin__btn-save--danger" onClick={onConfirm}>
+          <button
+            type="button"
+            className="song-admin__btn-save song-admin__btn-save--danger"
+            onClick={onConfirm}
+          >
             Xoá
           </button>
         </div>
@@ -125,11 +133,18 @@ function SongModal({ song, onClose, onSaved, token }) {
           : await axios.post(`${API_URL}/songs`, fd, config);
       } else {
         isEdit
-          ? await axios.put(`${API_URL}/songs/${safeSong._id}`, form, authHeader)
+          ? await axios.put(
+              `${API_URL}/songs/${safeSong._id}`,
+              form,
+              authHeader,
+            )
           : await axios.post(`${API_URL}/songs`, form, authHeader);
       }
       onSaved();
-      showToast(isEdit ? "Cập nhật thành công!" : "Thêm bài hát thành công!", "success");
+      showToast(
+        isEdit ? "Cập nhật thành công!" : "Thêm bài hát thành công!",
+        "success",
+      );
       onClose();
     } catch {
       showToast("Có lỗi xảy ra!", "error");
@@ -142,63 +157,147 @@ function SongModal({ song, onClose, onSaved, token }) {
     <div className="song-admin-overlay">
       <div className="song-admin-modal">
         <h2 className="song-admin-modal__title">
-          {isEdit ? "Sửa bài hát" : "Thêm bài hát"}
+          {isEdit ? "Edit Song" : "New Song"}
         </h2>
 
-        <label className="song-admin__label">Tên bài hát *</label>
-        <input className="song-admin__input" name="title" value={form.title || ""} onChange={handleChange} />
+        <div className="song-input">
 
-        <label className="song-admin__label">Nghệ sĩ *</label>
-        <input className="song-admin__input" name="artist" value={form.artist || ""} onChange={handleChange} />
+          <div className="song-info">
+            <label className="song-admin__label">
+              Tên bài hát <span>*</span>
+            </label>
+            <input
+              className="song-admin__input"
+              name="title"
+              value={form.title || ""}
+              onChange={handleChange}
+            />
 
-        <label className="song-admin__label">Album</label>
-        <input className="song-admin__input" name="album" value={form.album || ""} onChange={handleChange} />
+            <label className="song-admin__label">
+              Nghệ sĩ <span>*</span>
+            </label>
+            <input
+              className="song-admin__input"
+              name="artist"
+              value={form.artist || ""}
+              onChange={handleChange}
+            />
 
-        <label className="song-admin__label">Thể loại</label>
-        <input className="song-admin__input" name="genre" value={form.genre || ""} onChange={handleChange} />
+            <label className="song-admin__label">Album</label>
+            <input
+              className="song-admin__input"
+              name="album"
+              value={form.album || ""}
+              onChange={handleChange}
+            />
 
-        <label className="song-admin__label">Audio</label>
-        <div className="song-admin__radio-group">
-          <label>
-            <input type="radio" name="sourceType" value="url" checked={(form.sourceType || "url") === "url"} onChange={handleChange} /> URL
-          </label>
-          <label>
-            <input type="radio" name="sourceType" value="upload" checked={(form.sourceType || "url") === "upload"} onChange={handleChange} /> Upload
-          </label>
+            <label className="song-admin__label">
+              Thể loại <span>*</span>
+            </label>
+            <input
+              className="song-admin__input"
+              name="genre"
+              value={form.genre || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="song-src">
+            <label className="song-admin__label">Audio</label>
+            <div className="song-admin__radio-group">
+              <label>
+                <input
+                  type="radio"
+                  name="sourceType"
+                  value="url"
+                  checked={(form.sourceType || "url") === "url"}
+                  onChange={handleChange}
+                />{" "}
+                URL
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="sourceType"
+                  value="upload"
+                  checked={(form.sourceType || "url") === "upload"}
+                  onChange={handleChange}
+                />{" "}
+                Upload
+              </label>
+            </div>
+
+            {(form.sourceType || "url") === "url" ? (
+              <input
+                className="song-admin__input song-admin__input--mt-sm"
+                name="audioUrl"
+                value={form.audioUrl || ""}
+                onChange={handleChange}
+                placeholder="https://..."
+              />
+            ) : (
+              <input
+                className="song-admin__input song-admin__input--mt-sm"
+                type="file"
+                accept="audio/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setAudioFile(file);
+                  if (file)
+                    setForm((prev) => ({
+                      ...prev,
+                      sourceType: "upload",
+                      audioUrl: "",
+                    }));
+                }}
+              />
+            )}
+
+            <label className="song-admin__label">Ảnh bìa</label>
+            <input
+              className="song-admin__input"
+              name="imageUrl"
+              value={form.imageUrl || ""}
+              onChange={handleChange}
+              placeholder="https://..."
+            />
+            
+            <input
+              className="song-admin__input song-admin__input--mt-xs"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImageFile(file);
+                if (file) setForm((prev) => ({ ...prev, imageUrl: "" }));
+              }}
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="preview"
+                className="song-admin__preview"
+              />
+            )}
+
+          </div>
+
         </div>
 
-        {(form.sourceType || "url") === "url" ? (
-          <input className="song-admin__input song-admin__input--mt-sm" name="audioUrl" value={form.audioUrl || ""} onChange={handleChange} placeholder="https://..." />
-        ) : (
-          <input
-            className="song-admin__input song-admin__input--mt-sm"
-            type="file"
-            accept="audio/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              setAudioFile(file);
-              if (file) setForm((prev) => ({ ...prev, sourceType: "upload", audioUrl: "" }));
-            }}
-          />
-        )}
-
-        <label className="song-admin__label">Ảnh bìa</label>
-        <input className="song-admin__input" name="imageUrl" value={form.imageUrl || ""} onChange={handleChange} placeholder="https://..." />
-        <input
-          className="song-admin__input song-admin__input--mt-xs"
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            setImageFile(file);
-            if (file) setForm((prev) => ({ ...prev, imageUrl: "" }));
-          }}
-        />
-        {imagePreview && <img src={imagePreview} alt="preview" className="song-admin__preview" />}
-
         <div className="song-admin-modal__footer">
-          <button type="button" className="song-admin__btn-cancel" onClick={onClose}>Huỷ</button>
-          <button type="button" className="song-admin__btn-save" onClick={handleSubmit} disabled={loading}>
+          <button
+            type="button"
+            className="song-admin__btn-cancel"
+            onClick={onClose}
+          >
+            Huỷ
+          </button>
+          <button
+            type="button"
+            className="song-admin__btn-save"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             {loading ? "Đang lưu..." : "Lưu"}
           </button>
         </div>
@@ -227,14 +326,20 @@ function Admin_Song() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { fetchSongs(); }, []);
+  useEffect(() => {
+    fetchSongs();
+  }, []);
 
   function toggleSelect(id) {
-    setSelected((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
   }
 
   function toggleSelectAll() {
-    setSelected(selected.length === songs.length ? [] : songs.map((s) => s._id));
+    setSelected(
+      selected.length === songs.length ? [] : songs.map((s) => s._id),
+    );
   }
 
   async function handleDelete(id) {
@@ -243,7 +348,9 @@ function Admin_Song() {
       onConfirm: async () => {
         setConfirm(null);
         try {
-          await axios.delete(`${API_URL}/songs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+          await axios.delete(`${API_URL}/songs/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           fetchSongs();
           showToast("Đã xoá bài hát!", "success");
         } catch {
@@ -260,7 +367,11 @@ function Admin_Song() {
         setConfirm(null);
         try {
           await Promise.all(
-            selected.map((id) => axios.delete(`${API_URL}/songs/${id}`, { headers: { Authorization: `Bearer ${token}` } }))
+            selected.map((id) =>
+              axios.delete(`${API_URL}/songs/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ),
           );
           setSelected([]);
           fetchSongs();
@@ -275,7 +386,9 @@ function Admin_Song() {
   const genres = [...new Set(songs.map((s) => s.genre).filter(Boolean))];
   const filteredSongs = songs.filter((song) => {
     const keyword = search.toLowerCase();
-    const matchSearch = song.title?.toLowerCase().includes(keyword) || song.artist?.toLowerCase().includes(keyword);
+    const matchSearch =
+      song.title?.toLowerCase().includes(keyword) ||
+      song.artist?.toLowerCase().includes(keyword);
     const matchGenre = !genreFilter || song.genre === genreFilter;
     return matchSearch && matchGenre;
   });
@@ -283,11 +396,19 @@ function Admin_Song() {
   const headerActions = (
     <>
       {selected.length > 0 && (
-        <button type="button" className="song-admin__btn-add song-admin__btn-add--danger" onClick={handleDeleteSelected}>
+        <button
+          type="button"
+          className="song-admin__btn-add song-admin__btn-add--danger"
+          onClick={handleDeleteSelected}
+        >
           Delete ({selected.length})
         </button>
       )}
-      <button type="button" className="song-admin__btn-add" onClick={() => setModal(emptyForm)}>
+      <button
+        type="button"
+        className="song-admin__btn-add"
+        onClick={() => setModal(emptyForm)}
+      >
         New song
       </button>
     </>
@@ -303,9 +424,17 @@ function Admin_Song() {
           onChange={(e) => setSearch(e.target.value)}
           className="song-admin__search-input"
         />
-        <select value={genreFilter} onChange={(e) => setGenreFilter(e.target.value)} className="song-admin__select">
+        <select
+          value={genreFilter}
+          onChange={(e) => setGenreFilter(e.target.value)}
+          className="song-admin__select"
+        >
           <option value="">All</option>
-          {genres.map((genre) => <option key={genre} value={genre}>{genre}</option>)}
+          {genres.map((genre) => (
+            <option key={genre} value={genre}>
+              {genre}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -316,7 +445,11 @@ function Admin_Song() {
           <thead>
             <tr>
               <th className="song-admin__th">
-                <input type="checkbox" checked={selected.length === songs.length && songs.length > 0} onChange={toggleSelectAll} />
+                <input
+                  type="checkbox"
+                  checked={selected.length === songs.length && songs.length > 0}
+                  onChange={toggleSelectAll}
+                />
               </th>
               <th className="song-admin__th">Ảnh</th>
               <th className="song-admin__th">Name</th>
@@ -329,26 +462,55 @@ function Admin_Song() {
           <tbody>
             {filteredSongs.length > 0 ? (
               filteredSongs.map((song) => (
-                <tr key={song._id} className={selected.includes(song._id) ? "song-admin__row--selected" : ""}>
+                <tr
+                  key={song._id}
+                  className={
+                    selected.includes(song._id)
+                      ? "song-admin__row--selected"
+                      : ""
+                  }
+                >
                   <td className="song-admin__td">
-                    <input type="checkbox" checked={selected.includes(song._id)} onChange={() => toggleSelect(song._id)} />
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(song._id)}
+                      onChange={() => toggleSelect(song._id)}
+                    />
                   </td>
                   <td className="song-admin__td">
-                    <img className="song-admin__thumb" src={song.imageUrl || "https://picsum.photos/48"} alt={song.title} />
+                    <img
+                      className="song-admin__thumb"
+                      src={song.imageUrl || "https://picsum.photos/48"}
+                      alt={song.title}
+                    />
                   </td>
                   <td className="song-admin__td">{song.title}</td>
                   <td className="song-admin__td">{song.artist}</td>
                   <td className="song-admin__td">{song.genre || "—"}</td>
                   <td className="song-admin__td">{song.plays}</td>
                   <td className="song-admin__td">
-                    <button type="button" className="song-admin__btn-edit" onClick={() => setModal({ ...emptyForm, ...song })}>Sửa</button>
-                    <button type="button" className="song-admin__btn-del" onClick={() => handleDelete(song._id)}>Xoá</button>
+                    <button
+                      type="button"
+                      className="song-admin__btn-edit"
+                      onClick={() => setModal({ ...emptyForm, ...song })}
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      type="button"
+                      className="song-admin__btn-del"
+                      onClick={() => handleDelete(song._id)}
+                    >
+                      Xoá
+                    </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="song-admin__empty-cell">Không tìm thấy bài hát</td>
+                <td colSpan="7" className="song-admin__empty-cell">
+                  Không tìm thấy bài hát
+                </td>
               </tr>
             )}
           </tbody>
@@ -356,10 +518,20 @@ function Admin_Song() {
       )}
 
       {modal && (
-        <SongModal key={modal?._id || "new-song"} song={modal} token={token} onClose={() => setModal(null)} onSaved={fetchSongs} />
+        <SongModal
+          key={modal?._id || "new-song"}
+          song={modal}
+          token={token}
+          onClose={() => setModal(null)}
+          onSaved={fetchSongs}
+        />
       )}
       {confirm && (
-        <ConfirmModal message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(null)} />
+        <ConfirmModal
+          message={confirm.message}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
       )}
     </AdminPage>
   );

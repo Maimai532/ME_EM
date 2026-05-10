@@ -1,16 +1,10 @@
-/* Home.jsx */
-
-.home-page {
-  /* shell already uses Tailwind on outer div */
-}
-
-.home-page__row {
-  display: flex;
-  align-items: flex-start;
-}
-
-.home-page__content {
+.home-content {
   padding: 20px;
-  min-width: 0;
-  overflow: hidden;
+}
+footer{
+  color: aliceblue;
+  font-size:x-small;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
 }

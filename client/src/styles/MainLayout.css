@@ -1,0 +1,24 @@
+/* MainLayout.css */
+
+.main-layout {
+  width: 100%;
+}
+
+.main-layout__row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 65px; /* chiều cao Navbar fixed */
+}
+
+.main-layout__content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  padding-bottom: 72px; /* nhường chỗ PlayerBar fixed */
+  transition: padding-bottom 0.3s ease; /* khớp với animation ẩn/hiện PlayerBar */
+}
+
+/* Khi PlayerBar ẩn — không cần padding nữa */
+.main-layout__content--player-hidden {
+  padding-bottom: 0;
+}

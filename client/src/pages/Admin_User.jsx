@@ -52,7 +52,7 @@ function Admin_User() {
 
   return (
     <AdminPage title="Quản lý User">
-      <p className="user-admin-meta">Tổng: {users.length} users</p>
+      {/* <p className="user-admin-meta">Tổng: {users.length} users</p> */}
 
       <table className="user-admin-table">
         <thead>

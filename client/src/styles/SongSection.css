@@ -47,9 +47,10 @@
 }
 
 .song-section__grid--list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  height: 300px;
+  /* chia lm 2 cọt */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* gap: 10px; */
+  height: 250px;
   overflow-y: auto;
 }

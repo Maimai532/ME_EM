@@ -21,7 +21,7 @@
 }
 
 .admin-dashboard__stat-title {
-  color: var(--color-text4);
+  color: var(--color-text1);
   font-size: 22px;
   font-weight: 600;
 }
@@ -29,5 +29,5 @@
 .admin-dashboard__stat-count {
   font-size: 32px;
   font-weight: 600;
-  color: var(--color-text4);
+  color: var(--color-text1);
 }

@@ -159,9 +159,9 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #1a1a2e;
+  background: var(--color-button1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  color: var(--color-text4);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -170,7 +170,8 @@
 }
 /* hide/show */
 .player-bar__toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-button2);
+  color: var(--color-text1);
 }
 
 /* Khi ẩn playerbar thì nút xuống dưới cùng */

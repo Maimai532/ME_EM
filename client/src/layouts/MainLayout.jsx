@@ -1,23 +1,35 @@
-import { Outlet } from 'react-router-dom'
-import Navbar from '../components/Navbar'
-import Player from '../components/Player'
-import Sidebar from '../components/Sidebar'
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { usePlayer } from "../context/PlayerContext";
 
-//Lắp ráp giao diện chính của app: Navbar + Sidebar + Player + Outlet
+import Navbar from "../components/ui/Navbar";
+import Sidebar from "../components/ui/Sidebar";
+import "../styles/MainLayout.css";
 
 function MainLayout() {
+  const [isOpen, setIsOpen] = useState(true);
+  const { isLoggedIn, logout } = useAuth();
+  const { isPlayerVisible } = usePlayer();
+
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-slate-950 text-slate-100">
-      <Navbar />
-      <div className="grid grid-cols-1 md:grid-cols-[250px_1fr]">
-        <Sidebar />
-        <main className="p-4 md:p-6">
+    <div className="main-layout">
+      <Navbar
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        isLoggedIn={isLoggedIn}
+        onLogout={logout}
+      />
+
+      <div className="main-layout__row">
+        <Sidebar isOpen={isOpen} />
+
+        <main className={`main-layout__content ${isPlayerVisible ? "" : "main-layout__content--player-hidden"}`}>
           <Outlet />
         </main>
       </div>
-      <Player />
     </div>
-  )
+  );
 }
 
-export default MainLayout
+export default MainLayout;

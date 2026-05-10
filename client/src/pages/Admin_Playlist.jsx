@@ -99,6 +99,8 @@ function SectionModal({ section, onClose, onSaved, token }) {
 function ManageSongsModal({ section, onClose, token }) {
   const [allSongs, setAllSongs] = useState([]);
   const [sectionSongs, setSectionSongs] = useState(section.songs || []);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("all");
 
   useEffect(() => {
     axios.get(`${API_URL}/songs`).then((res) => setAllSongs(res.data.data));
@@ -122,29 +124,36 @@ function ManageSongsModal({ section, onClose, token }) {
   const sectionSongIds = sectionSongs.map((s) => s._id);
   const songsNotInSection = allSongs.filter((s) => !sectionSongIds.includes(s._id));
 
+  const genreOptions = ["all", ...Array.from(
+    new Set(songsNotInSection.map((s) => s.genre).filter(Boolean))
+  ).sort()];
+
+  const filteredSongs = songsNotInSection.filter((song) => {
+    const matchGenre = selectedGenre === "all" || song.genre === selectedGenre;
+    const q = searchQuery.trim().toLowerCase();
+    const matchSearch = !q || song.title?.toLowerCase().includes(q) || song.artist?.toLowerCase().includes(q);
+    return matchGenre && matchSearch;
+  });
+
   return (
     <div className="playlist-admin-overlay">
       <div className="playlist-admin-modal playlist-admin-modal--wide">
 
-        {/* ── Header modal ── */}
         <div className="playlist-admin__head">
-        
-            <h2 className="playlist-admin-modal__title">
-              Playlist: <strong>{section.name}</strong>
-            </h2>
-         
+          <h2 className="playlist-admin-modal__title">
+            Playlist: <strong>{section.name}</strong>
+          </h2>
           <button type="button" className="playlist-admin__btn-save" onClick={onClose}>
             Xong
           </button>
         </div>
 
-        {/* ── Bảng bài hát ĐANG CÓ ── */}
+        {/* Bảng bài hát ĐANG CÓ */}
         <div className="playlist-table-block">
           <p className="playlist-table-label playlist-table-label--in">
             Đã có
             <span className="playlist-table-count">{sectionSongs.length}</span>
           </p>
-
           <table className="playlist-table">
             <thead>
               <tr>
@@ -157,11 +166,7 @@ function ManageSongsModal({ section, onClose, token }) {
             </thead>
             <tbody>
               {sectionSongs.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="playlist-table__empty">
-                    Trống
-                  </td>
-                </tr>
+                <tr><td colSpan="5" className="playlist-table__empty">Trống</td></tr>
               ) : (
                 sectionSongs.map((song, i) => (
                   <tr key={song._id} className="playlist-table__row playlist-table__row--in">
@@ -172,13 +177,7 @@ function ManageSongsModal({ section, onClose, token }) {
                       <span className="playlist-table__genre">{song.genre || "—"}</span>
                     </td>
                     <td className="playlist-table__td playlist-table__td--action">
-                      <button
-                        type="button"
-                        className="playlist-table__btn playlist-table__btn--remove"
-                        onClick={() => handleRemove(song._id)}
-                      >
-                        −
-                      </button>
+                      <button type="button" className="playlist-table__btn playlist-table__btn--remove" onClick={() => handleRemove(song._id)}>−</button>
                     </td>
                   </tr>
                 ))
@@ -187,12 +186,47 @@ function ManageSongsModal({ section, onClose, token }) {
           </table>
         </div>
 
-        {/* ── Bảng bài hát CÓ THỂ THÊM ── */}
+        {/* Bảng bài hát CÓ THỂ THÊM */}
         <div className="playlist-table-block">
           <p className="playlist-table-label playlist-table-label--add">
             Chưa có
             <span className="playlist-table-count">{songsNotInSection.length}</span>
           </p>
+
+          {/* Filter bar */}
+          <div className="playlist-filter-bar">
+            <div className="playlist-filter-bar__search-wrap">
+              <span className="playlist-filter-bar__icon">🔍</span>
+              <input
+                className="playlist-filter-bar__search"
+                type="text"
+                placeholder="Tìm tên bài / artist..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button type="button" className="playlist-filter-bar__clear" onClick={() => setSearchQuery("")}>×</button>
+              )}
+            </div>
+
+            <select
+              className="playlist-filter-bar__genre"
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+            >
+              {genreOptions.map((g) => (
+                <option key={g} value={g}>{g === "all" ? "Tất cả thể loại" : g}</option>
+              ))}
+            </select>
+
+            {(searchQuery || selectedGenre !== "all") && (
+              <button type="button" className="playlist-filter-bar__reset" onClick={() => { setSearchQuery(""); setSelectedGenre("all"); }}>
+                Xoá lọc
+              </button>
+            )}
+
+            <span className="playlist-filter-bar__count">{filteredSongs.length}/{songsNotInSection.length} bài</span>
+          </div>
 
           <table className="playlist-table">
             <thead>
@@ -205,14 +239,14 @@ function ManageSongsModal({ section, onClose, token }) {
               </tr>
             </thead>
             <tbody>
-              {songsNotInSection.length === 0 ? (
+              {filteredSongs.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="playlist-table__empty">
-                    Trống
+                    {songsNotInSection.length === 0 ? "Trống" : "Không tìm thấy bài hát phù hợp"}
                   </td>
                 </tr>
               ) : (
-                songsNotInSection.map((song, i) => (
+                filteredSongs.map((song, i) => (
                   <tr key={song._id} className="playlist-table__row playlist-table__row--add">
                     <td className="playlist-table__td playlist-table__td--num">{i + 1}</td>
                     <td className="playlist-table__td playlist-table__td--title">{song.title}</td>
@@ -221,13 +255,7 @@ function ManageSongsModal({ section, onClose, token }) {
                       <span className="playlist-table__genre">{song.genre || "—"}</span>
                     </td>
                     <td className="playlist-table__td playlist-table__td--action">
-                      <button
-                        type="button"
-                        className="playlist-table__btn playlist-table__btn--add"
-                        onClick={() => handleAdd(song._id)}
-                      >
-                        +
-                      </button>
+                      <button type="button" className="playlist-table__btn playlist-table__btn--add" onClick={() => handleAdd(song._id)}>+</button>
                     </td>
                   </tr>
                 ))

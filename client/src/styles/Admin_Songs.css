@@ -110,10 +110,24 @@
 .song-admin-modal {
   background-color: white;
   border-radius: 12px;
-  padding: 28px;
-  width: 480px;
+  padding: 20px;
+  width: 800px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.song-input{
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.song-info{
+  width: 48%;
+  
+}
+.song-src{
+  width: 49%
 }
 
 .song-admin-modal--narrow {
@@ -130,6 +144,9 @@
 .song-admin-modal__message {
   margin-bottom: 20px;
   font-size: 15px;
+}
+.song-admin__label span{
+  color: #d80909;
 }
 
 .song-admin__label {

@@ -16,23 +16,22 @@
   border-collapse: collapse;
   border-radius: 10px;
   overflow: hidden;
-  background: #043d473e;
-  border: 10px solid white;
+  background: #d7eef23e;
 }
 
 .user-admin-th {
   padding: 12px 16px;
   text-align: left;
-  background-color: #68c5ed8b;
+  background-color: #58b1d7;
   font-size: 15px;
   font-weight: 800;
-  color: var(--color-text4);
+  color: var(--color-text1);
 }
 
 .user-admin-td {
   padding: 12px 16px;
   font-size: 14px;
-  color: var(--color-text4);
+  color: var(--color-text3);
   border-top: 1px solid #f1f5f930;
 }
 
@@ -45,12 +44,12 @@
 }
 
 .user-admin-badge--admin {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: #dbf2fe;
+  color: #1d7ad8;
 }
 
 .user-admin-badge--user {
-  background-color: #f0fdf4;
+  background-color: #d4eedc;
   color: #16a34a;
 }
 
@@ -65,7 +64,6 @@
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  color: #fff;
   margin-right: 8px;
 }
 
@@ -73,24 +71,28 @@
   background-color: #40a42980;
   border: 1px #40a429 solid;
   width: 120px;
+    color: var(--color-text1);
 }
 .user-admin-action--toggle-admin:hover {
   background-color: #40a429;
 }
 
 .user-admin-action--promote {
-  background-color: #dfd161ad;
-  border: 1px #dfd161 solid;
+  background-color: #dec505ad;
+  border: 1px #dec505 solid;
   width: 120px;
+  color: var(--color-text1);
 }
 .user-admin-action--promote:hover {
-  background-color: #dfd161;
+  background-color: #dec505;
 }
 
 .user-admin-action--delete {
-  background-color: #ef44441c;
+  background-color: #ac07071c;
   border: 1px rgb(137, 55, 55) solid;
+  color: rgb(185, 8, 8);
 }
 .user-admin-action--delete:hover {
-  background-color: #9b0000;
+  background-color: #c61111d3;
+  color: white;
 }
