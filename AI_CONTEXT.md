@@ -160,7 +160,7 @@ Backend:
 * Có centralized error handling
 * Dùng middleware cho auth/admin
 
-==================================================
+===========
 QUAN TRỌNG
 ==========
 
@@ -170,19 +170,6 @@ QUAN TRỌNG
 * Code phải modular
 * Ưu tiên beginner-friendly
 * Ưu tiên scalability và maintainability
-
-=================
-THỨ TỰ PHÁT TRIỂN
-=================
-
-1. Setup project structure
-2. React routing
-3. Layout system
-4. Authentication
-5. Music player
-6. Song APIs
-7. Playlist system
-8. Admin dashboard
 
 
 HƯỚNG DẪN CHO AI

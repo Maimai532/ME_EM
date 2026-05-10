@@ -46,6 +46,8 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
       gap: "16px",
       paddingBottom: "8px",
       overflowX: "auto",
+      scrollbarWidth: "none",      // ✅ Firefox
+      // msOverflowStyle: "none",  
     },
     grid: {
       display: "grid",

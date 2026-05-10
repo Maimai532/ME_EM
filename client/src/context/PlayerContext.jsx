@@ -17,8 +17,7 @@ export function PlayerProvider({ children }) {
   const [volume, setVolume] = useState(0.8);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-  const audioRef = useRef(new Audio());
-
+  const audioRef = useRef(new Audio()); // ✅ chỉ khai báo 1 lần
   const audio = audioRef.current;
 
   const playSong = useCallback(
@@ -26,9 +25,7 @@ export function PlayerProvider({ children }) {
       if (!song) return;
       audio.src = song.audioUrl;
       audio.volume = volume;
-      audio.play().catch(() => {
-        setIsPlaying(false);
-      });
+      audio.play().catch(() => setIsPlaying(false));
       setCurrentSong(song);
       setIsPlaying(true);
       setCurrentTime(0);
@@ -57,9 +54,7 @@ export function PlayerProvider({ children }) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play().catch(() => {
-        setIsPlaying(false);
-      });
+      audio.play().catch(() => setIsPlaying(false));
       setIsPlaying(true);
     }
   }, [isPlaying, currentSong]);
@@ -69,8 +64,7 @@ export function PlayerProvider({ children }) {
     if (isShuffle) {
       const randomIndex = Math.floor(Math.random() * queue.length);
       const nextSong = queue[randomIndex];
-      const newQueue = queue.filter((_, i) => i !== randomIndex);
-      setQueue(newQueue);
+      setQueue(queue.filter((_, i) => i !== randomIndex));
       playSong(nextSong);
     } else {
       const [nextSong, ...rest] = queue;
@@ -83,7 +77,6 @@ export function PlayerProvider({ children }) {
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
       setCurrentTime(0);
-      return;
     }
   }, []);
 
@@ -97,29 +90,27 @@ export function PlayerProvider({ children }) {
     setVolume(val);
   }, []);
 
+  const stopPlayer = useCallback(() => {
+    audio.pause();
+    audio.src = "";
+    setCurrentSong(null);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setQueue([]);
+  }, []);
+
   const toggleRepeat = () => setIsRepeat((v) => !v);
   const toggleShuffle = () => setIsShuffle((v) => !v);
 
   return (
     <PlayerContext.Provider
       value={{
-        currentSong,
-        queue,
-        isPlaying,
-        currentTime,
-        duration,
-        volume,
-        isRepeat,
-        isShuffle,
-        playSong,
-        togglePlay,
-        playNext,
-        playPrev,
-        seek,
-        changeVolume,
-        toggleRepeat,
-        toggleShuffle,
-        setQueue,
+        currentSong, queue, isPlaying, currentTime, duration,
+        volume, isRepeat, isShuffle,
+        playSong, togglePlay, playNext, playPrev,
+        seek, changeVolume, toggleRepeat, toggleShuffle,
+        setQueue, stopPlayer,
       }}
     >
       {children}

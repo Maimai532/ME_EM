@@ -30,7 +30,8 @@
 * tạo song card, section; ui home,nav,sidebar cơ bản;
 
 * Auth API, User API, crud user
-* Admin crud song, section, Grid các section, Home load section lên
+* Admin dashboard song, playlist, user; Home load song lên
+* Playbar, musicplaypage
 
 
 
