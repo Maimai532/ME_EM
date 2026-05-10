@@ -1,13 +1,17 @@
-// App.jsx - bỏ import và <PlayerBar /> đi
+// client/src/App.jsx
 import AppRoutes from "./routes/AppRoutes";
 import { PlayerProvider } from "./context/PlayerContext";
 import "./styles/player.css";
 
+import { ToastProvider } from "./context/ToastContext";
+
 function App() {
   return (
-    <PlayerProvider>
-      <AppRoutes />
-    </PlayerProvider>
+    <ToastProvider>
+      <PlayerProvider>
+        <AppRoutes />
+      </PlayerProvider>
+    </ToastProvider>
   );
 }
 

@@ -2,32 +2,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
+import AdminPage from "./Admin_Page";
 import useSections from "../hooks/useSections";
 import SongSection from "../components/song/SongSection";
-import ArtistSection from "../components/song/ArtistSection";
+import "../styles/Admin_Dashboard.css";
 
 const API_URL = "http://localhost:8080/api";
-
-const styles = {
-  dashboard: {  padding: "0 20px", display: "flex", justifyContent: "center", flexDirection: "column",  },
-  log: { width: "100%", margin: "20px 0", display: "flex", gap: "20px" },
-  info: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around",
-    gap: "25px",
-    padding: "30px",
-    backgroundColor: "#dbe8f68d",
-    borderRadius: "8px",
-    border: "1px solid #2e4e7a",
-    flex: 1,
-  },
-  title: { color: "#1f1f1f", fontSize: "22px", fontWeight: "600" },
-  count: { fontSize: "32px", fontWeight: "700", color: "#2563eb" },
-  list: { 
-
-   },
-};
 
 function Admin() {
   useEffect(() => {
@@ -36,7 +16,7 @@ function Admin() {
 
   const { token } = useAuth();
   const [userCount, setUserCount] = useState("...");
-  const [songCount, setSongCount] = useState("..."); // sau thêm song API
+  const [songCount, setSongCount] = useState("...");
   const { sections, loading } = useSections();
 
   useEffect(() => {
@@ -50,48 +30,39 @@ function Admin() {
       .get(`${API_URL}/songs`)
       .then((res) => setSongCount(res.data.data.length))
       .catch(() => setSongCount("?"));
-  }, []);
+  }, [token]);
 
-  function handlePlay(song) {
-    console.log("Phát bài:", song.title);
-    // TODO: gọi playerContext.playSong(song) sau
-  }
   return (
-    <div style={styles.dashboard}>
-      <h1 className="text-2xl font-semibold text-blue-900 mb-6">Dashboard</h1>
-
-      <div style={styles.log}>
-        <div style={styles.info}>
-          <h2 style={styles.title}>Song</h2>
-          <p style={styles.count}>{songCount} </p>
+    <AdminPage title="Dashboard">
+      <div className="admin-dashboard__stats">
+        <div className="admin-dashboard__stat-card">
+          <h2 className="admin-dashboard__stat-title">Song</h2>
+          <p className="admin-dashboard__stat-count">{songCount}</p>
         </div>
-        <div style={styles.info}>
-          <h2 style={styles.title}>User</h2>
-          <p style={styles.count}>{userCount}</p>
+        <div className="admin-dashboard__stat-card">
+          <h2 className="admin-dashboard__stat-title">User</h2>
+          <p className="admin-dashboard__stat-count">{userCount}</p>
         </div>
       </div>
 
-      <div style={styles.list}>
-        <div style={styles.content}>
-
-          <div style={styles.section}>
-            {loading ? (
-              <p>Đang tải...</p>
-            ) : (
-              sections.map((section) => (
-                <SongSection
-                  key={section._id}
-                  title={section.name}
-                  songs={section.songs}
-                  layout={section.layout}
-                  songList={section.songs}
-                />
-              ))
-            )}
-          </div>
+      <div className="admin-dashboard__sections">
+        <div className="admin-dashboard__section-list">
+          {loading ? (
+            <p>Đang tải...</p>
+          ) : (
+            sections.map((section) => (
+              <SongSection
+                key={section._id}
+                title={section.name}
+                songs={section.songs}
+                layout={section.layout}
+                songList={section.songs}
+              />
+            ))
+          )}
         </div>
       </div>
-    </div>
+    </AdminPage>
   );
 }
 

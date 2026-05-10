@@ -3,55 +3,9 @@ import { DownOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useEffect } from "react";
+import "../../styles/Navbar_Admin.css";
 
-const styles = {
-  navbar: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "16px 24px",
-    backgroundColor: "white",
-    borderBottom: "1px solid #e4e4e7",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    gap: "5px",
-  },
-  logo: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "9999px",
-    objectFit: "cover",
-    cursor: "pointer",
-  },
-  navMenu: {
-    display: "flex",
-    alignItems: "center",
-    gap: "24px",
-  },
-  primaryButtons: {
-    display: "flex",
-    gap: "12px",
-    alignItems: "center",
-  },
-  greenButton: {
-    padding: "8px 16px",
-    borderRadius: "5px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "14px",
-    backgroundColor: "#10b981",
-  },
-  searchInput: {
-    padding: "8px 12px",
-    borderRadius: "8px",
-    border: "1px solid #e4e4e7",
-    outline: "none",
-    fontSize: "14px",
-    maxWidth: "350px",
-  },
-};
-
-function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
+function Navbar_Admin({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
   const userMenuItems = [
@@ -60,35 +14,25 @@ function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
     {
       key: "3",
       label: (
-        <span onClick={logout} style={{ cursor: "pointer", color: "#ef4444" }}>
+        <span onClick={logout} className="navbar-admin__logout-link" role="presentation">
           Logout
         </span>
       ),
     },
   ];
-  const getNavStyle = (visible) => ({
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    transition: "transform 0.3s ease",
-    transform: visible ? "translateY(0)" : "translateY(-100%)",
-  });
+
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
   useEffect(() => {
     function handleScroll() {
       const currentY = window.scrollY;
 
       if (currentY < 10) {
-        // Ở đầu trang → luôn hiện
         setVisible(true);
       } else if (currentY < lastScrollY) {
-        // Cuộn lên → hiện
         setVisible(true);
       } else {
-        // Cuộn xuống → ẩn
         setVisible(false);
       }
 
@@ -96,36 +40,32 @@ function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
     }
 
     window.addEventListener("scroll", handleScroll);
-
-    // Cleanup: gỡ event khi component unmount
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   return (
-    <nav style={getNavStyle(visible)}>
-      <header style={styles.navbar}>
+    <nav
+      className={`navbar-admin-shell ${
+        visible ? "navbar-admin-shell--visible" : "navbar-admin-shell--hidden"
+      }`}
+    >
+      <header className="navbar-admin">
         <div className="flex items-center gap-4">
           <img
             src="/logo.png"
             alt="Logo"
-            style={styles.logo}
+            className="navbar-admin__logo"
             onClick={() => setIsOpen(!isOpen)}
           />
         </div>
 
-        <nav style={styles.navMenu}>
-          <Input
-            type="search"
-            placeholder="Search..."
-            style={styles.searchInput}
-          />
+        <nav className="navbar-admin__nav-menu">
+          <div className="navbar-admin__search-wrap">
+            <Input type="search" placeholder="Search..." />
+          </div>
         </nav>
 
-        <div style={styles.primaryButtons}>
-          {/*
-            condition ? valueIfTrue : valueIfFalse _ nếu... thì... không thì... 
-            condition =  if (condition === true) 
-          */}
+        <div className="navbar-admin__primary-buttons">
           {isLoggedIn ? (
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Button>
@@ -136,7 +76,7 @@ function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
             <>
               <Button
                 type="primary"
-                style={styles.greenButton}
+                className="navbar-admin__btn"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -144,20 +84,18 @@ function Navbar_Admin({ isOpen, setIsOpen, onLogout }) {
 
               <Button
                 type="primary"
-                style={styles.greenButton}
+                className="navbar-admin__btn"
                 onClick={() => navigate("/register")}
               >
                 Register
               </Button>
               <Button
                 type="primary"
-                style={styles.greenButton}
+                className="navbar-admin__btn"
                 onClick={() => navigate("/admin")}
               >
                 Admin
               </Button>
-
-          
             </>
           )}
         </div>

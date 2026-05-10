@@ -1,0 +1,344 @@
+/* Admin_Playlist.css */
+/* Header (title + btn-add) do AdminPage.css xử lý */
+
+/* ── Nút tạo section (header action) ── */
+.playlist-admin__btn-add {
+  padding: 8px 16px;
+  background-color: var(--color-button1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: var(--fontsize-md);
+}
+
+/* ── Grid card ── */
+.playlist-admin__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.playlist-admin__card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  background-color: #f8fafc;
+}
+
+.playlist-admin__card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e3a5f;
+  margin-bottom: 4px;
+}
+
+.playlist-admin__badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  margin-bottom: 8px;
+}
+
+.playlist-admin__card-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.playlist-admin__song-count {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.playlist-admin__card-footer {
+  display: flex;
+  gap: 8px;
+}
+
+.playlist-admin__btn-manage {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #16a34a;
+  border-radius: 6px;
+  color: #16a34a;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.playlist-admin__btn-edit {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  color: #2563eb;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.playlist-admin__btn-del {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  color: #dc2626;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* ── Overlay + Modal ── */
+.playlist-admin-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.playlist-admin-modal {
+  background-color: white;
+  border-radius: 12px;
+  padding: 28px;
+  width: 440px;
+}
+
+.playlist-admin-modal--wide {
+  width: 680px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* ── Modal header ── */
+.playlist-admin-modal__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #1e3a5f;
+}
+
+
+
+.playlist-admin__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+/* ── Form (SectionModal) ── */
+.playlist-admin__label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+
+.playlist-admin__input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.playlist-admin__select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.playlist-admin-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.playlist-admin__btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.playlist-admin__btn-save {
+  padding: 5px 16px;
+  background-color: var(--color-button1);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--fontsize-md);
+}
+
+.playlist-admin__btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ManageSongsModal*/
+
+.playlist-table-block {
+  margin-bottom: 24px;
+}
+
+/* Label phân loại có/k */
+.playlist-table-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.playlist-table-label--in {
+  color: var(--color-success);
+}
+
+.playlist-table-label--add {
+  color: var(--color-bg-2);
+}
+
+.playlist-table-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: currentColor;
+  /* dùng trick: đặt màu chữ contrast */
+}
+
+.playlist-table-label--in .playlist-table-count {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.playlist-table-label--add .playlist-table-count {
+  background-color: var(--color-bg-2);
+  color: white;
+}
+
+/* Bảng */
+.playlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.playlist-table__th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--color-glass-2);
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.playlist-table__td {
+  padding: 9px 12px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.playlist-table__td--num {
+  color: #9ca3af;
+  font-size: 12px;
+  width: 28px;
+}
+
+.playlist-table__td--title {
+  font-weight: 500;
+  color: #111827;
+}
+
+.playlist-table__td--action {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Màu xen kẽ theo nhóm */
+.playlist-table__row--in:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.playlist-table__row--add:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.playlist-table__row:hover {
+  background-color: #f0f9ff;
+}
+
+/* Badge thể loại */
+.playlist-table__genre {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-size: 11px;
+  border: 1px #9fd7eb solid;
+  color: #0b7ca5;
+}
+
+/* Empty state */
+.playlist-table__empty {
+  text-align: center;
+  padding: 20px;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Nút trong bảng */
+.playlist-table__btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.playlist-table__btn:hover {
+  opacity: 0.8;
+}
+
+.playlist-table__btn--remove {
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  background-color: #fff5f5;
+}
+
+.playlist-table__btn--add {
+  border: 1px solid #16a34a;
+  color: #16a34a;
+  background-color: #f0fdf4;
+}

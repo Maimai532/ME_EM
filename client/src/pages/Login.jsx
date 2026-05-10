@@ -42,7 +42,7 @@ function Login() {
           <span className="login-poster-tag">Me_EM Music</span>
           <h2 className="login-poster-title">
             Nghe nhạc <br />
-            bằng cả <span>tâm hồn</span>
+            bằng cả tâm hồn
           </h2>
           <p className="login-poster-desc">
             Hàng triệu bài hát, không quảng cáo. <br />
@@ -91,11 +91,11 @@ function Login() {
           </div>
 
           <div className="login-social">
-            <button className="social-btn" disabled>
+            <button className="social-btn" >
               <img src="/google.png" alt="Google" width={18} height={18} />
               Đăng nhập với Google
             </button>
-            <button className="social-btn" disabled>
+            <button className="social-btn">
               <img src="/github.png" alt="GitHub" width={18} height={18} />
               Đăng nhập với GitHub
             </button>

@@ -1,34 +1,34 @@
-.login-page {
+.register-page {
   min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
   position: relative;
-  background-color: #68c6ed;
+  background-color: var(--color-bg-2);
 }
 
 /* ===== POSTER - FULL BACKGROUND ===== */
-.login-poster {
+.register-poster {
   position: fixed;
   inset: 0;
   z-index: 0;
 }
 
-.login-poster-img {
+.register-poster-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: brightness(0.45);
 }
 
-.login-poster-overlay {
+.register-poster-overlay {
   position: absolute;
   bottom: 48px;
   left: 48px;
   z-index: 1;
 }
 
-.login-poster-tag {
+.register-poster-tag {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
@@ -42,7 +42,7 @@
   margin-bottom: 16px;
 }
 
-.login-poster-title {
+.register-poster-title {
   font-size: 2.6rem;
   font-weight: 800;
   color: rgb(0, 0, 0);
@@ -51,8 +51,7 @@
   letter-spacing: -0.5px;
 }
 
-
-.login-poster-desc {
+.register-poster-desc {
   font-size: 15px;
   color: #282828;
   line-height: 1.6;
@@ -60,12 +59,11 @@
 }
 
 /* ===== FORM - PHẢI, TRONG SUỐT ===== */
-.login-right {
+.register-right {
   position: relative;
   z-index: 10;
   width: 600px;
   min-height: 100vh;
-  /* height: 100%; */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -78,33 +76,35 @@
  
 }
 
-.login-box {
+.register-box {
   width: 100%;
   margin-top: 40px;
 
 }
 
-.login-title {
-  color: white;
+.register-title {
+  color: var(--color-title2);
   font-size: 35px;
   font-weight: 700;
   margin-bottom: 6px;
   text-align: center;
+  /* align-self: center; chi di vs flexbox */
 }
 
-.login-subtitle {
-  color: #c2c5ca;
+.register-subtitle {
+  color: var(--color-sub2);
   font-size: 12px;
   margin-bottom: 28px;
   text-align: center;
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
+
 }
-.login-form input{
+.register-form input{
     padding: 10px;
     border-radius: 8px;
     border: 1px rgba(140, 152, 156, 0.562) solid;
@@ -112,12 +112,12 @@
     background-color: var(--color-input);
 }
 
-.login-form input::placeholder {
+.register-form input::placeholder {
   color: #6b7280;
   font-size: 14px;
 }
 
-.login-form button{
+.register-form button{
     padding: 10px;
     border-radius: 8px;
     border: 1px rgba(140, 152, 156, 0.562) solid;
@@ -125,12 +125,12 @@
     color: rgb(255, 255, 255);
    
 }
-.login-form button:hover{
+.register-form button:hover{
     background-color: #e9e9e9;
     color: rgb(0, 0, 0);
 }
 
-.login-error {
+.register-error {
   color: #8f0000;
   font-size: 13px;
 
@@ -139,7 +139,7 @@
 }
 
 
-.login-link {
+.register-link {
   font-size: 13px;
   color: #ffffff;
   text-align: center;
@@ -147,11 +147,11 @@
   margin-top: 10px;
 }
 
-.login-link:hover {
+.register-link:hover {
   text-decoration: underline;
 }
 
-.login-divider {
+.register-divider {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -160,13 +160,13 @@
   margin: 20px 0;
 }
 
-.login-line {
+.register-line {
   flex: 1;
   height: 1px;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.login-social {
+.register-social {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -192,6 +192,7 @@
   border-color: rgba(35, 172, 231, 0.748);
   background-color: rgba(95, 184, 217, 0.36);
 }
+
 
 h3{
     color: #f3f3f3;

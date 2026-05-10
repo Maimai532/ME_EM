@@ -1,0 +1,104 @@
+/* AdminLayout.jsx */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: white;
+}
+
+.admin-layout__sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background-color: var(--color-bg-1);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.admin-layout__logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  border-bottom: 1px solid #000000;
+  gap: 8px;
+}
+
+.admin-layout__logo-img {
+  width: 75px;
+  height: 75px;
+}
+
+.admin-layout__logo-text {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.05em;
+}
+
+.admin-layout__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+}
+
+.admin-layout__nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  color: #ffffff;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-layout__nav-link:hover {
+  background-color: var(--color-button2-mute);
+  color: #ffffff;
+}
+
+.admin-layout__nav-link--active {
+  background-color: var(--color-button2-mute);
+  color: #ffffff;
+}
+
+.admin-layout__logout-box {
+  padding: 12px;
+  border-top: 1px solid #2e4e7a;
+}
+
+.admin-layout__logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text4);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-layout__logout-btn:hover {
+  background-color: var(--color-button2-mute);
+  /* color: #fff; */
+}
+
+.admin-layout__main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}

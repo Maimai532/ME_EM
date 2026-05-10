@@ -1,0 +1,54 @@
+/* client/src/styles/variables.css */
+
+/* 
+css:         name: var(--radius-md);
+style:       name: "var(--color-primary)"
+*/
+:root {
+  /* Màu chính */
+  --color-primary:     #2563eb;
+  --color-danger:      #980b0b;
+  --color-success:     #068131;
+  --color-warning:     #e29d14;
+  --color-info:        #035fb4;
+  
+  --color-bg-1:        #000000;
+  --color-bg-2:        #68c6ed;
+  --color-glass-1:        #00000080;
+  --color-glass-2:        #68c6ed5c;
+
+  /* Text */
+  --color-title1:        #000000;
+  --color-title2:        #ffffff;
+
+  --color-sub1:        #000000;
+  --color-sub2:        #d3d3d3;
+
+  --color-textInput1:        #ffffff;
+  --color-input:            #4d4c4c1b;
+
+
+  --color-text1:        #000000;
+  --color-text2:        #68c6ed;
+  --color-text3:        #4d4d4d;
+  --color-text4:        #ffffff;
+  
+  --color-button1:             #000000;
+  --color-button2:             #68c6ed;
+  --color-button1-mute:        #4b4b4b74;
+  --color-button2-mute:        #68c6ed74;
+
+  --color-border1:      #ceced0;
+  --color-border1:      #ceced0;
+
+  /* Border radius */
+  --radius-md:   8px;
+  --radius-lg:   15px;
+
+  /* Fontsize */
+  --fontsize-sm:  8px;
+  --fontsize-md:  14px;
+  --fontsize-lg:  24px;
+
+
+}

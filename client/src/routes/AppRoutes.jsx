@@ -8,12 +8,12 @@ import Home from "../pages/Home";
 import Profile from "../pages/Profile";
 import Playlist from "../pages/Playlist";
 import Library from "../pages/Library";
-import MusicPlayerPage from "../pages/MusicPlayerPage";
+import MusicPlayer from "../pages/MusicPlayer";
 
 import Admin from "../pages/Admin";
-import Playlist_Admin from "../pages/Playlist_Admin";
-import Song_Admin from "../pages/Song_Admin";
-import User_Admin from "../pages/User_Admin";
+import Admin_Playlist from "../pages/Admin_Playlist";
+import Admin_Song from "../pages/Admin_Song";
+import Admin_User from "../pages/Admin_User";
 import AdminLayout from "../layouts/AdminLayout";
 import PlayerBar from "../components/ui/PlayerBar"; // thêm import
 
@@ -35,15 +35,15 @@ const AppRoutes = () => {
           <Route path="/settings" element={<Profile />} />
           <Route path="/playlist" element={<Playlist />} />
 
-          <Route path="/player/:id" element={<MusicPlayerPage />} />
+          <Route path="/player/:id" element={<MusicPlayer />} />
         </Route>
 
         {/* Admin routes */}
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
           <Route index element={<Admin />} />
-          <Route path="song_admin" element={<Song_Admin />} />
-          <Route path="playlist_admin" element={<Playlist_Admin />} />
-          <Route path="user_admin" element={<User_Admin />} />
+          <Route path="song_admin" element={<Admin_Song />} />
+          <Route path="playlist_admin" element={<Admin_Playlist />} />
+          <Route path="user_admin" element={<Admin_User />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

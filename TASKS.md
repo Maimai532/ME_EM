@@ -36,13 +36,16 @@ client/src/
 │   ├── Playlist.jsx           # Chi tiết playlist
 │   ├── Profile.jsx            # Trang cá nhân / Settings
 │   ├── Admin.jsx              # Dashboard admin
-│   ├── Song_Admin.jsx         # Quản lý bài hát
-│   ├── Playlist_Admin.jsx     # Quản lý playlist
-│   └── User_Admin.jsx         # Quản lý người dùng
+│   ├── Admin_Page.jsx         # Layout chung các trang admin
+│   ├── Admin_Song.jsx         # Quản lý bài hát
+│   ├── Admin_Playlist.jsx     # Quản lý playlist
+│   ├── Admin_User.jsx         # Quản lý người dùng
+│   └── MusicPlayer.jsx        # Trình phát nhạc theo id
 │
 ├── layouts/                   # Layout bọc ngoài các page
 │   ├── AuthLayout.jsx         # Layout chung cho user (Navbar + Sidebar)
 │   └── AdminLayout.jsx        # Layout riêng cho admin (sidebar admin)
+│   └── AuthLayout.jsx         # Layout auth
 │
 ├── routes/                    # Cấu hình điều hướng
 │   ├── AppRoutes.jsx          # Khai báo toàn bộ routes

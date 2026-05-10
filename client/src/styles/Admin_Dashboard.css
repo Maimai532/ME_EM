@@ -1,0 +1,33 @@
+/* Dashboard_Admin.css */
+/* Header (title) nay do AdminPage.css xử lý */
+
+.admin-dashboard__stats {
+  width: 48%;
+  margin: 0 0 20px 0;
+  display: flex;
+  gap: 20px;
+}
+
+.admin-dashboard__stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2px;
+  padding: 25px;
+  background-color: #1892a03e;
+  border-radius: var(--radius-lg);
+  border: 1px solid #2e4e7a;
+  flex: 1;
+}
+
+.admin-dashboard__stat-title {
+  color: var(--color-text4);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.admin-dashboard__stat-count {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text4);
+}

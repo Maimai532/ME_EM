@@ -3,49 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Repeat,
-  Shuffle,
-  Heart,
-} from "lucide-react";
+import { Heart } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import { usePlayer } from "../context/PlayerContext";
 import { getRandomSongs } from "../services/songService";
 import "../styles/MusicPlayerPage.css";
 
-function formatTime(seconds) {
-  if (!seconds || isNaN(seconds)) return "0:00";
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
-  return `${m}:${s}`;
-}
-
-export default function MusicPlayerPage() {
+export default function MusicPlayer() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, logout } = useAuth();
-  const {
-    currentSong,
-    isPlaying,
-    currentTime,
-    duration,
-    isRepeat,
-    isShuffle,
-    togglePlay,
-    playNext,
-    playPrev,
-    seek,
-    toggleRepeat,
-    toggleShuffle,
-    playSong,
-  } = usePlayer();
+  const { currentSong, isPlaying, playSong } = usePlayer();
 
   const [songList, setSongList] = useState([]);
   const [liked, setLiked] = useState(false);
@@ -78,8 +47,6 @@ export default function MusicPlayerPage() {
     init();
   }, [id]); // chạy lại mỗi khi id thay đổi (chọn bài khác)
 
-  const progress = duration ? (currentTime / duration) * 100 : 0;
-
   // Chỉ hiện spinner khi đang fetch, không phải khi currentSong chưa sync
   if (loading) {
     return (
@@ -93,7 +60,7 @@ export default function MusicPlayerPage() {
   if (!currentSong) {
     return (
       <div className="player-loading">
-        <p style={{ color: "white" }}>Không tìm thấy bài hát.</p>
+        <p className="player-loading-msg">Không tìm thấy bài hát.</p>
       </div>
     );
   }
@@ -136,53 +103,6 @@ export default function MusicPlayerPage() {
           {liked ? "Đã thích" : "Yêu thích"}
         </button>
 
-        {/* <div className="player-progress">
-          <div
-            className="player-progress-bar"
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const ratio = (e.clientX - rect.left) / rect.width;
-              seek(ratio * duration);
-            }}
-          >
-            <div
-              className="player-progress-fill"
-              style={{ width: `${progress}%` }}
-            />
-            <div
-              className="player-progress-thumb"
-              style={{ left: `${progress}%` }}
-            />
-          </div>
-          <div className="player-times">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
-        </div> */}
-
-        {/* <div className="player-controls">
-          <button
-            className={`ctrl-btn ${isShuffle ? "active" : ""}`}
-            onClick={toggleShuffle}
-          >
-            <Shuffle size={22} />
-          </button>
-          <button className="ctrl-btn" onClick={playPrev}>
-            <SkipBack size={26} />
-          </button>
-          <button className="ctrl-btn ctrl-play" onClick={togglePlay}>
-            {isPlaying ? <Pause size={28} /> : <Play size={28} />}
-          </button>
-          <button className="ctrl-btn" onClick={playNext}>
-            <SkipForward size={26} />
-          </button>
-          <button
-            className={`ctrl-btn ${isRepeat ? "active" : ""}`}
-            onClick={toggleRepeat}
-          >
-            <Repeat size={22} />
-          </button>
-        </div> */}
       </div>
 
       {/* PHẢI - Queue */}

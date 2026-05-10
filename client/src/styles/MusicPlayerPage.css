@@ -7,6 +7,10 @@
   background-color: #6c82a0;
 }
 
+.player-loading-msg {
+  color: white;
+}
+
 /* Page */
 .player-page {
   background-color: #6c82a0;

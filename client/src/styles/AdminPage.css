@@ -1,0 +1,36 @@
+/* AdminPage.css — Shared layout cho tất cả trang Admin */
+
+.admin-page {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Header chung: title bên trái, actions bên phải ── */
+.admin-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  min-height: 40px; /* giữ chiều cao cố định dù có hay không có actions */
+}
+
+.admin-page__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-title1);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.admin-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Body: chứa nội dung từng trang ── */
+.admin-page__body {
+  /* không thêm padding thêm — mỗi trang tự quyết */
+}
