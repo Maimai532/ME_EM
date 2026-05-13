@@ -11,7 +11,8 @@ main.jsx → App.jsx → AuthProvider → AppRoutes
                                                                → services (gọi API)
                                                                           → Backend
 
-## FE
+## FE 
+// cấu trscu theo loại file
 client/src/
 │
 ├── assets/                    # File tĩnh: ảnh, icon, font

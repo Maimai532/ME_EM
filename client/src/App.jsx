@@ -1,9 +1,8 @@
 // client/src/App.jsx
-import AppRoutes from "./routes/AppRoutes";
-import { PlayerProvider } from "./context/PlayerContext";
-import "./styles/player.css";
+import AppRoutes from "./shared/routes/AppRoutes";
+import { PlayerProvider } from "./features/player/context/PlayerContext";
 
-import { ToastProvider } from "./context/ToastContext";
+import { ToastProvider } from "./shared/context/ToastContext";
 
 function App() {
   return (

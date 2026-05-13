@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { AuthProvider } from "./context/AuthContext";
-import "./styles/player.css";
-import "./styles/variables.css" 
+import { AuthProvider } from "./features/auth/context/AuthContext";
+import "./shared/styles/player.css";
+import "./shared/styles/variables.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

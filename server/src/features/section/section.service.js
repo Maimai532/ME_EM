@@ -1,0 +1,1 @@
+// Section / homepage-curation service layer (placeholder).

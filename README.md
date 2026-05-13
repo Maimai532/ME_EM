@@ -9,7 +9,15 @@
 - `client/`: frontend app
 - `server/`: backend API
 
-## Run Locally
+## Cách chạy
+
+### Server
+
+```bash
+cd server
+npm install
+npm run dev
+```
 
 ### Client
 
@@ -19,11 +27,6 @@ npm install
 npm run dev
 ```
 
-### Server
 
-```bash
-cd server
-npm install
-npm run dev
-```
+
 # ME_EM
