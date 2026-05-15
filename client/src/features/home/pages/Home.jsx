@@ -6,12 +6,12 @@ import "../styles/Home.css";
 function Home() {
   const { sections, loading } = useSections();
 
-  useEffect(() => { document.title = "Home"; }, []);
+  useEffect(() => { document.title = "Me_Em"; }, []);
 
   return (
     <div className="home-content">
-      <h1 className="text-2xl font-semibold text-blue-900">
-        Nghe nhạc bằng cả tính mạng
+      <h1>
+        Tôi yêu âm nhạc
       </h1>
       {loading ? (
         <p>Đang tải...</p>

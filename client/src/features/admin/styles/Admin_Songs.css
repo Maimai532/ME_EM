@@ -9,6 +9,32 @@
   flex-wrap: wrap;
 }
 
+.song-admin-meta {
+  padding: 10px;
+  background-color: #1172a347;
+  width: 200px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px rgb(0, 0, 0) solid;
+  font-size: 16px;
+}
+.song-admin-meta span {
+  color: rgb(6, 54, 101);
+  font-size: 30px;
+}
+
+/* scroll table */
+.song-admin__table-wrapper { 
+  max-height: 70vh;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+  
+}
+
+
 .song-admin__search-input {
   flex: 1;
   min-width: 260px;
@@ -29,14 +55,18 @@
 .song-admin__table {
   width: 100%;
   border-collapse: collapse;
+  border-radius: var(--radius-md);
 }
 
+/* cố định hàng đầu */
 .song-admin__th {
   text-align: left;
   padding: 10px 12px;
-  background-color: #dbe8f6;
-  color: #1e3a5f;
   font-size: 14px;
+  position: sticky; 
+  top: 0;
+  z-index: 1;
+  background-color: #7496b8;
 }
 
 .song-admin__td {
@@ -46,7 +76,7 @@
 }
 
 .song-admin__row--selected {
-  background-color: #eff6ff;
+  background-color: #6f8bb0;
 }
 
 .song-admin__thumb {
@@ -59,12 +89,11 @@
 
 .song-admin__btn-add {
   padding: 8px 16px;
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  color: #ffffff;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  background-color: black;
 }
 
 .song-admin__btn-add--danger {
@@ -72,23 +101,28 @@
 }
 
 .song-admin__btn-edit {
-  padding: 4px 10px;
-  margin-right: 8px;
-  background-color: #f0f9ff;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
-  color: #2563eb;
+  background-color: var(--color-bg-edit);
+  color: var(--color-text-edit);
+  border-radius: var(--radius-edit);
   cursor: pointer;
+  padding: 6px 12px;
+  margin-bottom: 5px;
+}
+.song-admin__btn-edit:hover {
+  background-color: var(--hover-bg-edit);
 }
 
 .song-admin__btn-del {
-  padding: 4px 10px;
-  background-color: #fff0f0;
-  border: 1px solid #dc2626;
-  border-radius: 6px;
-  color: #dc2626;
+  background-color: var(--color-bg-del);
+  color: var(--color-text-del);
+  border-radius: var(--radius-del);
   cursor: pointer;
+  padding: 6px 12px;
 }
+.song-admin__btn-del:hover {
+  background-color: var(  --hover-bg-del);
+}
+
 
 .song-admin__empty-cell {
   text-align: center;

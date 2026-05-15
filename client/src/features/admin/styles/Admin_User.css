@@ -7,32 +7,50 @@
 }
 
 .user-admin-meta {
-  color: var(--color-sub2);
-  margin: 0 0 16px 0;
+  padding: 10px;
+  background-color: #1172a347;
+  width: 200px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px rgb(0, 0, 0) solid;
+  font-size: 16px;
+}
+.user-admin-meta span {
+  color: rgb(6, 54, 101);
+  font-size: 30px;
+}
+
+/* scroll table */
+.user-admin__table-wrapper { 
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+  
 }
 
 .user-admin-table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #d7eef23e;
+  border-radius: var(--radius-md);
 }
 
 .user-admin-th {
-  padding: 12px 16px;
   text-align: left;
-  background-color: #58b1d7;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--color-text1);
+  padding: 10px 12px;
+  font-size: 14px;
+  position: sticky; 
+  top: 0;
+  z-index: 1;
+  background-color: #7496b8;
 }
 
 .user-admin-td {
-  padding: 12px 16px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
   font-size: 14px;
-  color: var(--color-text3);
-  border-top: 1px solid #f1f5f930;
 }
 
 .user-admin-badge {
@@ -88,11 +106,10 @@
 }
 
 .user-admin-action--delete {
-  background-color: #ac07071c;
-  border: 1px rgb(137, 55, 55) solid;
-  color: rgb(185, 8, 8);
+  background-color: var(--color-bg-del);
+  color: var(--color-text-del);
+  border-radius: var(--radius-del);
 }
 .user-admin-action--delete:hover {
-  background-color: #c61111d3;
-  color: white;
+  background-color: var(  --hover-bg-del);
 }

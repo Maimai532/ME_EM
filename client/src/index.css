@@ -1,11 +1,30 @@
 @import "tailwindcss";
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  
+}
+/* [data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-text-secondary: #666666;
+  --color-boder: #666666;
+
 }
 
+[data-theme="dark"] {
+  --color-bg: #111111;
+  --color-text: #ffffff;
+  --color-text-secondary: #aaaaaa;
+} */
+
+/* body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+} */
+
 body {
-  /* padding-top: 65px; */
-  background-color: black;
+  background: linear-gradient(165deg, #68c6ed,#000000,#000000, #000000);
 }

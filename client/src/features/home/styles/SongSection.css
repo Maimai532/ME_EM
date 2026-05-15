@@ -2,33 +2,40 @@
 
 .song-section {
   margin-bottom: 32px;
-  border: 1px solid #ccc;
+  /* border: 1px solid #5252527d; */
   border-radius: 8px;
   padding: 20px;
-  overflow: hidden;
+  /* overflow: hidden; */
+  background-color: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(100px); 
+  /* gap: 15px;  */
 }
 
 .song-section__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  /* background-color: aqua; */
+  /* margin-bottom: 10px; */
 }
 
 .song-section__title {
   font-size: 20px;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
 }
 
 .song-section__play-btn {
   font-size: 14px;
-  color: #235c98;
-  border: 1px solid #ccc;
+  color: var(--color-text2);
+  /* border: 1px solid #373737; */
   border-radius: 10px;
   padding: 6px 12px;
-  background-color: white;
+  /* background-color: white; */
   cursor: pointer;
+}
+.song-section__play-btn:hover{
+    background-color: var(--color-hover);
 }
 
 .song-section__grid--scroll {
@@ -46,11 +53,11 @@
   gap: 16px;
 }
 
-.song-section__grid--list {
-  /* chia lm 2 cọt */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* gap: 10px; */
+.song-section__grid--list { 
   height: 250px;
   overflow-y: auto;
+  /* chia lm 3 cọt */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 8px;
 }

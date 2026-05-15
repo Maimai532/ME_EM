@@ -302,12 +302,13 @@ function Admin_Playlist() {
 
   const headerActions = (
     <button type="button" className="playlist-admin__btn-add" onClick={() => setModal(emptyForm)}>
-      + New playlist
+      New playlist
     </button>
   );
 
   return (
     <AdminPage title="Quản lý Playlist" actions={headerActions}>
+      <div className="playlist-admin-meta">Playlist: <span>{sections.length}</span> </div>
       {loading ? (
         <p>Đang tải...</p>
       ) : (

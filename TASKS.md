@@ -11,121 +11,215 @@ main.jsx → App.jsx → AuthProvider → AppRoutes
                                                                → services (gọi API)
                                                                           → Backend
 
-## FE 
-// cấu trscu theo loại file
+
+
+## FE — Feature-based structure
+
 client/src/
 │
-├── assets/                    # File tĩnh: ảnh, icon, font
+├── features/               
 │
-├── components/                # UI nhỏ, tái sử dụng nhiều nơi
-│   ├── ui/                    # Component cơ bản
-│   │   ├── Input.jsx          # Ô nhập liệu
-│   │   ├── Button.jsx         # Nút bấm
-│   │   ├── Navbar.jsx         # Thanh điều hướng trên
-│   │   └── Sidebar.jsx        # Thanh bên trái
+│   ├── auth/
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   └── Register.jsx
+│   │   │
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── authService.js
+│   │   │
+│   │   ├── hooks/
+│   │   │   └── useAuth.js
+│   │   │
+│   │   └── components/
+│   │       └── AuthForm.jsx
 │   │
-│   └── song/                  # Component liên quan đến bài hát
-│       ├── SongCard.jsx       # 1 ô bài hát (ảnh + tên + nghệ sĩ)
-│       ├── SongSection.jsx    # 1 hàng nhiều SongCard (trending, mới...)
-│       └── SongPlayer.jsx     # Thanh player dưới cùng
+│   ├── song/
+│   │   ├── components/
+│   │   │   ├── SongCard.jsx
+│   │   │   ├── SongSection.jsx
+│   │   │   └── SongList.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── songService.js
+│   │   │
+│   │   ├── hooks/
+│   │   │   └── useSongs.js
+│   │   │
+│   │   └── pages/
+│   │       └── Home.jsx
+│   │
+│   ├── player/
+│   │   ├── components/
+│   │   │   ├── SongPlayer.jsx
+│   │   │   └── PlayerControls.jsx
+│   │   │
+│   │   ├── context/
+│   │   │   └── PlayerContext.jsx
+│   │   │
+│   │   ├── hooks/
+│   │   │   └── usePlayer.js
+│   │   │
+│   │   └── pages/
+│   │       └── MusicPlayer.jsx
+│   │
+│   ├── playlist/
+│   │   ├── components/
+│   │   │   ├── PlaylistCard.jsx
+│   │   │   ├── PlaylistHeader.jsx
+│   │   │   └── PlaylistSongs.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   └── Playlist.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── playlistService.js
+│   │   │
+│   │   └── hooks/
+│   │       └── usePlaylist.js
+│   │
+│   ├── library/
+│   │   └── pages/
+│   │       └── Library.jsx
+│   │
+│   ├── profile/
+│   │   └── pages/
+│   │       └── Profile.jsx
+│   │
+│   ├── search/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   └── services/
+│   │
+│   └── admin/
+│       ├── pages/
+│       │   ├── Admin.jsx
+│       │   ├── Admin_Page.jsx
+│       │   ├── Admin_Song.jsx
+│       │   ├── Admin_Playlist.jsx
+│       │   └── Admin_User.jsx
+│       │
+│       ├── services/
+│       │   └── adminService.js
+│       │
+│       └── components/
+│           └── AdminSidebar.jsx
 │
-├── pages/                     # Trang — mỗi route 1 file
-│   ├── Login.jsx              # Trang đăng nhập
-│   ├── Register.jsx           # Trang đăng ký
-│   ├── Home.jsx               # Trang chủ
-│   ├── Library.jsx            # Thư viện / Yêu thích / Lịch sử
-│   ├── Playlist.jsx           # Chi tiết playlist
-│   ├── Profile.jsx            # Trang cá nhân / Settings
-│   ├── Admin.jsx              # Dashboard admin
-│   ├── Admin_Page.jsx         # Layout chung các trang admin
-│   ├── Admin_Song.jsx         # Quản lý bài hát
-│   ├── Admin_Playlist.jsx     # Quản lý playlist
-│   ├── Admin_User.jsx         # Quản lý người dùng
-│   └── MusicPlayer.jsx        # Trình phát nhạc theo id
+├── shared/                                # Dùng chung toàn app
 │
-├── layouts/                   # Layout bọc ngoài các page
-│   ├── AuthLayout.jsx         # Layout chung cho user (Navbar + Sidebar)
-│   └── AdminLayout.jsx        # Layout riêng cho admin (sidebar admin)
-│   └── AuthLayout.jsx         # Layout auth
+│   ├── components/
+│   │   └── ui/
+│   │       ├── Button.jsx
+│   │       ├── Input.jsx
+│   │       ├── Navbar.jsx
+│   │       ├── Sidebar.jsx
+│   │       ├── Modal.jsx
+│   │       └── Loader.jsx
+│   │
+│   ├── layouts/
+│   │   ├── AuthLayout.jsx
+│   │   └── AdminLayout.jsx
+│   │
+│   ├── routes/
+│   │   ├── AppRoutes.jsx
+│   │   └── ProtectedRoute.jsx
+│   │
+│   ├── hooks/
+│   │   └── useDebounce.js
+│   │
+│   ├── utils/
+│   │   └── formatTime.js
+│   │
+│   ├── constants/
+│   │   └── api.js
+│   │
+│   ├── styles/
+│   │   ├── variables.css
+│   │   └── global.css
+│   │
+│   └── assets/
+│       ├── images/
+│       ├── icons/
+│       └── fonts/
 │
-├── routes/                    # Cấu hình điều hướng
-│   ├── AppRoutes.jsx          # Khai báo toàn bộ routes
-│   └── ProtectedRoute.jsx     # RequireAuth, RequireAdmin
-│
-├── context/                   # State dùng chung toàn app (thay Redux)
-│   ├── AuthContext.jsx        # user, token, login, logout, register
-│   └── PlayerContext.jsx      # bài đang phát, queue, play/pause...
-│
-├── services/                  # Gọi API — tách logic ra khỏi component
-│   ├── authService.js         # gọi /api/auth
-│   ├── songService.js         # gọi /api/songs
-│   ├── playlistService.js     # gọi /api/playlists
-│   └── userService.js         # gọi /api/users
-│
-├── hooks/                     # Custom hooks tái sử dụng logic
-│   ├── usePlayer.js           # hook điều khiển player
-│   └── useDebounce.js         # hook delay search khi gõ
-│
-├── utils/                     # Hàm tiện ích nhỏ
-│   └── formatTime.js          # chuyển giây → 3:45
-│
-├── styles/                    # CSS global hoặc biến màu
-│   └── variables.css          # màu, font dùng chung
-│
-├── constants/                 # Hằng số dùng chung
-│   └── api.js                 # BASE_URL = "http://localhost:8080/api"
-│
-├── App.jsx                    # Component gốc, bọc Provider
-└── main.jsx                   # Entry point, render App vào DOM
+├── App.jsx
+└── main.jsx
 
-## BE
+==================================================
+
+## BE — Feature-based structure
+
+==================================================
+
 server/src/
 │
-├── config/
-│   └── db.js                  # Kết nối MongoDB
+├── features/
 │
-├── controllers/               # Xử lý logic chính của từng feature
-│   ├── authController.js      # register, login
-│   ├── userController.js      # getAllUsers, deleteUser, updateRole
-│   ├── songController.js      # thêm/sửa/xoá/lấy bài hát
-│   ├── playlistController.js  # CRUD playlist
-│   └── historyController.js   # lưu/lấy lịch sử nghe
+│   ├── auth/
+│   │   ├── auth.controller.js
+│   │   ├── auth.routes.js
+│   │   ├── auth.service.js
+│   │   ├── auth.validator.js
+│   │   └── auth.model.js
+│   │
+│   ├── user/
+│   │   ├── user.controller.js
+│   │   ├── user.routes.js
+│   │   ├── user.service.js
+│   │   ├── user.validator.js
+│   │   └── user.model.js
+│   │
+│   ├── song/
+│   │   ├── song.controller.js
+│   │   ├── song.routes.js
+│   │   ├── song.service.js
+│   │   ├── song.validator.js
+│   │   └── song.model.js
+│   │
+│   ├── playlist/
+│   │   ├── playlist.controller.js
+│   │   ├── playlist.routes.js
+│   │   ├── playlist.service.js
+│   │   └── playlist.model.js
+│   │
+│   ├── history/
+│   │   ├── history.controller.js
+│   │   ├── history.routes.js
+│   │   ├── history.service.js
+│   │   └── history.model.js
+│   │
+│   └── admin/
+│       ├── admin.controller.js
+│       ├── admin.routes.js
+│       └── admin.service.js
 │
-├── middleware/                # Chạy giữa request và controller
-│   └── authMiddleware.js      # protect (check JWT), adminOnly (check role)
+├── shared/
 │
-├── models/                    # Schema MongoDB — định nghĩa cấu trúc dữ liệu
-│   ├── User.js                # username, email, password, role, likedSongs...
-│   ├── Song.js                # title, artist, audioUrl, imageUrl, plays...
-│   ├── Playlist.js            # name, owner, songs[], isPublic...
-│   └── History.js             # user, song, playedAt
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── errorMiddleware.js
+│   │   └── uploadMiddleware.js
+│   │
+│   ├── services/
+│   │   └── cloudinaryService.js
+│   │
+│   ├── utils/
+│   │   ├── generateToken.js
+│   │   ├── responseHandler.js
+│   │   └── asyncHandler.js
+│   │
+│   ├── constants/
+│   │   └── roles.js
+│   │
+│   └── uploads/
 │
-├── routes/                    # Khai báo URL và method (GET/POST/...)
-│   ├── authRoutes.js          # /api/auth/register, /api/auth/login
-│   ├── userRoutes.js          # /api/users
-│   ├── songRoutes.js          # /api/songs
-│   ├── playlistRoutes.js      # /api/playlists
-│   └── historyRoutes.js       # /api/history
-│
-├── services/                  # Logic phức tạp tách ra khỏi controller
-│   └── cloudinaryService.js   # upload audio/ảnh lên Cloudinary
-│
-├── utils/                     # Hàm tiện ích dùng chung
-│   └── generateToken.js       # tạo JWT token
-│
-├── validators/                # Kiểm tra dữ liệu đầu vào
-│   ├── authValidator.js       # validate email, password khi register/login
-│   └── songValidator.js       # validate title, artist khi thêm bài hát
-│
-├── uploads/                   # Thư mục lưu file tạm khi upload (Multer)
-│                              # File sẽ được đẩy lên Cloudinary rồi xoá
-│
-├── app.js                     # Setup Express: middleware, routes, CORS
-└── server.js                  # Khởi động server, kết nối DB
-
-
-
-
+├── app.js
+└── server.js
 
 ## Note
 - inline style ưu tiên cao hơn Tailwind

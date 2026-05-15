@@ -1,8 +1,8 @@
-/* AdminLayout.jsx */
+/* Admin_Layout.jsx */
 
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: white;
 }
 
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 64px;
+  /* height: 64px; */
   border-bottom: 1px solid #000000;
   gap: 8px;
 }
@@ -84,7 +84,7 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text4);
+  color: var(--color-text2);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -99,6 +99,18 @@
 .admin-layout__main {
   margin-left: 220px;
   flex: 1;
-  padding: 24px;
-  overflow-y: auto;
+  /* padding: 24px; */
+  /* overflow-y: auto; */
+  /* margin-top: -60px; */
+}
+
+@media (max-width: 768px) {
+  .admin-layout__sidebar {
+    display: none;
+  }
+
+  .admin-layout__main {
+    width: 100%;
+    margin-left: 0;
+  }
 }

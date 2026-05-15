@@ -1,0 +1,17 @@
+
+/* .home-content{
+
+} */
+h1{
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+footer{
+  color: rgb(255, 255, 255);
+  font-size:x-small;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+}

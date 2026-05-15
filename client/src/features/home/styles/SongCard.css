@@ -1,17 +1,47 @@
 /* SongCard.jsx — layout modifiers: --scroll | --grid | --list */
 
+.song-card{
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  /* overflow: hidden; */
+  isolation: isolate;
+  position: relative;
+}
+
+.song-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-md);
+  z-index: 0;
+  transition: transform 0.3s ease;
+}
+
+.song-card:hover::before {
+  transform: scale(1.05);
+}
+
+.song-card__title {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: var(--color-text2);
+}
+.song-card__artist{
+  font-size: 12px;
+  color: #b4b4b4;
+}
+
 /* ---------- scroll ---------- */
 .song-card--scroll {
-  display: flex;
+  display: flex; 
   flex-direction: column;
   align-items:center;
   gap: 14px;
   width: 180px;
   flex-shrink: 0;
-  border-radius: var(--radius-md);
-  color: var(--color-text4);
   padding: 10px;
-  cursor: pointer;
 }
 
 .song-card--scroll .song-card__cover-wrap {
@@ -20,6 +50,7 @@
   height: 160px;
   border-radius: 8px;
   overflow: hidden;
+  background-color: red;
 }
 
 .song-card--scroll .song-card__img {
@@ -50,15 +81,9 @@
 }
 
 .song-card--scroll .song-card__title {
-  font-weight: bold;
-  font-size: 14px;
-  margin-bottom: 2px;
 }
 
-.song-card--scroll .song-card__artist {
-  font-size: 12px;
-  color: #666;
-}
+
 
 
 /* ---------- grid ---------- */
@@ -69,9 +94,6 @@
   gap: 12px;
   height: 60px;
   padding: 8px;
-  cursor: pointer;
-  border-radius: var(--radius-md);
-  color: var(--color-text4);
 }
 
 .song-card--grid .song-card__cover-wrap {
@@ -81,6 +103,7 @@
   flex-shrink: 0;
   border-radius: 6px;
   overflow: hidden;
+  
 }
 
 .song-card--grid .song-card__img {
@@ -104,17 +127,12 @@
 }
 
 .song-card--grid .song-card__title {
-  font-weight: bold;
-  font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.song-card--grid .song-card__artist {
-  font-size: 12px;
-  color: #666;
-}
+
 
 
 /* ---------- list ---------- */
@@ -124,10 +142,7 @@
   align-items: center;
   gap: 12px;
   height: 48px;
-  padding: 6px 8px;
-  border: 1px solid #eee;
-  cursor: pointer;
-  color: var(--color-text4);
+  padding: 6px 8px; 
 }
 
 .song-card--list .song-card__cover-wrap {
@@ -160,15 +175,9 @@
 }
 
 .song-card--list .song-card__title {
-  font-size: 13px;
-  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.song-card--list .song-card__artist {
-  font-size: 11px;
-  color: #666;
-}
 

@@ -5,6 +5,7 @@ css:         name: var(--radius-md);
 style:       name: "var(--color-primary)"
 */
 :root {
+
   /* Màu chính */
   --color-primary:     #2563eb;
   --color-danger:      #980b0b;
@@ -29,9 +30,8 @@ style:       name: "var(--color-primary)"
 
 
   --color-text1:        #000000;
-  --color-text2:        #68c6ed;
+  --color-text2:        #ffffff;
   --color-text3:        #4d4d4d;
-  --color-text4:        #ffffff;
   
   --color-button1:             #000000;
   --color-button2:             #68c6ed;
@@ -49,6 +49,21 @@ style:       name: "var(--color-primary)"
   --fontsize-sm:  8px;
   --fontsize-md:  14px;
   --fontsize-lg:  24px;
+
+  --color-hover: rgba(68, 68, 68, 0.4);
+
+  /* Button delete */
+  --color-bg-del:        #b23a3a39;
+  --color-text-del:        #730202;
+  --radius-del:                  8px;
+  --hover-bg-del:           #b23a3ab1;
+
+  /* Button edit */
+  --color-bg-edit:        #3a80b239;
+  --color-text-edit:        #022a73;
+  --radius-edit:                  8px;
+  --hover-bg-edit:           #3a80b2b1;
+
 
 
 }

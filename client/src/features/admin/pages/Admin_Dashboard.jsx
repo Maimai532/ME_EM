@@ -3,8 +3,8 @@ import { useAuth } from "../../auth/context/AuthContext";
 import axios from "axios";
 
 import AdminPage from "./Admin_Page";
-import useSections from "../../song/hooks/useSections";
-import SongSection from "../../song/components/SongSection";
+import useSections from "../../home/hooks/useSections";
+import SongSection from "../../home/components/SongSection";
 import "../styles/Admin_Dashboard.css";
 import { API_URL } from "../../../shared/constants/api";
 

@@ -1,41 +1,50 @@
 /* Sidebar.jsx */
 
 .sidebar {
-  max-width: 140px;
-  min-width: 140px;
-  height: calc(100vh - 65px);
   background-color: #000000;
-  padding: 5px;
-  position: sticky;
-  top: 65px;
   align-self: flex-start;
   overflow: hidden;
+  transform: translateX(0);
+  opacity: 1;
   transition:
-    max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 120px;
+  height: calc(100vh - 60px);
+  color: white;
+  padding: 20px;
+  margin-right: 20px;
 }
 
-.sidebar--closed {
-  max-width: 0;
-  min-width: 0;
-  padding: 0;
-}
+/* .sidebar--closed {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  width: 50px;
+  transition:
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 0.35s;
+} */
 
 .sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  width: 130px;
+  gap: 15px;
+
 }
 
 .sidebar__link {
-  width: 100%;
+  /* width: 100%; */
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  padding: 10px 12px;
+  padding: 15px 5px;
   color: #eeeeee;
   text-decoration: none;
   border-radius: 5px;

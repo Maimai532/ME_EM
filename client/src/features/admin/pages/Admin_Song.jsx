@@ -160,7 +160,6 @@ function SongModal({ song, onClose, onSaved, token }) {
         </h2>
 
         <div className="song-input">
-
           <div className="song-info">
             <label className="song-admin__label">
               Tên bài hát <span>*</span>
@@ -260,7 +259,7 @@ function SongModal({ song, onClose, onSaved, token }) {
               onChange={handleChange}
               placeholder="https://..."
             />
-            
+
             <input
               className="song-admin__input song-admin__input--mt-xs"
               type="file"
@@ -278,9 +277,7 @@ function SongModal({ song, onClose, onSaved, token }) {
                 className="song-admin__preview"
               />
             )}
-
           </div>
-
         </div>
 
         <div className="song-admin-modal__footer">
@@ -415,6 +412,7 @@ function Admin_Song() {
 
   return (
     <AdminPage title="Quản lý bài hát" actions={headerActions}>
+      <div className="song-admin-meta">Songs: <span>{songs.length}</span> </div>
       <div className="song-admin__filter-bar">
         <input
           type="text"
@@ -440,80 +438,85 @@ function Admin_Song() {
       {loading ? (
         <p>Đang tải...</p>
       ) : (
-        <table className="song-admin__table">
-          <thead>
-            <tr>
-              <th className="song-admin__th">
-                <input
-                  type="checkbox"
-                  checked={selected.length === songs.length && songs.length > 0}
-                  onChange={toggleSelectAll}
-                />
-              </th>
-              <th className="song-admin__th">Ảnh</th>
-              <th className="song-admin__th">Name</th>
-              <th className="song-admin__th">Artist</th>
-              <th className="song-admin__th">Genre</th>
-              <th className="song-admin__th">Number of listens</th>
-              <th className="song-admin__th">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSongs.length > 0 ? (
-              filteredSongs.map((song) => (
-                <tr
-                  key={song._id}
-                  className={
-                    selected.includes(song._id)
-                      ? "song-admin__row--selected"
-                      : ""
-                  }
-                >
-                  <td className="song-admin__td">
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(song._id)}
-                      onChange={() => toggleSelect(song._id)}
-                    />
-                  </td>
-                  <td className="song-admin__td">
-                    <img
-                      className="song-admin__thumb"
-                      src={song.imageUrl || "https://picsum.photos/48"}
-                      alt={song.title}
-                    />
-                  </td>
-                  <td className="song-admin__td">{song.title}</td>
-                  <td className="song-admin__td">{song.artist}</td>
-                  <td className="song-admin__td">{song.genre || "—"}</td>
-                  <td className="song-admin__td">{song.plays}</td>
-                  <td className="song-admin__td">
-                    <button
-                      type="button"
-                      className="song-admin__btn-edit"
-                      onClick={() => setModal({ ...emptyForm, ...song })}
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      type="button"
-                      className="song-admin__btn-del"
-                      onClick={() => handleDelete(song._id)}
-                    >
-                      Xoá
-                    </button>
+        <div className="song-admin__table-wrapper">
+          <table className="song-admin__table">
+            <thead>
+              <tr>
+                <th className="song-admin__th">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selected.length === songs.length && songs.length > 0
+                    }
+                    onChange={toggleSelectAll}
+                  />
+                </th>
+                <th className="song-admin__th">Ảnh</th>
+                <th className="song-admin__th">Name</th>
+                <th className="song-admin__th">Artist</th>
+                <th className="song-admin__th">Genre</th>
+                <th className="song-admin__th">Number of listens</th>
+                <th className="song-admin__th">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredSongs.length > 0 ? (
+                filteredSongs.map((song) => (
+                  <tr
+                    key={song._id}
+                    className={
+                      selected.includes(song._id)
+                        ? "song-admin__row--selected"
+                        : ""
+                    }
+                  >
+                    <td className="song-admin__td">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(song._id)}
+                        onChange={() => toggleSelect(song._id)}
+                      />
+                    </td>
+                    <td className="song-admin__td">
+                      <img
+                        className="song-admin__thumb"
+                        src={song.imageUrl || "https://picsum.photos/48"}
+                        alt={song.title}
+                      />
+                    </td>
+                    <td className="song-admin__td">{song.title}</td>
+                    <td className="song-admin__td">{song.artist}</td>
+                    <td className="song-admin__td">{song.genre || "—"}</td>
+                    <td className="song-admin__td">{song.plays}</td>
+                    <td className="song-admin__td">
+                      <button
+                        type="button"
+                        className="song-admin__btn-edit"
+                        onClick={() => setModal({ ...emptyForm, ...song })}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        type="button"
+                        className="song-admin__btn-del"
+                        onClick={() => handleDelete(song._id)}
+                      >
+                        Xoá
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="song-admin__empty-cell">
+                    Không tìm thấy bài hát
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="song-admin__empty-cell">
-                  Không tìm thấy bài hát
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {modal && (

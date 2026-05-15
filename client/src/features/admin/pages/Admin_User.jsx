@@ -39,7 +39,11 @@ function Admin_User() {
   const handleToggleRole = async (id, currentRole) => {
     const newRole = currentRole === "admin" ? "user" : "admin";
     try {
-      const res = await axios.patch(`${API_URL}/users/${id}/role`, { role: newRole }, authHeader);
+      const res = await axios.patch(
+        `${API_URL}/users/${id}/role`,
+        { role: newRole },
+        authHeader,
+      );
       setUsers(users.map((u) => (u._id === id ? res.data.user : u)));
     } catch {
       alert("Đổi role thất bại");
@@ -51,52 +55,66 @@ function Admin_User() {
 
   return (
     <AdminPage title="Quản lý User">
-      {/* <p className="user-admin-meta">Tổng: {users.length} users</p> */}
+      <div className="user-admin-meta">Users: <span>{users.length}</span> </div>
 
-      <table className="user-admin-table">
-        <thead>
-          <tr>
-            <th className="user-admin-th">Username</th>
-            <th className="user-admin-th">Email</th>
-            <th className="user-admin-th">Role</th>
-            <th className="user-admin-th">Ngày tạo</th>
-            <th className="user-admin-th">Edit role</th>
-            <th className="user-admin-th">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td className="user-admin-td">{user.username}</td>
-              <td className="user-admin-td">{user.email}</td>
-              <td className="user-admin-td">
-                <span className={`user-admin-badge ${user.role === "admin" ? "user-admin-badge--admin" : "user-admin-badge--user"}`}>
-                  {user.role}
-                </span>
-              </td>
-              <td className="user-admin-td">{new Date(user.createdAt).toLocaleDateString("vi-VN")}</td>
-              <td className="user-admin-td">
-                <button
-                  type="button"
-                  className={`user-admin-action ${user.role === "admin" ? "user-admin-action--toggle-admin" : "user-admin-action--promote"}`}
-                  onClick={() => handleToggleRole(user._id, user.role)}
-                >
-                  {user.role === "admin" ? (
-                    <><ShieldOff size={14} /> Hạ role</>
-                  ) : (
-                    <><ShieldCheck size={14} /> Nâng Admin</>
-                  )}
-                </button>
-              </td>
-              <td className="user-admin-td">
-                <button type="button" className="user-admin-action user-admin-action--delete" onClick={() => handleDelete(user._id)}>
-                  <Trash2 size={14} /> Xoá
-                </button>
-              </td>
+      <div className="user-admin__table-wrapper">
+        <table className="user-admin-table">
+          <thead>
+            <tr>
+              <th className="user-admin-th">Username</th>
+              <th className="user-admin-th">Email</th>
+              <th className="user-admin-th">Role</th>
+              <th className="user-admin-th">Ngày tạo</th>
+              <th className="user-admin-th">Edit role</th>
+              <th className="user-admin-th">Hành động</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td className="user-admin-td">{user.username}</td>
+                <td className="user-admin-td">{user.email}</td>
+                <td className="user-admin-td">
+                  <span
+                    className={`user-admin-badge ${user.role === "admin" ? "user-admin-badge--admin" : "user-admin-badge--user"}`}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+                <td className="user-admin-td">
+                  {new Date(user.createdAt).toLocaleDateString("vi-VN")}
+                </td>
+                <td className="user-admin-td">
+                  <button
+                    type="button"
+                    className={`user-admin-action ${user.role === "admin" ? "user-admin-action--toggle-admin" : "user-admin-action--promote"}`}
+                    onClick={() => handleToggleRole(user._id, user.role)}
+                  >
+                    {user.role === "admin" ? (
+                      <>
+                        <ShieldOff size={14} /> Hạ role
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={14} /> Nâng Admin
+                      </>
+                    )}
+                  </button>
+                </td>
+                <td className="user-admin-td">
+                  <button
+                    type="button"
+                    className="user-admin-action user-admin-action--delete"
+                    onClick={() => handleDelete(user._id)}
+                  >
+                    <Trash2 size={14} /> Xoá
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </AdminPage>
   );
 }

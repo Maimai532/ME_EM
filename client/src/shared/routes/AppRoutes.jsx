@@ -6,13 +6,13 @@ import MainLayout from "../layouts/MainLayout";
 
 import Login from "../../features/auth/pages/Login";
 import Register from "../../features/auth/pages/Register";
-import Home from "../../features/song/pages/Home";
+import Home from "../../features/home/pages/Home";
 import Profile from "../../features/profile/pages/Profile";
 import Playlist from "../../features/playlist/pages/Playlist";
 import Library from "../../features/library/pages/Library";
 import MusicPlayer from "../../features/player/pages/MusicPlayer";
 
-import Admin from "../../features/admin/pages/Admin";
+import Admin_Page from "../../features/admin/pages/Admin_Page";
 import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
 import Admin_Song from "../../features/admin/pages/Admin_Song";
 import Admin_User from "../../features/admin/pages/Admin_User";
@@ -45,7 +45,7 @@ const AppRoutes = () => {
 
         {/* Admin pages */}
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
-          <Route index element={<Admin />} />
+          <Route index element={<Admin_Page />} />
           <Route path="song_admin" element={<Admin_Song />} />
           <Route path="playlist_admin" element={<Admin_Playlist />} />
           <Route path="user_admin" element={<Admin_User />} />

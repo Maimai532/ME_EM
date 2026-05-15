@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { usePlayer } from "../context/PlayerContext";
-import { getRandomSongs } from "../../song/services/songService";
+import { getRandomSongs } from "../../home/services/songService";
 import { API_URL } from "../../../shared/constants/api";
 import "../styles/MusicPlayer.css";
 

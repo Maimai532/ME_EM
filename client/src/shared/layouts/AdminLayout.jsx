@@ -1,11 +1,11 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { LayoutDashboard, Music, ListMusic, Users, LogOut } from "lucide-react";
-import "../../features/admin/styles/AdminLayout.css";
+import "../styles/AdminLayout.css";
 
 const navItems = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/song_admin", label: "Songs", icon: Music },
+  // { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/song_admin", label: "Songs", icon: Music, end: true },
   { to: "/admin/playlist_admin", label: "Playlists", icon: ListMusic },
   { to: "/admin/user_admin", label: "Users", icon: Users },
 ];
@@ -21,6 +21,7 @@ function AdminLayout() {
 
   return (
     <div className="admin-layout">
+
       <aside className="admin-layout__sidebar">
         <div className="admin-layout__logo-box">
           <img src="/logo2.png" alt="Logo" className="admin-layout__logo-img" />

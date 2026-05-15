@@ -5,6 +5,10 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  height: 100%;
+  /* background-image: url("../public/web.jpg");
+  background-size:cover;
+  background-position: center; */
 }
 
 /* ── Header chung: title bên trái, actions bên phải ── */

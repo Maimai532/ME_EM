@@ -13,22 +13,21 @@ function MainLayout() {
   const { isPlayerVisible } = usePlayer();
 
   return (
-    <div className="main-layout">
+    <>
       <Navbar
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         isLoggedIn={isLoggedIn}
         onLogout={logout}
       />
+      <Sidebar isOpen={isOpen} />
 
-      <div className="main-layout__row">
-        <Sidebar isOpen={isOpen} />
-
-        <main className={`main-layout__content ${isPlayerVisible ? "" : "main-layout__content--player-hidden"}`}>
-          <Outlet />
-        </main>
-      </div>
-    </div>
+      <main
+        className={`main-layout__content ${isPlayerVisible ? "" : "main-layout__content--player-hidden"}`}
+      >
+        <Outlet />
+      </main>
+    </>
   );
 }
 
