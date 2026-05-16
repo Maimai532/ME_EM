@@ -51,27 +51,37 @@ ME_EM/
 CẤU TRÚC FRONTEND
 =================
 
-client/src/
+client/
+├── public/
 │
-├── assets/
-├── components/
-│   ├── ui/
-│   ├── song/
-│
-├── pages/
-├── layouts/
-├── routes/
-├── context/
-├── services/
-├── hooks/
-├── utils/
-├── styles/
-├── constants/
-│
-├── App.jsx
-└── main.jsx
-└── main.css
-└── App.css
+└── src/
+    ├── assets/
+    │
+    ├── features/
+    │   ├── admin/
+    │   ├── auth/
+    │   ├── home/
+    │   ├── library/
+    │   ├── player/
+    │   ├── playlist/
+    │   ├── profile/
+    │   └── search/
+    │
+    ├── shared/
+    │   ├── components/
+    │   ├── constants/
+    │   ├── context/
+    │   ├── hooks/
+    │   ├── layouts/
+    │   ├── routes/
+    │   ├── services/
+    │   ├── styles/
+    │   └── utils/
+    │
+    ├── App.css
+    ├── App.jsx
+    ├── index.css
+    └── main.jsx
 
 
 ================
@@ -80,15 +90,11 @@ CẤU TRÚC BACKEND
 
 server/src/
 │
-├── config/
-├── controllers/
-├── middleware/
-├── models/
-├── routes/
+├── features/
 ├── services/
+├── shared/
+├── upload/
 ├── utils/
-├── validators/
-├── uploads/
 │
 ├── app.js
 └── server.js
@@ -144,6 +150,8 @@ File audio và image thực tế sẽ lưu trên Cloudinary.
 ============
 QUY TẮC CODE
 ============
+
+* Quy tắc đặt tên file ví dụ: nameFile.js
 
 Frontend:
 * Chỉ dùng Functional Components

@@ -1,5 +1,5 @@
 // client/src/shared/components/ui/Toast.jsx
-import "../../styles/toast.css";
+import "../../styles/Toast.css";
 
 const TYPE_ICONS = {
   success: "✓",

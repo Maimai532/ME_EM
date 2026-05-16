@@ -1,4 +1,5 @@
 // songController.js
+import { message } from "antd";
 import Song from "../../shared/models/Song.js";
 import cloudinary from "../../shared/services/cloudinary.service.js";
 
@@ -159,3 +160,27 @@ export const incrementPlay = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const searchSongs =  async( req, res)=>{
+  try{
+    const q = req.query.q?.trim(); 
+    /*
+       req.query.q: đọc ?q=abc từ URL
+       ? (optional chaining): tránh lỗi không gõ j, trả về undefined thay vì crash
+       trim: xoá khoảng trắng đầu cuối
+    */
+    if(!q){
+      return res.json({ success: true, data: []}); // trả về mảng rỗng
+    }
+    const songs = await Song.find({ // tìm trong collection songs theo điều kiện
+      $or:[ //Tìm theo title hoặc artist
+        { title: {$regex: q,$options: "i"}}, // $regex: q : TK gần đúng
+        { artist: {$regex: q,$options: "i"}}, // $options:'i':  k phân biệt hoa/thường
+      ],
+    }).limit(20);// max 20 kq
+
+    res.json({ success: true, data: songs}); // trả về json cho FE gồm tbáo succ và mảng tìm đc
+  }catch(err){ // bắt lỗi
+    res.status(500).json({ success: false, message: err.message});
+  }
+}

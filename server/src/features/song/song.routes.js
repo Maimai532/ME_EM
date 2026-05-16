@@ -6,6 +6,7 @@ import {
   updateSong,
   deleteSong,
   incrementPlay,
+  searchSongs,
 } from "./song.controller.js";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 import { uploadSongMedia } from "../../shared/services/cloudinary.service.js";
@@ -44,6 +45,12 @@ router.get("/random", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+/*
+Express đọc route từ trên xuống dưới. 
+Nếu /search để dưới /:id, Express sẽ hiểu search là một cái id -> chạy sai hàm.
+*/
+router.get("/search", searchSongs);
 router.get("/:id", getSongById);
 router.post("/", protect, adminOnly, uploadFields, createSong);
 router.put("/:id", protect, adminOnly, uploadFields, updateSong);

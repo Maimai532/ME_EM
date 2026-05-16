@@ -9,7 +9,7 @@
 - `client/`: frontend app
 - `server/`: backend API
 
-## Cách chạy
+## Hướng dẫn chạy
 
 ### Server
 
@@ -26,7 +26,5 @@ cd client
 npm install
 npm run dev
 ```
-
-
 
 # ME_EM

@@ -30,11 +30,11 @@
 * tạo song card, section; ui home,nav,sidebar cơ bản;
 
 * Auth API, User API, crud user
-* Admin dashboard song, playlist, user; Home load song lên
+* Admin crud song, playlist, quản lí user(chưa có new user)
+* search, lọc song
 * Playbar, musicplaypage
-
-
-
+* Playbar, musicplaypage
+* Playbar, musicplaypage
 
 
 ## Đang tập trung
@@ -65,10 +65,6 @@
 * Chia nhỏ task
 * Ưu tiên dễ hiểu
 * Không overengineering
-
-## Task tiếp theo
-
-* 
 
 
 

@@ -36,31 +36,37 @@ client/src/
 │   │   └── components/
 │   │       └── AuthForm.jsx
 │   │
-│   ├── song/
+│   ├── home/
 │   │   ├── components/
 │   │   │   ├── SongCard.jsx
 │   │   │   ├── SongSection.jsx
-│   │   │   └── SongList.jsx
 │   │   │
 │   │   ├── services/
 │   │   │   └── songService.js
+│   │   │   └── sectionService.js
 │   │   │
 │   │   ├── hooks/
-│   │   │   └── useSongs.js
+│   │   │   └── useSections.js
 │   │   │
 │   │   └── pages/
-│   │       └── Home.jsx
+│   │   |   └── Home.jsx
+│   │   |   
+│   │   └── styles/
+│   │       └── Home.css
+│   │       └── SongCard.css
+│   │       └── SongSection.css
 │   │
 │   ├── player/
 │   │   ├── components/
-│   │   │   ├── SongPlayer.jsx
-│   │   │   └── PlayerControls.jsx
+│   │   │   ├── Player.jsx
+│   │   │   └── PlayerBar.jsx
 │   │   │
 │   │   ├── context/
 │   │   │   └── PlayerContext.jsx
 │   │   │
-│   │   ├── hooks/
-│   │   │   └── usePlayer.js
+│   │   ├── styles/
+│   │   │   └── MusicPlayer.css
+│   │   │   └── PlayerBar.css
 │   │   │
 │   │   └── pages/
 │   │       └── MusicPlayer.jsx
@@ -68,17 +74,11 @@ client/src/
 │   ├── playlist/
 │   │   ├── components/
 │   │   │   ├── PlaylistCard.jsx
-│   │   │   ├── PlaylistHeader.jsx
-│   │   │   └── PlaylistSongs.jsx
 │   │   │
 │   │   ├── pages/
 │   │   │   └── Playlist.jsx
 │   │   │
 │   │   ├── services/
-│   │   │   └── playlistService.js
-│   │   │
-│   │   └── hooks/
-│   │       └── usePlaylist.js
 │   │
 │   ├── library/
 │   │   └── pages/
@@ -95,7 +95,6 @@ client/src/
 │   │
 │   └── admin/
 │       ├── pages/
-│       │   ├── Admin.jsx
 │       │   ├── Admin_Page.jsx
 │       │   ├── Admin_Song.jsx
 │       │   ├── Admin_Playlist.jsx
@@ -105,39 +104,58 @@ client/src/
 │       │   └── adminService.js
 │       │
 │       └── components/
-│           └── AdminSidebar.jsx
+│       │   └── AdminSidebar.jsx
+│       │
+│       └── styles/
+│       │   ├── Admin_Page.css
+│       │   ├── Admin_Song.css
+│       │   ├── Admin_Playlist.css
+│       │   └── Admin_User.css
+│
 │
 ├── shared/                                # Dùng chung toàn app
 │
 │   ├── components/
 │   │   └── ui/
-│   │       ├── Button.jsx
-│   │       ├── Input.jsx
-│   │       ├── Navbar.jsx
-│   │       ├── Sidebar.jsx
-│   │       ├── Modal.jsx
-│   │       └── Loader.jsx
-│   │
+│   │   │    ├── Button.jsx
+│   │   │    ├── Input.jsx
+│   │   │    ├── index.jsx
+│   │   │    ├── Navbar.jsx
+│   │   │    ├── Sidebar.jsx
+│   │   │    ├── Modal.jsx
+│   │   │    └── Toast.jsx
+│   │   │
+│   │   └── song/
+│   │   
+│   │   
 │   ├── layouts/
 │   │   ├── AuthLayout.jsx
 │   │   └── AdminLayout.jsx
+│   │   └── MainLayout.jsx
 │   │
 │   ├── routes/
 │   │   ├── AppRoutes.jsx
 │   │   └── ProtectedRoute.jsx
 │   │
 │   ├── hooks/
-│   │   └── useDebounce.js
+│   │   └── useToast.js
 │   │
 │   ├── utils/
 │   │   └── formatTime.js
 │   │
 │   ├── constants/
 │   │   └── api.js
+│   │   └── constants.js
+│   │   └── index.js
 │   │
 │   ├── styles/
-│   │   ├── variables.css
-│   │   └── global.css
+│   │   ├── AdminLayout.css
+│   │   └── MainLayout.css
+│   │   └── Navbar.css
+│   │   └── player.css
+│   │   └── Sidebar.css
+│   │   └── toast.css
+│   │   └── variables.css
 │   │
 │   └── assets/
 │       ├── images/

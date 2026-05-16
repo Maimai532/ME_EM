@@ -73,4 +73,68 @@
 /* index.css */
 
 
+/* Search wrapper — cần position relative để dropdown hiện đúng chỗ */
+.navbar-search {
+  position: relative;
+}
 
+/* Dropdown kết quả */
+.search-results {
+  position: absolute;
+  top: 90%;
+  left: 0;
+  right: 0;
+  background-color: rgb(183, 224, 228);
+  border-radius: 0px 0px 8px 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 999;
+  margin-top: 6px;
+}
+
+/* Mỗi bài hát trong kết quả */
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.search-item:hover {
+  background-color: rgba(95, 117, 119, 0.49);
+}
+
+/* Ảnh bìa */
+.search-item img {
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Tên bài hát */
+.search-item__title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Tên nghệ sĩ */
+.search-item__artist {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  margin-top: 2px;
+}
+
+/* Đang tìm kiếm */
+.search-loading {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}

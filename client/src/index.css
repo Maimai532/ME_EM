@@ -26,5 +26,6 @@
 } */
 
 body {
-  background: linear-gradient(165deg, #68c6ed,#000000,#000000, #000000);
+  /* background: linear-gradient(165deg, #68c6ed,#000000,#000000, #000000); */
+  background-color: black;
 }
