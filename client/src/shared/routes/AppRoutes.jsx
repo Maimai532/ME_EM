@@ -18,6 +18,7 @@ import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
 import Admin_Song from "../../features/admin/pages/Admin_Song";
 import Admin_User from "../../features/admin/pages/Admin_User";
 import AdminLayout from "../layouts/AdminLayout";
+import Admin_Artist from "../../features/admin/pages/Admin_Artist";
 import PlayerBar from "../../features/player/components/PlayerBar";
 
 const AppRoutes = () => {
@@ -47,10 +48,12 @@ const AppRoutes = () => {
 
         {/* Admin pages */}
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+          <Route index element={<Navigate to="song_admin" replace />} />
           <Route index element={<Admin_Page />} />
           <Route path="song_admin" element={<Admin_Song />} />
           <Route path="playlist_admin" element={<Admin_Playlist />} />
           <Route path="user_admin" element={<Admin_User />} />
+          <Route path="artist_admin" element={<Admin_Artist />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

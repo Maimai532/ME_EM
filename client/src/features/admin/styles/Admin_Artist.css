@@ -1,0 +1,747 @@
+/* ── Trang danh sách nghệ sĩ ── */
+
+.artist-management {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* height: 100%; */
+}
+
+.artist-management__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  min-height: 40px;
+}
+
+.artist-management__header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-title1);
+  margin: 0;
+}
+.artist-management-btn {
+  font-size: 14px;
+  background-color: black;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+
+/* ── Danh sách artist ── */
+
+.artist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px); 
+  scrollbar-width: none;
+}
+
+.artist-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: black;
+  transition: background-color 0.1s;
+}
+
+.artist-card:hover {
+  background-color: rgba(165, 220, 227, 0.426);
+}
+
+.artist-card__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-color: var(--color-button2-mute);
+}
+
+.artist-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: black;
+}
+
+.artist-card__info h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: black;
+  margin: 0;
+}
+
+.artist-card__info span {
+  font-size: 13px;
+  color: rgb(101, 101, 101);
+}
+
+.artist-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.artist-card__actions button {
+  font-size: 13px;
+  transition: opacity 0.2s;
+  border-radius: var(--radius-del);
+  cursor: pointer;
+  padding: 6px 12px;
+}
+
+.artist-card__actions button:hover {
+  opacity: 0.8;
+}
+
+.artist-card__actions button:nth-child(1) {
+  background-color: var(--color-bg-edit);
+  color: var(--color-text-edit);
+}
+
+.artist-card__actions button:nth-child(2) {
+  background-color: var(--color-bg-edit);
+  color: var(--color-text-edit);
+}
+
+.artist-card__actions button:nth-child(1):hover {
+  background-color: var(--hover-bg-edit);
+}
+.artist-card__actions button:nth-child(2):hover {
+  background-color: var(--hover-bg-edit);
+}
+
+.artist-card__actions button:nth-child(3) {
+  background-color: var(--color-bg-del);
+  color: var(--color-text-del);
+}
+
+.artist-card__actions button:nth-child(3):hover {
+  background-color: var(  --hover-bg-del);
+}
+
+/* ── Form thêm/sửa artist ── */
+
+.modal--large {
+  width: 640px;
+  max-width: 95vw;
+}
+.artist-form {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: auto;
+  border-radius: 8px;
+  overflow-y: auto; 
+  scrollbar-width: none; 
+}
+
+
+.artist-form__body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 520px;
+}
+
+.artist-form__preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text1);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: 1px solid rgb(164, 175, 178);
+ 
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #082c55;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.form-actions button {
+  padding: 9px 22px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.form-actions button[type="submit"] {
+  background-color: rgb(60, 161, 201);
+  color: white;
+}
+
+.form-actions button[type="button"] {
+  background-color: rgba(60, 161, 201, 0.459);
+  color: white;
+}
+
+.form-actions button:hover {
+  opacity: 0.8;
+}
+
+.alert--success {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #1e4d2b;
+  color: #9dd9b6;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ── Artist Detail ── */
+
+.artist-detail {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.artist-detail__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.artist-detail__header button {
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: black;
+  color: #fff;
+  transition: opacity 0.2s;
+}
+
+.artist-detail__header button:hover {
+  opacity: 0.6;
+}
+
+.artist-detail__info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: linear-gradient(to left, #68c6ed, #000000);
+}
+
+.artist-detail__info img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.artist-detail__info h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 4px;
+}
+
+.artist-detail__info p {
+  font-size: 13px;
+  color: var(--color-text2);
+  margin: 0;
+}
+
+/* ── Section (albums / songs) ── */
+
+.artist-detail__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #31a6c649;
+  border-radius: 8px;
+  padding: 5px;
+
+}
+
+.section-header h3 {
+  font-size: 14px;
+  margin: 0;
+  font-weight: bold;
+  color: #000000;
+}
+
+.section-header button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: rgb(10, 41, 63);
+  color: #fff;
+  transition: opacity 0.1s;
+}
+
+.section-header button:hover {
+  opacity: 0.6;
+}
+
+/* ── Album card ── */
+
+.album-card {
+  border-radius: 10px;
+  background-color: rgba(162, 196, 218, 0.125);
+  border-radius: 8px;
+  /* border: 1px rgb(169, 169, 169) solid; */
+  overflow: hidden;
+}
+
+.album-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background-color: #1359784c;
+  margin-bottom: 5px;
+}
+
+.album-card__header img {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+
+.album-card__header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  margin: 0 0 4px;
+}
+
+.album-card__header span {
+  font-size: 12px;
+  color: rgb(88, 88, 88);
+}
+
+.album-card__actions {
+  display: flex;
+  margin-left: auto;
+  gap: 8px; 
+}
+
+.album-card__actions button {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.album-card__actions button:nth-child(1) {
+  background-color: #4e96b7;
+  color: #fff;
+}
+
+.album-card__actions button:nth-child(2) {
+  background-color: var(--color-bg-del);
+  color: var(--color-text-del);
+}
+.album-card__actions button:nth-child(2):hover {
+  background-color: var(  --hover-bg-del);
+}
+
+.album-card__actions button:hover {
+  opacity: 0.8;
+}
+
+/* ── Song list ── */
+
+.song-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.song-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  transition: background-color 0.2s;
+}
+
+.song-item:hover {
+  background-color: var(--color-button2-mute);
+}
+
+.song-item img {
+  width: 38px;
+  height: 38px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.song-item span {
+  flex: 1;
+  font-size: 14px;
+  color: var(--color-title1);
+}
+
+.song-item button {
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: #c0392b;
+  color: #fff;
+  transition: opacity 0.2s;
+}
+
+.song-item button:hover {
+  opacity: 0.8;
+}
+
+/* ── Modal ── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 520px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid black;
+}
+
+.modal__header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: black;
+  margin: 0;
+}
+
+
+.modal__tabs {
+  display: flex;
+  color: grey;
+}
+
+.modal__tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: grey;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.modal__tabs button.active {
+  background-color: rgb(1, 2, 3);
+  color: #fff;
+}
+
+.modal__body {
+  padding: 16px 20px;
+  overflow-y: auto; 
+  scrollbar-width: none; 
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.modal__footer button {
+  padding: 8px 20px;
+  border-radius: 7px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.modal_search {
+  padding: 8px 5px;
+  border-radius: 7px;
+  border: 1px solid gray;
+
+}
+
+.modal__footer button:last-child {
+  background-color: #2295d2;
+  color: #fff;
+}
+
+.modal__footer button:first-child {
+  background-color: #2294d273;
+  color: #fff;
+}
+
+.modal__footer button:hover {
+  opacity: 0.85;
+}
+
+.info-text {
+  font-size: 13px;
+  color: var(--color-text1);
+  margin: 0;
+}
+.avatar-mode-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid rgb(7, 41, 80);
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.avatar-mode-toggle button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(174, 174, 174);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.avatar-mode-toggle button.active {
+  background-color: rgb(7, 41, 80);
+  color: #fff;
+}
+
+/* ── Song picker (modal chọn song có sẵn) ── */
+
+.song-picker {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.song-picker li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background-color 0.05s;
+}
+
+.song-picker li:hover {
+  background-color: rgba(165, 220, 227, 0.426);
+}
+
+.song-picker li.selected {
+  background-color: rgba(172, 221, 227, 0.502);
+}
+
+.song-picker li img {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.song-picker li div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.song-picker li strong {
+  font-size: 13px;
+}
+
+.song-picker li span {
+  font-size: 12px;
+  color: gray;
+}
+
+.song-picker input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 7px;
+  border: 1px solid rebeccapurple;
+  background-color: rebeccapurple;
+  color: var(--color-title1);
+  font-size: 13px;
+  outline: none;
+}
+
+/* Search */
+.artist-management__search {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.artist-search-input {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.artist-search-input:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.artist-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.artist-search-clear:hover {
+  color: #333;
+}
+ /* chuọt phải album */
+
+.context-menu {
+  position: fixed;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  padding: 4px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu button {
+  text-align: left;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #222;
+}
+
+.context-menu button:hover {
+  background: #f0f0f0;
+}
+
+.context-menu .btn--danger {
+  color: #d32f2f;
+}
+
+.context-menu .btn--danger:hover {
+  background: #fdecea;
+}

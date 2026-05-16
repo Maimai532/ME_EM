@@ -1,13 +1,15 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { LayoutDashboard, Music, ListMusic, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Music, ListMusic, Users, LogOut, Mic2 } from "lucide-react";
 import "../styles/AdminLayout.css";
 
 const navItems = [
   // { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/song_admin", label: "Songs", icon: Music, end: true },
+  { to: "/admin/artist_admin", label: "Artists", icon: Mic2 },
   { to: "/admin/playlist_admin", label: "Playlists", icon: ListMusic },
   { to: "/admin/user_admin", label: "Users", icon: Users },
+  
 ];
 
 function AdminLayout() {

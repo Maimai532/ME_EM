@@ -41,8 +41,14 @@ const songSchema = new mongoose.Schema(
       type: Number,
       default: 0, // đếm lượt nghe
     },
+    
+    artistId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Artist",
+      default: null, // optional, song cũ không có thì để null
+    },
   },
-  { timestamps: true } // tự tạo createdAt, updatedAt
+  { timestamps: true }, // tự tạo createdAt, updatedAt
 );
 
 export default mongoose.model("Song", songSchema);

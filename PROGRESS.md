@@ -32,6 +32,7 @@
 * Auth API, User API, crud user
 * Admin crud song, playlist, quản lí user(chưa có new user)
 * search, lọc song
+* profile
 
 
 ## Đang tập trung

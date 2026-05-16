@@ -32,6 +32,12 @@ export const searchSongs = async (query) => {
   const res = await axios.get(`${API_URL}/songs/search?q=${query}`);
   return res.data.data;
 };
+export const songService = {
+  getAll: async () => {
+    const res = await axios.get(`${API_URL}/songs`);
+    return { data: res.data.data || res.data };
+  },
+};
 
 /*
 ?q=${query}: 
