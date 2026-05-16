@@ -1,11 +1,16 @@
 import express from "express";
-import { getAllUsers, deleteUser, updateUserRole } from "./user.controller.js";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
+import { uploadAvatar } from "../../shared/services/cloudinary.service.js";
+import { getAllUsers, deleteUser, updateUserRole, getMe, updateMe, changePassword } from "./user.controller.js";
 
 const router = express.Router();
+
+router.get("/me", protect, getMe);
+router.patch("/me", protect, uploadAvatar.single("avatar"), updateMe);
 
 router.get("/", protect, adminOnly, getAllUsers);
 router.delete("/:id", protect, adminOnly, deleteUser);
 router.patch("/:id/role", protect, adminOnly, updateUserRole);
+router.patch("/me/password", protect, changePassword);
 
 export default router;

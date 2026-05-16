@@ -30,3 +30,13 @@ const songMediaStorage = new CloudinaryStorage({
 export const uploadSongMedia = multer({ storage: songMediaStorage });
 
 export default cloudinary;
+
+const avatarStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "me_em/avatars",
+    resource_type: "image",
+  },
+});
+
+export const uploadAvatar = multer({ storage: avatarStorage });
