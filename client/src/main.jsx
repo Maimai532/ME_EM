@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { AuthProvider } from "./features/auth/context/AuthContext";
-import "./shared/styles/Player.css";
+// import "./shared/styles/Player.css";
 import "./shared/styles/Variables.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

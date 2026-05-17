@@ -2,6 +2,159 @@
   padding: 24px;
 }
 
+/* ── Search bar ── */
+.search-page__bar-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.search-page__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.search-page__bar:focus-within {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.search-page__bar-icon {
+  color: var(--color-text3);
+  flex-shrink: 0;
+}
+
+.search-page__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text2);
+  font-size: 15px;
+}
+
+.search-page__input::placeholder {
+  color: var(--color-text3);
+}
+
+.search-page__clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text3);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.search-page__clear-btn:hover {
+  color: var(--color-text2);
+}
+
+.search-page__search-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text2);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  transition: color 0.15s;
+}
+
+.search-page__search-btn:hover {
+  color: #fff;
+}
+
+/* ── Dropdown lịch sử ── */
+.search-page__dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 0;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-page__dropdown-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text3);
+  padding: 4px 16px 8px;
+  margin: 0;
+}
+
+.search-page__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-page__dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.search-page__dropdown-clock {
+  color: var(--color-text3);
+  flex-shrink: 0;
+}
+
+.search-page__dropdown-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--color-text2);
+}
+
+.search-page__dropdown-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text3);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color 0.15s, background 0.15s;
+  opacity: 0;
+}
+
+.search-page__dropdown-item:hover .search-page__dropdown-remove {
+  opacity: 1;
+}
+
+.search-page__dropdown-remove:hover {
+  color: var(--color-text2);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Trạng thái ── */
 .search-page__title {
   font-size: 20px;
   font-weight: bold;
@@ -15,6 +168,7 @@
   font-size: 24px;
 }
 
+/* ── Danh sách kết quả ── */
 .search-page__list {
   display: flex;
   flex-direction: column;
@@ -30,11 +184,6 @@
   transition: background 0.2s;
   border-bottom: 1px gray solid;
 }
-
-/* .search-page__item:hover {
-  background-color: rgba(113, 113, 113, 0.329);
-} */
-
 
 .search-page__index {
   width: 24px;
@@ -52,7 +201,6 @@
   flex-shrink: 0;
 }
 
-/* Tên bài + nghệ sĩ */
 .search-page__info {
   display: flex;
   flex-direction: column;
@@ -63,13 +211,13 @@
   font-size: 18px;
   font-weight: 500;
   margin: 0;
-  color: var(--color-text2)
+  color: var(--color-text2);
 }
 
 .search-page__artist {
   font-size: 16px;
   margin: 0;
-  color: var(--color-text3)
+  color: var(--color-text3);
 }
 
 .search-page__img-wrap {

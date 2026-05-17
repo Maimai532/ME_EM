@@ -27,8 +27,6 @@ function Search() {
 
   return (
     <div className="search-page">
-      {/* <h2 className="search-page__title">Kết quả cho: "{q}"</h2> */}
-
       {loading && <p className="search-page__loading">Đang tìm...</p>}
 
       {!loading && results.length === 0 && (
@@ -36,13 +34,12 @@ function Search() {
       )}
 
       <div className="search-page__list">
-        {results.map((song, index) => (
+        {results.map((song) => (
           <div
             key={song._id}
             className="search-page__item"
             onClick={() => playSong(song, results)}
           >
-            {/* <span className="search-page__index">{index + 1}</span> */}
             <div className="search-page__img-wrap">
               <img
                 src={song.imageUrl || "/placeholder.jpg"}

@@ -15,7 +15,6 @@
   gap: 16px;
 }
 
-/* --- Song info --- */
 .player-bar__song {
   display: flex;
   align-items: center;
@@ -49,14 +48,16 @@
   text-overflow: ellipsis;
 }
 
-.player-bar__title:hover { color: #1db954; }
+.player-bar__title:hover { 
+  color: #68c6ed;
+  text-decoration: none;
+}
 
 .player-bar__artist {
   color: rgba(255,255,255,0.5);
   font-size: 12px;
 }
 
-/* --- Center controls + progress --- */
 .player-bar__center {
   display: flex;
   flex-direction: column;
@@ -86,7 +87,7 @@
 }
 
 .player-btn:hover { color: #fff; transform: scale(1.1); }
-.player-btn.active { color: #1db954; }
+.player-btn.active { color: #68c6ed; }
 
 .player-btn--play {
   background: #fff;
@@ -96,7 +97,6 @@
 }
 .player-btn--play:hover { background: #f0f0f0; color: #111; transform: scale(1.08); }
 
-/* Progress */
 .player-bar__progress {
   display: flex;
   align-items: center;
@@ -139,7 +139,6 @@
   transform: scale(1.3);
 }
 
-/* Volume */
 .player-bar__right {
   display: flex;
   align-items: center;

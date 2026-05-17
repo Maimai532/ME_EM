@@ -4,29 +4,37 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  height: 72px;
-  background-color: #1a1a2e;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: 70px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  gap: 16px;
+  padding: 10px 30px;
+
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: transform 0.3s ease;
   
 }
 
 /* Bài đang phát */
 .player-bar__song {
+  width: 250px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 25%;
   min-width: 0;
+  cursor: pointer;
+}
+
+a.player-bar__song {
+  text-decoration: none;
+  color: inherit;
 }
 
 .player-bar__thumb {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
@@ -37,6 +45,7 @@
   flex-direction: column;
   gap: 2px;
   overflow: hidden;
+  
 }
 
 .player-bar__title {
@@ -50,7 +59,7 @@
 }
 
 .player-bar__title:hover {
-  text-decoration: underline;
+  /* text-decoration: underline; */
 }
 
 .player-bar__artist {
@@ -63,23 +72,28 @@
 
 /* Center - controls + progress */
 .player-bar__center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 600px;           /* điều chỉnh nếu cần */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  flex: 1;
+  /* pointer-events: none; */
 }
 
 .player-bar__controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .player-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(202, 202, 202, 0.7);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -89,11 +103,11 @@
 }
 
 .player-btn:hover {
-  color: white;
+  color: #68c6ed;
 }
 
 .player-btn.active {
-  color: #4ade80;
+  color: #68c6ed;
 }
 
 .player-btn--play {
@@ -106,7 +120,7 @@
 
 .player-btn--play:hover {
   transform: scale(1.05);
-  color: #1a1a2e;
+  color: #0f5486;
 }
 
 /* Progress */
@@ -120,46 +134,93 @@
 .player-bar__time {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
-  min-width: 36px;
+  /* min-width: 36px; */
   text-align: center;
 }
 
 .player-bar__seek {
   flex: 1;
-  height: 4px;
-  accent-color: white;
+  height: 5px;
   cursor: pointer;
+  border-radius: 2px;
+  outline: none;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.player-bar__seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #68c6ed;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.player-bar__seek:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.player-bar__seek::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
 }
 
 /* Volume */
 .player-bar__right {
+  margin-left: auto;      /* đẩy volume về phải */
+  width: 30px;
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 25%;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .player-bar__volume {
-  width: 80px;
-  height: 4px;
-  accent-color: white;
+  flex: 1;
+  height: 5px;
   cursor: pointer;
+  border-radius: 2px;
+  outline: none;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
+.player-bar__volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #68c6ed;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
 
-/* Full width đã có rồi vì left:0 right:0 */
+.player-bar__volume:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.player-bar__volume::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
 
 /* Nút ẩn/hiện */
 .player-bar__toggle {
   position: fixed;
-  bottom: 80px; /* ngay trên playerbar */
+  bottom: 80px; 
   right: 10px;
   z-index: 1001;
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: var(--color-button1);
+  background: #296b92;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--color-text4);
   cursor: pointer;
