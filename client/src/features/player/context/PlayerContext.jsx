@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
+import { addToHistory } from "../../../shared/services/history.service";
 
 const PlayerContext = createContext(null);
 
@@ -47,25 +48,30 @@ export function PlayerProvider({ children }) {
   }, []);
 
   // playSong KHÔNG dùng queue/isRepeat từ closure — chỉ dùng ref
-  const playSong = useCallback((song, songList = []) => {
-    if (!song) return;
+  const playSong = useCallback(
+    (song, songList = []) => {
+      if (!song) return;
 
-    audio.src = song.audioUrl;
-    audio.volume = volumeRef.current;
-    audio.play().catch(() => setIsPlaying(false));
-    setCurrentSong(song);
-    setIsPlaying(true);
-    setCurrentTime(0);
+      audio.src = song.audioUrl;
+      audio.volume = volumeRef.current;
+      audio.play().catch(() => setIsPlaying(false));
+      setCurrentSong(song);
+      setIsPlaying(true);
+      setCurrentTime(0);
 
-    // Chỉ reset queue khi truyền songList mới
-    if (songList.length > 0) {
-      const newQueue = songList.filter((s) => s._id !== song._id);
-      updateQueue(newQueue);
-    }
+      addToHistory(song._id);// ghi lịch sử, không cần await
 
-    audio.ontimeupdate = () => setCurrentTime(audio.currentTime);
-    audio.ondurationchange = () => setDuration(audio.duration);
-  }, [updateQueue]);
+      // Chỉ reset queue khi truyền songList mới
+      if (songList.length > 0) {
+        const newQueue = songList.filter((s) => s._id !== song._id);
+        updateQueue(newQueue);
+      }
+
+      audio.ontimeupdate = () => setCurrentTime(audio.currentTime);
+      audio.ondurationchange = () => setDuration(audio.duration);
+    },
+    [updateQueue],
+  );
 
   // onended tách riêng bằng useEffect — luôn đọc ref mới nhất
   useEffect(() => {
@@ -161,12 +167,26 @@ export function PlayerProvider({ children }) {
   return (
     <PlayerContext.Provider
       value={{
-        currentSong, queue, isPlaying, currentTime, duration,
-        volume, isRepeat, isShuffle,
-        playSong, togglePlay, playNext, playPrev,
-        seek, changeVolume, toggleRepeat, toggleShuffle,
-        setQueue: updateQueue, stopPlayer,
-        isPlayerVisible, setIsPlayerVisible
+        currentSong,
+        queue,
+        isPlaying,
+        currentTime,
+        duration,
+        volume,
+        isRepeat,
+        isShuffle,
+        playSong,
+        togglePlay,
+        playNext,
+        playPrev,
+        seek,
+        changeVolume,
+        toggleRepeat,
+        toggleShuffle,
+        setQueue: updateQueue,
+        stopPlayer,
+        isPlayerVisible,
+        setIsPlayerVisible,
       }}
     >
       {children}

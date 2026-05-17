@@ -1,0 +1,149 @@
+.history-page {
+  padding: 20px;
+}
+
+.history-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.history-page__title {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-text2);
+}
+
+/* Filter tabs */
+.history-page__filters {
+  display: flex;
+  gap: 8px;
+}
+
+.history-page__filter-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid gray;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.history-page__filter-btn.active {
+  background: var(--color-text2);
+  color: rgb(0, 0, 0);
+  border-color: white;
+}
+
+/* Nút xoá */
+.history-page__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.history-page__delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid gray;
+  background: transparent;
+  color: gray;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.history-page__delete-btn:hover {
+  border-color: white;
+  color: white;
+}
+
+.history-page__delete-btn--danger:hover {
+  border-color: #7a0b0b;
+  color: #7a0b0b;
+}
+
+/* List */
+.history-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-page__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid rgb(74, 74, 74);
+  transition: background 0.2s;
+}
+
+.history-page__img-wrap {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+}
+
+.history-page__img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.history-page__play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.history-page__item:hover .history-page__play-overlay {
+  opacity: 1;
+}
+
+.history-page__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1; /* đẩy time sang phải */
+}
+
+.history-page__song-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--color-text2);
+}
+
+.history-page__artist {
+  font-size: 12px;
+  margin: 0;
+  color: var(--color-text3);
+}
+
+.history-page__time {
+  font-size: 12px;
+  color: var(--color-text3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-page__loading,
+.history-page__empty {
+  color: var(--color-text2);
+  font-size: 24px;
+}

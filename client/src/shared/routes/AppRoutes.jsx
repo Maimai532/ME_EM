@@ -12,6 +12,7 @@ import Playlist from "../../features/playlist/pages/Playlist";
 import Library from "../../features/library/pages/Library";
 import MusicPlayer from "../../features/player/pages/MusicPlayer";
 import Search from "../../features/search/pages/Search";
+import History from "../../features/history/pages/History.jsx";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
 import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
@@ -39,11 +40,11 @@ const AppRoutes = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/library" element={<Library />} />
           <Route path="/favorite" element={<Library />} />
-          <Route path="/history" element={<Library />} />
           <Route path="/settings" element={<Profile />} />
           <Route path="/playlist" element={<Playlist />} />
           <Route path="/player/:id" element={<MusicPlayer />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/history" element={<History />} />
         </Route>
 
         {/* Admin pages */}

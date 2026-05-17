@@ -93,6 +93,15 @@ server/src/
 ├── features/
 ├── services/
 ├── shared/
+│   ├── config/
+│   ├── constants/
+│   ├── context/
+│   ├── hooks/
+│   ├── routes/
+│   ├── services/
+│   └── utils/
+│
+│
 ├── upload/
 ├── utils/
 │

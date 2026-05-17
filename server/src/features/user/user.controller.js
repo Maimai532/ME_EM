@@ -1,3 +1,4 @@
+// user.controller.js
 import User from "../../shared/models/User.js";
 import bcrypt from "bcryptjs";
 

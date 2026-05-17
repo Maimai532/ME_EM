@@ -7,6 +7,7 @@ import songRoutes from "./features/song/song.routes.js";
 import sectionRoutes from "./features/section/section.routes.js";
 import healthRoutes from "./shared/routes/healthRoutes.js";
 import artistRoutes from "./features/artists/artist.routes.js";
+import historyRoutes from "./features/history/history.routes.js";
 
 export function createApp() {
   const app = express();
@@ -26,5 +27,7 @@ export function createApp() {
   app.use("/api/sections", sectionRoutes);
   app.use("/api/health", healthRoutes);
   app.use("/api/artists", artistRoutes);
+  app.use("/api/history", historyRoutes);
+  
   return app;
 }

@@ -10,12 +10,11 @@
 - `server/`: backend API
 
 ## Hướng dẫn chạy
-
+npm install
 ### Server
 
 ```bash
 cd server
-npm install
 npm run dev
 ```
 
@@ -23,7 +22,6 @@ npm run dev
 
 ```bash
 cd client
-npm install
 npm run dev
 ```
 
