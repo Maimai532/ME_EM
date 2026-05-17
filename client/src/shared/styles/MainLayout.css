@@ -3,10 +3,29 @@
   margin-top: 60px;
   margin-left: 120px;
   padding: 20px;
+  
   /* background-color: azure; */
 }
 
 /* Khi PlayerBar ẩn — không cần padding nữa */
 .main-layout__content--player-hidden {
   padding-bottom: 0;
+}
+
+.music-player-overlay {
+  position: fixed;
+  top: 60px;        /* chiều cao navbar */
+  left: 120px;      /* chiều cao sidebar */
+  right: 0;
+  bottom: 70px;     /* chiều cao playerbar */
+  z-index: 500;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  pointer-events: all;
+}
+
+
+.music-player-overlay--hidden {
+  transform: translateY(100%);
+  pointer-events: none;
 }

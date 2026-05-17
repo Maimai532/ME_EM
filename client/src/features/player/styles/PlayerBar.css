@@ -73,21 +73,35 @@ a.player-bar__song {
 /* Center - controls + progress */
 .player-bar__center {
   position: absolute;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 600px;           /* điều chỉnh nếu cần */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  /* pointer-events: none; */
-}
+  left: 50%;
+  transform: translateX(-50%);
 
+  width: 600px;
+
+  display: flex;
+  flex-direction: column; /* đổi */
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+}
 .player-bar__controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  gap: 12px;
+}
+.player-bar__progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Bật lại cho controls và progress */
+.player-bar__controls,
+.player-bar__progress {
+  pointer-events: all;
 }
 
 .player-btn {
@@ -171,13 +185,14 @@ a.player-bar__song {
 
 /* Volume */
 .player-bar__right {
-  margin-left: auto;      /* đẩy volume về phải */
-  width: 30px;
+  margin-left: auto;
+  width: 160px;
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: flex-end;
   flex-shrink: 0;
+  overflow: hidden; /* ← thêm */
 }
 
 .player-bar__volume {

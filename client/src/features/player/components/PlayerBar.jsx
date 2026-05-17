@@ -33,6 +33,7 @@ export default function PlayerBar() {
     toggleShuffle,
     isPlayerVisible,
     setIsPlayerVisible,
+    setIsMusicPlayerVisible,
   } = usePlayer();
 
   if (!currentSong) return null;
@@ -43,8 +44,11 @@ export default function PlayerBar() {
         className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""}`}
       >
         {/* Bài đang phát */}
-        {/* Bài đang phát */}
-        <Link to={`/player/${currentSong._id}`} className="player-bar__song">
+        <div
+          className="player-bar__song"
+          onClick={() => setIsMusicPlayerVisible((v) => !v)}
+          style={{ cursor: "pointer" }}
+        >
           <img
             src={currentSong.imageUrl || "/placeholder.jpg"}
             alt={currentSong.title}
@@ -54,7 +58,7 @@ export default function PlayerBar() {
             <p className="player-bar__title">{currentSong.title}</p>
             <span className="player-bar__artist">{currentSong.artist}</span>
           </div>
-        </Link>
+        </div>
 
         {/* Controls + Progress */}
         <div className="player-bar__center">

@@ -15,7 +15,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
   function handlePlay(e) {
     e?.stopPropagation();
     playSong(song, songList);
-    navigate(`/player/${song._id}`);
+    // navigate(`/player/${song._id}`);
   }
 
   function handleLike(e) {
