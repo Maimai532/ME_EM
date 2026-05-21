@@ -373,6 +373,64 @@
   box-sizing: border-box;
 }
 
+
+.song-admin__file-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 3px;
+  margin-top: 6px;
+  transition: 0.2s;
+}
+
+.song-admin__file-picker:hover {
+  border-color: #68c6ed;
+}
+
+.song-admin__preview-wrap {
+  position: relative;
+  width: fit-content;
+  margin-top: 12px;
+}
+
+.song-admin__preview {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+}
+
+.song-admin__preview-remove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+
+  width: 20px;
+  height: 20px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #5353539c;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+
 .song-admin__input--mt-sm {
   margin-top: 8px;
 }

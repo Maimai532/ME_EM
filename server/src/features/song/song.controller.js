@@ -59,16 +59,23 @@ export const createSong = async (req, res) => {
     const audioFile = req.files?.audio?.[0];
     const imageFile = req.files?.image?.[0];
 
-    if (!audioFile && !req.body.audioUrl)
+    const manualAudioKey = req.body.audioKey?.trim() || null;
+
+    if (!audioFile && !req.body.audioUrl && !manualAudioKey)
       return res
         .status(400)
-        .json({ success: false, message: "Cần có audio (file hoặc URL)" });
+        .json({
+          success: false,
+          message: "Cần có audio (file, URL, hoặc B2 key)",
+        });
 
     let audioUrl = req.body.audioUrl || null;
     let imageUrl = req.body.imageUrl || null;
-    let audioKey = null;
+    let audioKey = manualAudioKey;
     let imageKey = null;
-    const sourceType = audioFile ? "upload" : "url";
+    const sourceType = audioFile ? "upload" : manualAudioKey ? "b2key" : "url";
+
+    // const sourceType = audioFile ? "upload" : "url";
 
     if (audioFile) {
       audioKey = await uploadToB2(
@@ -77,6 +84,9 @@ export const createSong = async (req, res) => {
         audioFile.mimetype,
         "audio",
       );
+      audioUrl = null;
+    } else if (manualAudioKey) {
+      // ✅ Dùng B2 key nhập tay, không cần audioUrl
       audioUrl = null;
     }
 

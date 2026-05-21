@@ -12,8 +12,9 @@ const emptyForm = {
   album: "",
   genre: "",
   audioUrl: "",
+  audioKey: "",
   imageUrl: "",
-  sourceType: "url",
+  sourceType: "b2key",
 };
 
 function normalizeGenre(g) {
@@ -36,7 +37,7 @@ function splitGenres(genreStr) {
 function splitArtists(artistStr) {
   if (!artistStr) return [];
   return artistStr
-    .split(/,| và /)
+    .split(/,|\/| và /)
     .map((a) => a.trim())
     .filter(Boolean);
 }
@@ -45,7 +46,6 @@ function CustomSelect({ value, onChange, options }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // Click ngoài thì đóng
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
@@ -109,8 +109,9 @@ function normalizeSongForm(input = {}) {
     album: input.album ?? "",
     genre: input.genre ?? "",
     audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
+    audioKey: input.sourceType === "b2key" ? (input.audioKey ?? "") : "",
     imageUrl: input.imageUrl ?? "",
-    sourceType: input.sourceType ?? "url",
+    sourceType: input.sourceType ?? "b2key", // mặc định cho audio url
     _id: input._id,
   };
 }
@@ -157,6 +158,7 @@ function SongModal({ song, onClose, onSaved, token }) {
   const safeSong = normalizeSongForm({ ...emptyForm, ...(song || {}) });
   const isEdit = !!safeSong._id;
   const { showToast } = useToast();
+
   const [form, setForm] = useState(safeSong);
   const [audioFile, setAudioFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -168,8 +170,10 @@ function SongModal({ song, onClose, onSaved, token }) {
       setImagePreview(form.imageUrl || "");
       return undefined;
     }
+
     const previewUrl = URL.createObjectURL(imageFile);
     setImagePreview(previewUrl);
+
     return () => URL.revokeObjectURL(previewUrl);
   }, [imageFile, form.imageUrl]);
 
@@ -177,62 +181,96 @@ function SongModal({ song, onClose, onSaved, token }) {
     function handleKey(e) {
       if (e.key === "Enter" && !loading) {
         const tag = document.activeElement?.tagName;
+
         if (tag === "INPUT" && document.activeElement.type === "file") return;
+
         e.preventDefault();
         handleSubmit();
       }
+
       if (e.key === "Escape") onClose();
     }
+
     window.addEventListener("keydown", handleKey);
+
     return () => window.removeEventListener("keydown", handleKey);
   }, [loading, form, audioFile, imageFile]);
 
   function handleChange(e) {
     const { name, value } = e.target;
+
     if (name === "sourceType") {
-      if (value === "url") setAudioFile(null);
+      if (value === "url" || value === "b2key") {
+        setAudioFile(null);
+      }
+
       setForm((prev) => ({
         ...prev,
         sourceType: value,
-        audioUrl: value === "upload" ? "" : prev.audioUrl,
+        audioUrl: value !== "url" ? "" : prev.audioUrl,
+        audioKey: value !== "b2key" ? "" : prev.audioKey,
       }));
+
       return;
     }
-    setForm((prev) => ({ ...prev, [name]: value ?? "" }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value ?? "",
+    }));
   }
 
   async function handleSubmit() {
     setLoading(true);
+
     try {
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+      const authHeader = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
       if (audioFile || imageFile) {
         const fd = new FormData();
+
         Object.entries(form).forEach(([k, v]) => {
-          if (v !== undefined && v !== null) fd.append(k, v);
+          if (v !== undefined && v !== null) {
+            fd.append(k, v);
+          }
         });
+
         if (audioFile) fd.append("audio", audioFile);
         if (imageFile) fd.append("image", imageFile);
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        isEdit
-          ? await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config)
-          : await axios.post(`${API_URL}/songs`, fd, config);
+
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        if (isEdit) {
+          await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
+        } else {
+          await axios.post(`${API_URL}/songs`, fd, config);
+        }
       } else {
-        isEdit
-          ? await axios.put(
-              `${API_URL}/songs/${safeSong._id}`,
-              form,
-              authHeader,
-            )
-          : await axios.post(`${API_URL}/songs`, form, authHeader);
+        if (isEdit) {
+          await axios.put(`${API_URL}/songs/${safeSong._id}`, form, authHeader);
+        } else {
+          await axios.post(`${API_URL}/songs`, form, authHeader);
+        }
       }
+
       onSaved();
+
       showToast(
-        isEdit ? "Cập nhật thành công!" : "Thêm bài hát thành công!",
+        isEdit ? "Update success!" : "Creat success!",
         "success",
       );
+
       onClose();
     } catch {
-      showToast("Có lỗi xảy ra!", "error");
+      showToast("Có lỗi!", "error");
     } finally {
       setLoading(false);
     }
@@ -244,36 +282,44 @@ function SongModal({ song, onClose, onSaved, token }) {
         <h2 className="song-admin-modal__title">
           {isEdit ? "Edit Song" : "New Song"}
         </h2>
+
         <div className="song-input">
           <div className="song-info">
             <label className="song-admin__label">
               Tên bài hát <span>*</span>
             </label>
+
             <input
               className="song-admin__input"
               name="title"
               value={form.title || ""}
               onChange={handleChange}
             />
+
             <label className="song-admin__label">
               Nghệ sĩ <span>*</span>
             </label>
+
             <input
               className="song-admin__input"
               name="artist"
               value={form.artist || ""}
               onChange={handleChange}
             />
+
             <label className="song-admin__label">Album</label>
+
             <input
               className="song-admin__input"
               name="album"
               value={form.album || ""}
               onChange={handleChange}
             />
+
             <label className="song-admin__label">
               Thể loại <span>*</span>
             </label>
+
             <input
               className="song-admin__input"
               name="genre"
@@ -281,31 +327,56 @@ function SongModal({ song, onClose, onSaved, token }) {
               onChange={handleChange}
             />
           </div>
+
           <div className="song-src">
             <label className="song-admin__label">Audio</label>
+
             <div className="song-admin__radio-group">
               <label>
                 <input
                   type="radio"
                   name="sourceType"
+                  value="b2key"
+                  checked={form.sourceType === "b2key"}
+                  onChange={handleChange}
+                />{" "}
+                B2 Key
+              </label>
+
+              <label>
+                <input
+                  type="radio"
+                  name="sourceType"
                   value="url"
-                  checked={(form.sourceType || "url") === "url"}
+                  checked={form.sourceType === "url"}
                   onChange={handleChange}
                 />{" "}
                 URL
               </label>
+
               <label>
                 <input
                   type="radio"
                   name="sourceType"
                   value="upload"
-                  checked={(form.sourceType || "url") === "upload"}
+                  checked={form.sourceType === "upload"}
                   onChange={handleChange}
                 />{" "}
                 Upload
               </label>
             </div>
-            {(form.sourceType || "url") === "url" ? (
+
+            {form.sourceType === "b2key" && (
+              <input
+                className="song-admin__input song-admin__input--mt-sm"
+                name="audioKey"
+                value={form.audioKey || ""}
+                onChange={handleChange}
+                placeholder="new_song/abc123-song.mp3"
+              />
+            )}
+
+            {form.sourceType === "url" && (
               <input
                 className="song-admin__input song-admin__input--mt-sm"
                 name="audioUrl"
@@ -313,24 +384,48 @@ function SongModal({ song, onClose, onSaved, token }) {
                 onChange={handleChange}
                 placeholder="https://..."
               />
-            ) : (
-              <input
-                className="song-admin__input song-admin__input--mt-sm"
-                type="file"
-                accept="audio/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setAudioFile(file);
-                  if (file)
-                    setForm((prev) => ({
-                      ...prev,
-                      sourceType: "upload",
-                      audioUrl: "",
-                    }));
-                }}
-              />
             )}
+
+            {form.sourceType === "upload" && (
+              <>
+                <label className="song-admin__file-picker">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+
+                      setAudioFile(file);
+
+                      if (file) {
+                        setForm((prev) => ({
+                          ...prev,
+                          sourceType: "upload",
+                          audioUrl: "",
+                          audioKey: "",
+                        }));
+                      }
+                    }}
+                  />
+
+                  {audioFile ? "✓ Đã chọn tệp audio" : "Chưa chọn tệp audio"}
+                </label>
+
+                {audioFile && (
+                  <button
+                    type="button"
+                    className="song-admin__remove-file"
+                    onClick={() => setAudioFile(null)}
+                  >
+                    Xoá audio
+                  </button>
+                )}
+              </>
+            )}
+
             <label className="song-admin__label">Ảnh bìa</label>
+
             <input
               className="song-admin__input"
               name="imageUrl"
@@ -338,25 +433,57 @@ function SongModal({ song, onClose, onSaved, token }) {
               onChange={handleChange}
               placeholder="https://..."
             />
-            <input
-              className="song-admin__input song-admin__input--mt-xs"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setImageFile(file);
-                if (file) setForm((prev) => ({ ...prev, imageUrl: "" }));
-              }}
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="preview"
-                className="song-admin__preview"
+
+            <label className="song-admin__file-picker">
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+
+                  setImageFile(file);
+
+                  if (file) {
+                    setForm((prev) => ({
+                      ...prev,
+                      imageUrl: "",
+                    }));
+                  }
+                }}
               />
+
+              {imageFile ? "✓ Đã chọn ảnh" : "Chưa chọn ảnh"}
+            </label>
+
+            {imagePreview && (
+              <div className="song-admin__preview-wrap">
+                <img
+                  src={imagePreview}
+                  alt="preview"
+                  className="song-admin__preview"
+                />
+
+                <button
+                  type="button"
+                  className="song-admin__preview-remove"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview("");
+
+                    setForm((prev) => ({
+                      ...prev,
+                      imageUrl: "",
+                    }));
+                  }}
+                >
+                  ×
+                </button>
+              </div>
             )}
           </div>
         </div>
+
         <div className="song-admin-modal__footer">
           <button
             type="button"
@@ -365,6 +492,7 @@ function SongModal({ song, onClose, onSaved, token }) {
           >
             Huỷ
           </button>
+
           <button
             type="button"
             className="song-admin__btn-save"
