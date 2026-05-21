@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useToast } from "../../../shared/hooks/useToast";
 import AdminPage from "./Admin_Page";
 import "../styles/Admin_Songs.css";
 import { API_URL } from "../../../shared/constants/api";
+import { useState, useEffect, useRef } from "react";
 
 const emptyForm = {
   title: "",
@@ -16,13 +16,98 @@ const emptyForm = {
   sourceType: "url",
 };
 
+function normalizeGenre(g) {
+  return g
+    .trim()
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function splitGenres(genreStr) {
+  if (!genreStr) return [];
+  return genreStr
+    .split(/,|\/| và /)
+    .map(normalizeGenre)
+    .filter(Boolean);
+}
+
+function splitArtists(artistStr) {
+  if (!artistStr) return [];
+  return artistStr
+    .split(/,| và /)
+    .map((a) => a.trim())
+    .filter(Boolean);
+}
+
+function CustomSelect({ value, onChange, options }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  // Click ngoài thì đóng
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div className="custom-select" ref={ref}>
+      <button
+        type="button"
+        className={`custom-select__trigger ${open ? "custom-select__trigger--open" : ""}`}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span>{selected?.label}</span>
+        <svg
+          className={`custom-select__arrow ${open ? "custom-select__arrow--up" : ""}`}
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <ul className="custom-select__dropdown">
+          {options.map((opt) => (
+            <li
+              key={opt.value}
+              className={`custom-select__option ${opt.value === value ? "custom-select__option--active" : ""}`}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+            >
+              {opt.value === value && (
+                <span className="custom-select__check">✓</span>
+              )}
+              {opt.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function normalizeSongForm(input = {}) {
   return {
     title: input.title ?? "",
     artist: input.artist ?? "",
     album: input.album ?? "",
     genre: input.genre ?? "",
-    // audioUrl chỉ dùng nếu sourceType là "url" — KHÔNG dùng streamUrl (presigned, hết hạn)
     audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
     imageUrl: input.imageUrl ?? "",
     sourceType: input.sourceType ?? "url",
@@ -159,7 +244,6 @@ function SongModal({ song, onClose, onSaved, token }) {
         <h2 className="song-admin-modal__title">
           {isEdit ? "Edit Song" : "New Song"}
         </h2>
-
         <div className="song-input">
           <div className="song-info">
             <label className="song-admin__label">
@@ -171,7 +255,6 @@ function SongModal({ song, onClose, onSaved, token }) {
               value={form.title || ""}
               onChange={handleChange}
             />
-
             <label className="song-admin__label">
               Nghệ sĩ <span>*</span>
             </label>
@@ -181,7 +264,6 @@ function SongModal({ song, onClose, onSaved, token }) {
               value={form.artist || ""}
               onChange={handleChange}
             />
-
             <label className="song-admin__label">Album</label>
             <input
               className="song-admin__input"
@@ -189,7 +271,6 @@ function SongModal({ song, onClose, onSaved, token }) {
               value={form.album || ""}
               onChange={handleChange}
             />
-
             <label className="song-admin__label">
               Thể loại <span>*</span>
             </label>
@@ -200,7 +281,6 @@ function SongModal({ song, onClose, onSaved, token }) {
               onChange={handleChange}
             />
           </div>
-
           <div className="song-src">
             <label className="song-admin__label">Audio</label>
             <div className="song-admin__radio-group">
@@ -225,7 +305,6 @@ function SongModal({ song, onClose, onSaved, token }) {
                 Upload
               </label>
             </div>
-
             {(form.sourceType || "url") === "url" ? (
               <input
                 className="song-admin__input song-admin__input--mt-sm"
@@ -251,7 +330,6 @@ function SongModal({ song, onClose, onSaved, token }) {
                 }}
               />
             )}
-
             <label className="song-admin__label">Ảnh bìa</label>
             <input
               className="song-admin__input"
@@ -260,7 +338,6 @@ function SongModal({ song, onClose, onSaved, token }) {
               onChange={handleChange}
               placeholder="https://..."
             />
-
             <input
               className="song-admin__input song-admin__input--mt-xs"
               type="file"
@@ -280,7 +357,6 @@ function SongModal({ song, onClose, onSaved, token }) {
             )}
           </div>
         </div>
-
         <div className="song-admin-modal__footer">
           <button
             type="button"
@@ -313,6 +389,10 @@ function Admin_Song() {
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [genreFilter, setGenreFilter] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [genreInput, setGenreInput] = useState("");
+  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
+  const [missingFilter, setMissingFilter] = useState("");
 
   function fetchSongs() {
     setLoading(true);
@@ -339,24 +419,6 @@ function Admin_Song() {
     );
   }
 
-  async function handleDelete(id) {
-    setConfirm({
-      message: "Xoá bài hát này?",
-      onConfirm: async () => {
-        setConfirm(null);
-        try {
-          await axios.delete(`${API_URL}/songs/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          fetchSongs();
-          showToast("Đã xoá bài hát!", "success");
-        } catch {
-          alert("Xoá thất bại");
-        }
-      },
-    });
-  }
-
   async function handleDeleteSelected() {
     setConfirm({
       message: `Xoá ${selected.length} bài hát?`,
@@ -380,14 +442,43 @@ function Admin_Song() {
     });
   }
 
-  const genres = [...new Set(songs.map((s) => s.genre).filter(Boolean))];
+  const genres = [
+    ...new Set(songs.flatMap((s) => splitGenres(s.genre))),
+  ].sort();
+
   const filteredSongs = songs.filter((song) => {
     const keyword = search.toLowerCase();
     const matchSearch =
       song.title?.toLowerCase().includes(keyword) ||
       song.artist?.toLowerCase().includes(keyword);
-    const matchGenre = !genreFilter || song.genre === genreFilter;
-    return matchSearch && matchGenre;
+
+    const matchGenre =
+      !genreFilter || splitGenres(song.genre).includes(genreFilter);
+
+    const matchMissing =
+      !missingFilter ||
+      (missingFilter === "title" && !song.title?.trim()) ||
+      (missingFilter === "genre" && !song.genre?.trim()) ||
+      (missingFilter === "image" && !song.imageUrl?.trim());
+
+    return matchSearch && matchGenre && matchMissing;
+  });
+
+  const sortedSongs = [...filteredSongs].sort((a, b) => {
+    switch (sortBy) {
+      case "name_asc":
+        return (a.title || "").localeCompare(b.title || "");
+      case "name_desc":
+        return (b.title || "").localeCompare(a.title || "");
+      case "newest":
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      case "oldest":
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      case "plays_desc":
+        return (b.plays || 0) - (a.plays || 0);
+      default:
+        return 0;
+    }
   });
 
   const headerActions = (
@@ -413,7 +504,9 @@ function Admin_Song() {
 
   return (
     <AdminPage title="Quản lý bài hát" actions={headerActions}>
-      <div className="song-admin-meta">Songs: <span>{songs.length}</span> </div>
+      <div className="song-admin-meta">
+        Songs: <span>{songs.length}</span>
+      </div>
       <div className="song-admin__filter-bar">
         <input
           type="text"
@@ -422,18 +515,79 @@ function Admin_Song() {
           onChange={(e) => setSearch(e.target.value)}
           className="song-admin__search-input"
         />
-        <select
-          value={genreFilter}
-          onChange={(e) => setGenreFilter(e.target.value)}
-          className="song-admin__select"
-        >
-          <option value="">All</option>
-          {genres.map((genre) => (
-            <option key={genre} value={genre}>
-              {genre}
-            </option>
-          ))}
-        </select>
+
+        <div className="song-admin__genre">
+          <input
+            type="text"
+            placeholder="Lọc thể loại..."
+            value={genreInput}
+            className="song-admin__search-input"
+            onChange={(e) => {
+              setGenreInput(e.target.value);
+              setGenreFilter(e.target.value.trim());
+              setShowGenreDropdown(true);
+            }}
+            onFocus={() => setShowGenreDropdown(true)}
+            onBlur={() => setTimeout(() => setShowGenreDropdown(false), 150)}
+          />
+          {showGenreDropdown && (
+            <ul className="song-admin__genre-suggestions">
+              {(genreInput.trim()
+                ? genres.filter((g) =>
+                    g.toLowerCase().includes(genreInput.toLowerCase()),
+                  )
+                : genres
+              ).map((g) => (
+                <li
+                  key={g}
+                  className="song-admin__genre-suggestion-item"
+                  onMouseDown={() => {
+                    setGenreFilter(g);
+                    setGenreInput(g);
+                    setShowGenreDropdown(false);
+                  }}
+                >
+                  {g}
+                </li>
+              ))}
+              {genreInput.trim() && (
+                <li
+                  className="song-admin__genre-suggestion-item song-admin__genre-suggestion-item--clear"
+                  onMouseDown={() => {
+                    setGenreFilter("");
+                    setGenreInput("");
+                    setShowGenreDropdown(false);
+                  }}
+                >
+                  Clear
+                </li>
+              )}
+            </ul>
+          )}
+        </div>
+
+        <CustomSelect
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "newest", label: "Mới" },
+            { value: "oldest", label: "Cũ" },
+            { value: "name_asc", label: "A→Z" },
+            { value: "name_desc", label: "Z→A" },
+            { value: "plays_desc", label: "Lượt nghe" },
+          ]}
+        />
+
+        <CustomSelect
+          value={missingFilter}
+          onChange={setMissingFilter}
+          options={[
+            { value: "", label: "Tất cả" },
+            { value: "title", label: "⚠ Thiếu tên" },
+            { value: "genre", label: "⚠ Thiếu thể loại" },
+            { value: "image", label: "⚠ Thiếu ảnh" },
+          ]}
+        />
       </div>
 
       {loading ? (
@@ -441,6 +595,14 @@ function Admin_Song() {
       ) : (
         <div className="song-admin__table-wrapper">
           <table className="song-admin__table">
+            <colgroup>
+              <col className="song-admin__col-select" />
+              <col className="song-admin__col-image" />
+              <col className="song-admin__col-name" />
+              <col className="song-admin__col-artist" />
+              <col className="song-admin__col-genre" />
+              <col className="song-admin__col-listen" />
+            </colgroup>
             <thead>
               <tr>
                 <th className="song-admin__th">
@@ -456,61 +618,64 @@ function Admin_Song() {
                 <th className="song-admin__th">Name</th>
                 <th className="song-admin__th">Artist</th>
                 <th className="song-admin__th">Genre</th>
-                <th className="song-admin__th">Number of listens</th>
-                <th className="song-admin__th">Action</th>
+                <th className="song-admin__th">Listens</th>
               </tr>
             </thead>
-
             <tbody>
-              {filteredSongs.length > 0 ? (
-                filteredSongs.map((song) => (
+              {sortedSongs.length > 0 ? (
+                sortedSongs.map((song) => (
                   <tr
                     key={song._id}
-                    className={
+                    className={`song-admin__row ${
                       selected.includes(song._id)
                         ? "song-admin__row--selected"
                         : ""
-                    }
+                    }`}
+                    onClick={() => setModal({ ...emptyForm, ...song })}
                   >
-                    <td className="song-admin__td">
+                    <td className="song-admin__td td-box">
                       <input
                         type="checkbox"
                         checked={selected.includes(song._id)}
+                        onClick={(e) => e.stopPropagation()}
                         onChange={() => toggleSelect(song._id)}
                       />
                     </td>
-                    <td className="song-admin__td">
+
+                    <td className="song-admin__td ">
                       <img
                         className="song-admin__thumb"
                         src={song.imageUrl || "https://picsum.photos/48"}
                         alt={song.title}
                       />
                     </td>
-                    <td className="song-admin__td">{song.title}</td>
-                    <td className="song-admin__td">{song.artist}</td>
-                    <td className="song-admin__td">{song.genre || "—"}</td>
-                    <td className="song-admin__td">{song.plays}</td>
-                    <td className="song-admin__td">
-                      <button
-                        type="button"
-                        className="song-admin__btn-edit"
-                        onClick={() => setModal({ ...emptyForm, ...song })}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        type="button"
-                        className="song-admin__btn-del"
-                        onClick={() => handleDelete(song._id)}
-                      >
-                        Xoá
-                      </button>
+
+                    <td className="song-admin__td td-title">{song.title}</td>
+                    <td className="song-admin__td td-artist ">
+                      {splitArtists(song.artist).length > 0
+                        ? splitArtists(song.artist).map((a) => (
+                            <span key={a} className="song-admin__artist-badge">
+                              {a}
+                            </span>
+                          ))
+                        : "—"}
                     </td>
+
+                    <td className="song-admin__td td-genre">
+                      {splitGenres(song.genre).length > 0
+                        ? splitGenres(song.genre).map((g) => (
+                            <span key={g} className="song-admin__genre-badge">
+                              {g}
+                            </span>
+                          ))
+                        : "—"}
+                    </td>
+                    <td className="song-admin__td td-listen">{song.plays}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="song-admin__empty-cell">
+                  <td colSpan="6" className="song-admin__empty">
                     Không tìm thấy bài hát
                   </td>
                 </tr>

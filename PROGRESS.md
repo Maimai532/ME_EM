@@ -33,7 +33,8 @@
 * Admin crud song, playlist, quản lí user(chưa có new user)
 * search, lọc song
 * profile
-* Migration
+* Migration cloudinary -> B2
+* Frontend stream từ B2
 
 
 ## Đang tập trung

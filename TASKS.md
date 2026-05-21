@@ -251,5 +251,6 @@ Server     → kiểm tra token → cho phép hoặc từ chối
         Luồng: Route → Controller → Model → Database
 
 
+- Frontend React -> getSongById() -> Backend generate signed URL -> B2 private bucket -> audio stream
 
 

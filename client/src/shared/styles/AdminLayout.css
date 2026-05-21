@@ -2,8 +2,7 @@
 
 .admin-layout {
   display: flex;
-  height: 100vh;
-  background-color: white;
+  /* height: 100vh; */
 }
 
 .admin-layout__sidebar {

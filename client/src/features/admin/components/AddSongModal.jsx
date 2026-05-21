@@ -9,7 +9,6 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
   const [selectedSongId, setSelectedSongId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Form cho bài hát mới (lấy cấu trúc giống NewSong của m)
   const [newSong, setNewSong] = useState({
     title: "",
     album: "",
@@ -24,11 +23,15 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
     songService.getAll().then((res) => setAllSongs(res.data));
   }, []);
 
-  const filteredSongs = allSongs.filter(
-    (s) =>
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.artist.toLowerCase().includes(search.toLowerCase()),
-  );
+const filteredSongs = allSongs.filter((s) => {
+  const q = search.toLowerCase();
+  const matchTitle = s.title?.toLowerCase().includes(q);
+  const matchArtist = s.artist
+    ?.split(/,| và /)
+    .map((a) => a.trim())
+    .some((a) => a.toLowerCase().includes(q));
+  return matchTitle || matchArtist;
+});
 
   const handleAddExisting = async () => {
     if (!selectedSongId) return alert("Chọn một bài hát");
@@ -107,7 +110,11 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                   />
                   <div>
                     <strong>{song.title}</strong>
-                    <span>{song.artist}</span>
+                    <span>
+  {song.artist?.split(/,| và /).map((a) => a.trim()).filter(Boolean).map((a) => (
+    <span key={a} className="song-admin__artist-badge">{a}</span>
+  ))}
+</span>
                   </div>
                   {selectedSongId === song._id && <span>✓</span>}
                 </li>

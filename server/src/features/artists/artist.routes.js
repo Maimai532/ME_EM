@@ -11,13 +11,17 @@ import {
   addAlbum,
   deleteAlbum,
   removeSongFromArtist,
+  syncAllSongsToArtists,
 } from "./artist.controller.js";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Public
+// ✅ Static POST routes — PHẢI đặt TRƯỚC bất kỳ /:id nào
+router.post("/sync-songs", syncAllSongsToArtists);
+
+// Public GET
 router.get("/", getArtists);
 router.get("/:id", getArtistById);
 

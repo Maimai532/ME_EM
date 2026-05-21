@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { LayoutDashboard, Music, ListMusic, Users, LogOut, Mic2 } from "lucide-react";
 import "../styles/AdminLayout.css";
+import { useEffect } from "react";
 
 const navItems = [
   // { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -20,10 +21,13 @@ function AdminLayout() {
     logout();
     navigate("/home", { replace: true });
   }
+    useEffect(() => {
+    document.body.setAttribute("data-theme", "admin");
+    return () => document.body.removeAttribute("data-theme"); // cleanup khi rời admin
+  }, []);
 
   return (
     <div className="admin-layout">
-
       <aside className="admin-layout__sidebar">
         <div className="admin-layout__logo-box">
           <img src="/logo2.png" alt="Logo" className="admin-layout__logo-img" />

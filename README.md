@@ -12,17 +12,90 @@
 ## Hướng dẫn chạy
 npm install
 ### Server
-
 ```bash
 cd server
 npm run dev
 ```
-
 ### Client
 
 ```bash
 cd client
 npm run dev
 ```
+================
+CẤU TRÚC PROJECT
+================
+
+ME_EM/
+│
+├── client/
+├── server/
+├── package.json
+└── README.md
+
+=================
+CẤU TRÚC FRONTEND
+=================
+
+client/
+├── public/
+│
+└── src/
+    ├── assets/
+    │
+    ├── features/
+    │   ├── admin/
+    │   ├── auth/
+    │   ├── home/
+    │   ├── library/
+    │   ├── player/
+    │   ├── playlist/
+    │   ├── profile/
+    │   └── search/
+    │
+    ├── shared/
+    │   ├── components/
+    │   ├── constants/
+    │   ├── context/
+    │   ├── hooks/
+    │   ├── layouts/
+    │   ├── routes/
+    │   ├── services/
+    │   ├── styles/
+    │   └── utils/
+    │
+    ├── App.css
+    ├── App.jsx
+    ├── index.css
+    └── main.jsx
+
+
+================
+CẤU TRÚC BACKEND
+================
+
+server
+├── scripts/
+│ 
+├── src/
+│   │
+│   ├── features/
+│   ├── services/
+│   ├── shared/
+│   │   ├── config/
+│   │   ├── constants/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── utils/
+│   │   └── utils/
+│   │
+│   │
+│   ├── app.js
+│   └── server.js
+│
+│
+└── .env
 
 # ME_EM

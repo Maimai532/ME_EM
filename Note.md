@@ -10,3 +10,5 @@ text-align → căn text trong block thường, không phải flex center chuẩ
     res (response): Trả dl về FE
 
 - Trong JSX, mọi thứ là JavaScript phải đặt trong {}
+
+- Dung b2 thay cloudinary ->stream trực tiếp từ b2 

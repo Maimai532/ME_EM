@@ -43,6 +43,7 @@
   width: 300px;
   height: 200px;
 }
+
 /* .playlist-admin__card::after {
   content: '';
   position: absolute;
@@ -234,6 +235,18 @@
   margin-bottom: 8px;
   padding: 6px 10px;
   border-radius: 6px;
+}
+
+.song-admin__genre-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 3px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #e8f0fe;
+  color: #1a56db;
+  white-space: nowrap;
 }
 
 .playlist-table-label--in {

@@ -48,15 +48,16 @@
   overflow-y: auto;
   top: -20px;
 
-  background: rgba(0, 0, 0, 0.75);
+  /* background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); */
+  background-color: black;
 
 }
 
 .player-cover {
-  width: 500px;
-  height: 500px;
+  width: 600px;
+  height: 600px;
   border-radius: 5px;
   object-fit: cover;
   box-shadow: 0 8px 32px rgba(109,109,109,0.4);

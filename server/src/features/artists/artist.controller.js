@@ -1,7 +1,11 @@
 import "dotenv/config";
 import Artist from "../../shared/models/artist.model.js";
 import Song from "../../shared/models/Song.js";
-import { uploadToB2, getPresignedUrl, deleteFromB2 } from "../../shared/services/b2.service.js";
+import {
+  uploadToB2,
+  getPresignedUrl,
+  deleteFromB2,
+} from "../../shared/services/b2.service.js";
 
 // ─── Helper: lấy URL hiển thị (generate nếu là B2 key) ───
 const resolveUrl = async (key, fallbackUrl) => {
@@ -18,7 +22,7 @@ export const getArtists = async (req, res) => {
       artists.map(async (a) => ({
         ...a.toObject(),
         avatar: await resolveUrl(a.avatarKey, a.avatar),
-      }))
+      })),
     );
 
     res.json(data);
@@ -33,7 +37,8 @@ export const getArtistById = async (req, res) => {
     const artist = await Artist.findById(req.params.id)
       .populate("songs")
       .populate("albums.songs");
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     res.json({
       ...artist.toObject(),
@@ -55,24 +60,42 @@ export const createArtist = async (req, res) => {
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
-        "artists"
+        "artists",
       );
       avatar = ""; // không lưu URL, chỉ lưu key
     }
 
-    const artist = new Artist({ name, country, description, avatar, avatarKey });
+    const artist = new Artist({
+      name,
+      country,
+      description,
+      avatar,
+      avatarKey,
+    });
     await artist.save();
 
-    // Auto-link songs có tên artist trùng
     const matchedSongs = await Song.find({
-      artist: { $regex: new RegExp(`^${name}$`, "i") },
+      artist: {
+        $regex: new RegExp(`(^|,\\s*| và )${name}(\\s*,| và |$)`, "i"),
+      },
       artistId: null,
     });
 
     if (matchedSongs.length > 0) {
       const songIds = matchedSongs.map((s) => s._id);
-      await Song.updateMany({ _id: { $in: songIds } }, { artistId: artist._id });
-      artist.songs = songIds;
+      await Song.updateMany(
+        { _id: { $in: songIds } },
+        { artistId: artist._id },
+      );
+      //push những cái chưa có
+      const existingIds = artist.songs.map((s) => s.toString());
+      const newIds = songIds.filter(
+        (id) => !existingIds.includes(id.toString()),
+      );
+
+      if (newIds.length > 0) {
+        artist.songs.push(...newIds);
+      }
       await artist.save();
     }
 
@@ -89,7 +112,8 @@ export const updateArtist = async (req, res) => {
   try {
     const { name, country, description } = req.body;
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     if (req.file) {
       // Xoá ảnh cũ trên B2 nếu có
@@ -99,7 +123,7 @@ export const updateArtist = async (req, res) => {
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
-        "artists"
+        "artists",
       );
       artist.avatar = "";
     } else if (req.body.avatarUrl) {
@@ -122,7 +146,8 @@ export const updateArtist = async (req, res) => {
 export const deleteArtist = async (req, res) => {
   try {
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     await Song.updateMany({ artistId: artist._id }, { artistId: null });
 
@@ -144,7 +169,8 @@ export const addAlbum = async (req, res) => {
   try {
     const { title, releaseYear, description } = req.body;
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     let coverImage = req.body.coverImage || "";
     let coverKey = null;
@@ -154,12 +180,18 @@ export const addAlbum = async (req, res) => {
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
-        "albums"
+        "albums",
       );
       coverImage = "";
     }
 
-    artist.albums.push({ title, releaseYear, description, coverImage, coverKey });
+    artist.albums.push({
+      title,
+      releaseYear,
+      description,
+      coverImage,
+      coverKey,
+    });
     await artist.save();
 
     res.status(201).json(artist);
@@ -172,10 +204,12 @@ export const addAlbum = async (req, res) => {
 export const deleteAlbum = async (req, res) => {
   try {
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     const album = artist.albums.id(req.params.albumId);
-    if (!album) return res.status(404).json({ message: "Không tìm thấy album" });
+    if (!album)
+      return res.status(404).json({ message: "Không tìm thấy album" });
 
     try {
       if (album.coverKey) await deleteFromB2(album.coverKey);
@@ -192,18 +226,23 @@ export const deleteAlbum = async (req, res) => {
   }
 };
 
-// Giữ nguyên các hàm không liên quan đến file
 // ─── Thêm song có sẵn vào artist ─────────────────────────
 export const addSongToArtist = async (req, res) => {
   try {
     const { songId } = req.body;
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     const song = await Song.findById(songId);
-    if (!song) return res.status(404).json({ message: "Không tìm thấy bài hát" });
+    if (!song)
+      return res.status(404).json({ message: "Không tìm thấy bài hát" });
 
-    if (!artist.songs.includes(songId)) {
+    // So sánh string để tránh ObjectId mismatch
+    const alreadyLinked = artist.songs.some(
+      (s) => s.toString() === songId.toString(),
+    );
+    if (!alreadyLinked) {
       artist.songs.push(songId);
       await artist.save();
     }
@@ -211,7 +250,12 @@ export const addSongToArtist = async (req, res) => {
     song.artistId = artist._id;
     await song.save();
 
-    res.json({ message: "Đã thêm bài hát vào nghệ sĩ", artist });
+    res.json({
+      message: alreadyLinked
+        ? "Bài hát đã có trong danh sách"
+        : "Đã thêm bài hát vào nghệ sĩ",
+      artist,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -221,7 +265,8 @@ export const addSongToArtist = async (req, res) => {
 export const createSongForArtist = async (req, res) => {
   try {
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     const { title, album, genre, duration, audioUrl, imageUrl } = req.body;
     let audioKey = null;
@@ -229,11 +274,21 @@ export const createSongForArtist = async (req, res) => {
 
     if (req.files?.audio?.[0]) {
       const f = req.files.audio[0];
-      audioKey = await uploadToB2(f.buffer, f.originalname, f.mimetype, "audio");
+      audioKey = await uploadToB2(
+        f.buffer,
+        f.originalname,
+        f.mimetype,
+        "audio",
+      );
     }
     if (req.files?.image?.[0]) {
       const f = req.files.image[0];
-      imageKey = await uploadToB2(f.buffer, f.originalname, f.mimetype, "images");
+      imageKey = await uploadToB2(
+        f.buffer,
+        f.originalname,
+        f.mimetype,
+        "images",
+      );
     }
 
     const song = await Song.create({
@@ -263,7 +318,8 @@ export const createSongForArtist = async (req, res) => {
 export const removeSongFromArtist = async (req, res) => {
   try {
     const artist = await Artist.findById(req.params.id);
-    if (!artist) return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
     artist.songs.pull(req.params.songId);
     await artist.save();
@@ -273,5 +329,51 @@ export const removeSongFromArtist = async (req, res) => {
     res.json({ message: "Đã xoá bài hát khỏi nghệ sĩ", artist });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// ─── Sync tất cả songs vào đúng artist ───────────────────
+export const syncAllSongsToArtists = async (req, res) => {
+  try {
+    const artists = await Artist.find();
+    const songs = await Song.find();
+    let totalLinked = 0;
+
+    for (const artist of artists) {
+      const matched = songs.filter((song) => {
+        const songArtists =
+          song.artist
+            ?.split(/,\s*| và |\s*\/\s*/)
+            .map((a) => a.trim().toLowerCase())
+            .filter(Boolean) || [];
+        return songArtists.includes(artist.name.toLowerCase());
+      });
+
+      // existingIds dùng Set để lookup O(1)
+      const existingIds = new Set(artist.songs.map((s) => s.toString()));
+      const newSongIds = matched
+        .map((s) => s._id.toString())
+        .filter((id) => !existingIds.has(id));
+
+      if (newSongIds.length > 0) {
+        artist.songs.push(...newSongIds);
+
+        // Dedup phòng trường hợp DB đã có duplicate từ trước
+        artist.songs = [...new Set(artist.songs.map((s) => s.toString()))];
+
+        await artist.save();
+
+        await Song.updateMany(
+          { _id: { $in: newSongIds }, artistId: null },
+          { artistId: artist._id },
+        );
+
+        totalLinked += newSongIds.length;
+      }
+    }
+
+    res.json({ success: true, message: `Đã sync ${totalLinked} liên kết mới` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

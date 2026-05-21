@@ -88,25 +88,29 @@ client/
 CẤU TRÚC BACKEND
 ================
 
-server/src/
-│
-├── features/
-├── services/
-├── shared/
-│   ├── config/
-│   ├── constants/
-│   ├── context/
-│   ├── hooks/
-│   ├── routes/
+server
+├── scripts/
+│ 
+├── src/
+│   │
+│   ├── features/
 │   ├── services/
-│   └── utils/
+│   ├── shared/
+│   │   ├── config/
+│   │   ├── constants/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── utils/
+│   │   └── utils/
+│   │
+│   │
+│   ├── app.js
+│   └── server.js
 │
 │
-├── upload/
-├── utils/
-│
-├── app.js
-└── server.js
+└── .env
 
 ===============
 CHỨC NĂNG CHÍNH
@@ -130,9 +134,10 @@ USER:
 * Xoá tài khoản
 
 ADMIN:
-* Thêm / sửa / xoá nhạc 
+* Quản lí songs
 * Quản lý playlist
 * Quản lý người dùng
+* Quản lý artist
 
 =================
 THIẾT KẾ DATABASE
@@ -154,7 +159,7 @@ MongoDB CHỈ lưu:
 * audioUrl
 * imageUrl
 
-File audio và image thực tế sẽ lưu trên Cloudinary.
+File audio và image thực tế sẽ lưu trên B2
 
 ============
 QUY TẮC CODE
