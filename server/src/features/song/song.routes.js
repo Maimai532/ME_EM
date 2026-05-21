@@ -9,23 +9,18 @@ import {
   searchSongs,
 } from "./song.controller.js";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
-import { uploadSongMedia } from "../../shared/services/cloudinary.service.js";
+import { uploadSongMedia } from "../../shared/services/b2.service.js";
 import Song from "../../shared/models/Song.js";
 
 const router = express.Router();
 
+// Multer middleware nhận 2 field: audio và image
 const uploadFields = (req, res, next) => {
   uploadSongMedia.fields([
     { name: "audio", maxCount: 1 },
     { name: "image", maxCount: 1 },
   ])(req, res, (err) => {
     if (err) {
-      console.error("[songRoutes] uploadFields error:", {
-        message: err.message,
-        name: err.name,
-        code: err.code,
-        field: err.field,
-      });
       return res.status(400).json({
         success: false,
         message: err.message || "Upload failed",
@@ -36,6 +31,7 @@ const uploadFields = (req, res, next) => {
 };
 
 router.get("/", getAllSongs);
+
 router.get("/random", async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
@@ -46,10 +42,6 @@ router.get("/random", async (req, res) => {
   }
 });
 
-/*
-Express đọc route từ trên xuống dưới. 
-Nếu /search để dưới /:id, Express sẽ hiểu search là một cái id -> chạy sai hàm.
-*/
 router.get("/search", searchSongs);
 router.get("/:id", getSongById);
 router.post("/", protect, adminOnly, uploadFields, createSong);

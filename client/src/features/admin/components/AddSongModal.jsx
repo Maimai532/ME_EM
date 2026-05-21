@@ -3,7 +3,7 @@ import { artistService } from "../../../shared/services/artist.service";
 import { songService } from "../../home/services/songService";
 
 export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
-  const [tab, setTab] = useState("existing");  // "existing" | "new"
+  const [tab, setTab] = useState("existing"); // "existing" | "new"
   const [allSongs, setAllSongs] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedSongId, setSelectedSongId] = useState("");
@@ -24,9 +24,10 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
     songService.getAll().then((res) => setAllSongs(res.data));
   }, []);
 
-  const filteredSongs = allSongs.filter((s) =>
-    s.title.toLowerCase().includes(search.toLowerCase()) ||
-    s.artist.toLowerCase().includes(search.toLowerCase())
+  const filteredSongs = allSongs.filter(
+    (s) =>
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.artist.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleAddExisting = async () => {
@@ -44,7 +45,11 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
 
   const handleCreateNew = async (e) => {
     e.preventDefault();
-    if (!newSong.title || !newSong.audioUrl) return alert("Cần có tiêu đề và link nhạc");
+    // Chỉ bắt buộc audioUrl khi chọn sourceType = url
+    if (!newSong.title) return alert("Cần có tiêu đề");
+    if (newSong.sourceType === "url" && !newSong.audioUrl)
+      return alert("Cần có link nhạc");
+
     setLoading(true);
     try {
       await artistService.createNewSong(artistId, { ...newSong, albumId });
@@ -84,7 +89,7 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
         {tab === "existing" && (
           <div className="modal__body">
             <input
-            className="modal_search"
+              className="modal_search"
               placeholder="Tìm theo tên bài / nghệ sĩ..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -96,7 +101,10 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                   className={selectedSongId === song._id ? "selected" : ""}
                   onClick={() => setSelectedSongId(song._id)}
                 >
-                  <img src={song.imageUrl || "/default-cover.png"} alt={song.title} />
+                  <img
+                    src={song.imageUrl || "/default-cover.png"}
+                    alt={song.title}
+                  />
                   <div>
                     <strong>{song.title}</strong>
                     <span>{song.artist}</span>
@@ -108,7 +116,10 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
             </ul>
             <div className="modal__footer">
               <button onClick={onClose}>Hủy</button>
-              <button onClick={handleAddExisting} disabled={loading || !selectedSongId}>
+              <button
+                onClick={handleAddExisting}
+                disabled={loading || !selectedSongId}
+              >
                 {loading ? "Đang thêm..." : "Thêm vào nghệ sĩ"}
               </button>
             </div>
@@ -125,7 +136,9 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
               <label>Tên bài hát *</label>
               <input
                 value={newSong.title}
-                onChange={(e) => setNewSong({ ...newSong, title: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, title: e.target.value })
+                }
                 required
               />
             </div>
@@ -133,28 +146,36 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
               <label>Album</label>
               <input
                 value={newSong.album}
-                onChange={(e) => setNewSong({ ...newSong, album: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, album: e.target.value })
+                }
               />
             </div>
             <div className="form-group">
               <label>Thể loại</label>
               <input
                 value={newSong.genre}
-                onChange={(e) => setNewSong({ ...newSong, genre: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, genre: e.target.value })
+                }
               />
             </div>
             <div className="form-group">
               <label>Link nhạc * (URL hoặc upload)</label>
               <select
                 value={newSong.sourceType}
-                onChange={(e) => setNewSong({ ...newSong, sourceType: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, sourceType: e.target.value })
+                }
               >
                 <option value="url">URL</option>
                 <option value="upload">Upload file</option>
               </select>
               <input
                 value={newSong.audioUrl}
-                onChange={(e) => setNewSong({ ...newSong, audioUrl: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, audioUrl: e.target.value })
+                }
                 placeholder="https://..."
                 required
               />
@@ -163,13 +184,17 @@ export default function AddSongModal({ artistId, albumId, onClose, onSaved }) {
               <label>Ảnh bìa (URL)</label>
               <input
                 value={newSong.imageUrl}
-                onChange={(e) => setNewSong({ ...newSong, imageUrl: e.target.value })}
+                onChange={(e) =>
+                  setNewSong({ ...newSong, imageUrl: e.target.value })
+                }
                 placeholder="https://..."
               />
             </div>
 
             <div className="modal__footer">
-              <button type="button" onClick={onClose}>Hủy</button>
+              <button type="button" onClick={onClose}>
+                Hủy
+              </button>
               <button type="submit" disabled={loading}>
                 {loading ? "Đang tạo..." : "Tạo và thêm vào nghệ sĩ"}
               </button>

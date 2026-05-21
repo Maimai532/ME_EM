@@ -7,6 +7,8 @@ import {
   useEffect,
 } from "react";
 import { addToHistory } from "../../../shared/services/history.service";
+import { getSongById } from "../../home/services/songService";
+import { getRandomSongs } from "../../home/services/songService";
 
 const PlayerContext = createContext(null);
 
@@ -14,83 +16,135 @@ export function PlayerProvider({ children }) {
   const [currentSong, setCurrentSong] = useState(null);
   const [queue, setQueue] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
-
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-
   const [volume, setVolume] = useState(0.8);
-
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
-
   const [isMusicPlayerVisible, setIsMusicPlayerVisible] = useState(false);
-
   const audioRef = useRef(new Audio());
   const audio = audioRef.current;
-
   const queueRef = useRef([]);
   const currentSongRef = useRef(null);
   const historyRef = useRef([]);
-
   const isRepeatRef = useRef(false);
   const isShuffleRef = useRef(false);
   const volumeRef = useRef(0.8);
+  const fallbackListRef = useRef([]);
+  const fallbackIndexRef = useRef(0);
+  const playNextRef = useRef(null);
+  const [fallbackList, setFallbackListState] = useState([]);
 
-  // =========================
-  // QUEUE
-  // =========================
+  const setFallbackList = useCallback((list) => {
+    fallbackListRef.current = list;
+  }, []);
 
   const updateQueue = useCallback((newQueue) => {
     queueRef.current = newQueue;
     setQueue(newQueue);
   }, []);
 
-  // =========================
-  // PLAY SONG
-  // =========================
+  const playSong = useCallback(
+    async (
+      song,
+      songList = [],
+      skipHistory = false,
+      skipFallbackUpdate = false,
+      isFallbackPlay = false,
+    ) => {
+      if (!song) return;
 
-  const playSong = useCallback((song) => {
-    if (!song) return;
+      // Update fallback list — chỉ reset index khi user chủ động chọn
+      if (songList.length > 0 && !skipFallbackUpdate) {
+        fallbackListRef.current = songList;
+        if (!isFallbackPlay) {
+          fallbackIndexRef.current = 0;
+        }
+      }
 
-    audio.src = song.audioUrl;
-    audio.volume = volumeRef.current;
+      // Push history trừ khi đang đi prev
+      if (
+        !skipHistory &&
+        currentSongRef.current &&
+        currentSongRef.current._id !== song._id
+      ) {
+        historyRef.current = [...historyRef.current, currentSongRef.current];
+      }
 
-    audio.play().catch((err) => {
-      console.error(err);
-      setIsPlaying(false);
-    });
+      // Reset audio trước khi load bài mới
+      audio.pause();
+      audio.src = "";
 
-    setCurrentSong(song);
-    currentSongRef.current = song;
+      // Fetch fresh presigned URL
+      let src;
+      try {
+        const fresh = await getSongById(song._id);
+        src = fresh.streamUrl || fresh.audioUrl;
+      } catch {
+        src = song.streamUrl || song.audioUrl;
+      }
 
-    setIsPlaying(true);
-    setCurrentTime(0);
+      if (!src) return console.warn("Không có URL để play:", song.title);
 
-    setIsMusicPlayerVisible(true);
+      const remaining = songList.filter((s) => s._id !== song._id);
+      updateQueue(remaining);
 
-    addToHistory(song._id);
+      audio.src = src;
+      audio.volume = volumeRef.current;
 
-    audio.ontimeupdate = () => {
-      setCurrentTime(audio.currentTime);
-    };
+      audio.play().catch((err) => {
+        if (err.name !== "AbortError") {
+          console.error("Play error:", err);
+          setIsPlaying(false);
+        }
+      });
 
-    audio.ondurationchange = () => {
-      setDuration(audio.duration);
-    };
-  }, []);
+      setCurrentSong(song);
+      currentSongRef.current = song;
+      setIsPlaying(true);
+      setCurrentTime(0);
+      setIsMusicPlayerVisible(true);
 
-  // =========================
-  // NEXT SONG
-  // =========================
+      try {
+        addToHistory(song._id);
+      } catch {
+        /* chưa login */
+      }
+
+      audio.ontimeupdate = () => setCurrentTime(audio.currentTime);
+      audio.ondurationchange = () => setDuration(audio.duration);
+    },
+    [updateQueue],
+  );
 
   const playNext = useCallback(() => {
     const currentQueue = queueRef.current;
 
-    if (currentQueue.length === 0) return;
+    // Queue rỗng — fetch list random mới thay vì dùng fallback cũ
+    if (currentQueue.length === 0) {
+      getRandomSongs(Math.floor(Math.random() * 6) + 10) // 10-15 bài
+        .then((newList) => {
+          if (!newList || newList.length === 0) return;
 
-    // save history
+          fallbackListRef.current = newList;
+          setFallbackListState(newList);
+          fallbackIndexRef.current = 1;
+
+          const firstSong = isShuffleRef.current
+            ? newList[Math.floor(Math.random() * newList.length)]
+            : newList[0];
+
+          const remaining = newList.filter((s) => s._id !== firstSong._id);
+
+          updateQueue(remaining);
+          playSong(firstSong, newList, false, true, true);
+        })
+        .catch(console.error);
+      return;
+    }
+
+    // Queue còn bài — logic cũ giữ nguyên
     if (currentSongRef.current) {
       historyRef.current = [...historyRef.current, currentSongRef.current];
     }
@@ -100,25 +154,19 @@ export function PlayerProvider({ children }) {
 
     if (isShuffleRef.current) {
       const idx = Math.floor(Math.random() * currentQueue.length);
-
       nextSong = currentQueue[idx];
-
       remaining = currentQueue.filter((_, i) => i !== idx);
     } else {
       [nextSong, ...remaining] = currentQueue;
     }
 
     updateQueue(remaining);
-
-    playSong(nextSong);
+    playSong(nextSong, [nextSong, ...remaining], false, true);
   }, [playSong, updateQueue]);
 
-  // =========================
-  // PREV SONG
-  // =========================
+  playNextRef.current = playNext;
 
   const playPrev = useCallback(() => {
-    // nếu nghe >3s thì restart
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
       setCurrentTime(0);
@@ -134,164 +182,93 @@ export function PlayerProvider({ children }) {
     }
 
     const prevSong = history[history.length - 1];
-
     historyRef.current = history.slice(0, -1);
 
-    // đưa current song về đầu queue
     if (currentSongRef.current) {
       const newQueue = [
         currentSongRef.current,
         ...queueRef.current.filter((s) => s._id !== currentSongRef.current._id),
       ];
-
       updateQueue(newQueue);
     }
 
-    playSong(prevSong);
+    playSong(prevSong, [], true, true); // skipHistory + skipFallbackUpdate
   }, [playSong, updateQueue]);
-
-  // =========================
-  // PLAY / PAUSE
-  // =========================
 
   const togglePlay = useCallback(() => {
     if (!currentSong) return;
-
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play().catch(() => {
-        setIsPlaying(false);
-      });
-
+      audio.play().catch(() => setIsPlaying(false));
       setIsPlaying(true);
     }
   }, [isPlaying, currentSong]);
 
-  // =========================
-  // REPEAT
-  // =========================
-
   const toggleRepeat = useCallback(() => {
     const next = !isRepeatRef.current;
-
     isRepeatRef.current = next;
     setIsRepeat(next);
-
-    // repeat và shuffle loại trừ nhau
     if (next) {
       isShuffleRef.current = false;
       setIsShuffle(false);
     }
   }, []);
 
-  // =========================
-  // SHUFFLE
-  // =========================
-
   const toggleShuffle = useCallback(() => {
     const next = !isShuffleRef.current;
-
     isShuffleRef.current = next;
     setIsShuffle(next);
-
-    // repeat và shuffle loại trừ nhau
     if (next) {
       isRepeatRef.current = false;
       setIsRepeat(false);
     }
   }, []);
 
-  // =========================
-  // SEEK
-  // =========================
-
   const seek = useCallback((time) => {
     audio.currentTime = time;
     setCurrentTime(time);
   }, []);
 
-  // =========================
-  // VOLUME
-  // =========================
-
   const changeVolume = useCallback((val) => {
     volumeRef.current = val;
-
     audio.volume = val;
-
     setVolume(val);
   }, []);
 
-  // =========================
-  // STOP PLAYER
-  // =========================
-
   const stopPlayer = useCallback(() => {
     audio.pause();
-
     audio.src = "";
-
     setCurrentSong(null);
-
     currentSongRef.current = null;
-
     historyRef.current = [];
-
     setIsPlaying(false);
-
     setCurrentTime(0);
     setDuration(0);
-
     updateQueue([]);
   }, [updateQueue]);
 
-  // =========================
-  // AUTO NEXT WHEN ENDED
-  // =========================
-
   useEffect(() => {
     const handleEnded = () => {
-      // repeat current song
       if (isRepeatRef.current) {
         audio.currentTime = 0;
-
         audio.play().catch(() => {});
-
         return;
       }
-
-      playNext();
+      playNextRef.current?.();
     };
-
     audio.addEventListener("ended", handleEnded);
-
-    return () => {
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [playNext]);
-
-  // =========================
-  // SYNC PLAY STATE
-  // =========================
+    return () => audio.removeEventListener("ended", handleEnded);
+  }, []); // deps rỗng — chỉ add 1 lần
 
   useEffect(() => {
-    const handlePlay = () => {
-      setIsPlaying(true);
-    };
-
-    const handlePause = () => {
-      setIsPlaying(false);
-    };
-
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
     audio.addEventListener("play", handlePlay);
-
     audio.addEventListener("pause", handlePause);
-
     return () => {
       audio.removeEventListener("play", handlePlay);
-
       audio.removeEventListener("pause", handlePause);
     };
   }, []);
@@ -301,37 +278,28 @@ export function PlayerProvider({ children }) {
       value={{
         currentSong,
         queue,
-
         isPlaying,
         currentTime,
         duration,
-
         volume,
-
         isRepeat,
         isShuffle,
-
         playSong,
         playNext,
         playPrev,
-
         togglePlay,
-
         toggleRepeat,
         toggleShuffle,
-
         seek,
         changeVolume,
-
         setQueue: updateQueue,
-
         stopPlayer,
-
         isPlayerVisible,
         setIsPlayerVisible,
-
         isMusicPlayerVisible,
         setIsMusicPlayerVisible,
+        setFallbackList,
+        fallbackList,
       }}
     >
       {children}
@@ -341,10 +309,6 @@ export function PlayerProvider({ children }) {
 
 export function usePlayer() {
   const ctx = useContext(PlayerContext);
-
-  if (!ctx) {
-    throw new Error("usePlayer must be used inside PlayerProvider");
-  }
-
+  if (!ctx) throw new Error("usePlayer must be used inside PlayerProvider");
   return ctx;
 }

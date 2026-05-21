@@ -22,7 +22,8 @@ function normalizeSongForm(input = {}) {
     artist: input.artist ?? "",
     album: input.album ?? "",
     genre: input.genre ?? "",
-    audioUrl: input.audioUrl ?? "",
+    // audioUrl chỉ dùng nếu sourceType là "url" — KHÔNG dùng streamUrl (presigned, hết hạn)
+    audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
     imageUrl: input.imageUrl ?? "",
     sourceType: input.sourceType ?? "url",
     _id: input._id,

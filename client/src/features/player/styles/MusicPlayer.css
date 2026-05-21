@@ -18,23 +18,22 @@
 
 /* 2 cột fill đúng chiều cao còn lại sau Navbar + PlayerBar */
 .player-body {
-  display: flex;
-  height: auto;
-  overflow: hidden;
-  color: white;
-  height: 100vh;
-  width: 93vw;
   position: fixed;
-  top: 0;
-  /* left: 0;
-  right: 0; */
-  bottom: 0;
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  overflow: hidden;
+
   z-index: 500;
-  /* transform: translateY(0); */
-  transition: transform 0.3s ease;
+
+  transform: translateY(0);
+  transition: transform 0.5s ease;
 }
 .player-body--hidden {
-  transform: translateY(100%);
+  transform: translate3d(0, 100vh, 0);
 }
 
 /* TRÁI */
@@ -43,22 +42,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   gap: 20px;
-  padding: 40px;
+  padding: 50px;
   overflow-y: auto;
-  background-color: #000;
+  top: -20px;
 
-  /* background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); */
+  -webkit-backdrop-filter: blur(20px);
 
 }
 
 .player-cover {
-  width: 450px;
-  height: 450px;
-  border-radius: 10px;
+  width: 500px;
+  height: 500px;
+  border-radius: 5px;
   object-fit: cover;
   box-shadow: 0 8px 32px rgba(109,109,109,0.4);
 }
@@ -70,11 +69,11 @@
 
 .player-meta { text-align: center; }
 .player-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-.player-artist { font-size: 16px; opacity: 0.8; }
+.player-artist { font-size: 14px; opacity: 0.3; }
 
 /* PHẢI */
 .player-right {
-  /* flex: 0 0 30%; */
+  flex: 0 0 30%;
   /* border-left: 1px solid #1e3a5f; */
   display: flex;
   flex-direction: column;
@@ -82,6 +81,7 @@
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+ 
   
 }
 
@@ -92,10 +92,12 @@
   background-color: #00000038;
   border-bottom: 1px solid #272727;
   flex-shrink: 0;
+  color: white;
 }
 
 .queue-list {
   flex: 1;
+  color: white;
   overflow-y: auto;
   padding: 10px 8px;
   display: flex;

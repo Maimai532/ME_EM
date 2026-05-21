@@ -23,6 +23,7 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
             song={song}
             onPlay={onPlay}
             layout={layout}
+            songList={songs}
           />
         ))}
       </div>

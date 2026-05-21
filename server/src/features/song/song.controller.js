@@ -1,145 +1,111 @@
-// songController.js
-import { message } from "antd";
 import Song from "../../shared/models/Song.js";
-import cloudinary from "../../shared/services/cloudinary.service.js";
+import {
+  uploadToB2,
+  getPresignedUrl,
+  deleteFromB2,
+} from "../../shared/services/b2.service.js";
 
-// Lấy tất cả bài hát
 export const getAllSongs = async (req, res) => {
   try {
     const songs = await Song.find().sort({ createdAt: -1 });
-    res.json({ success: true, data: songs });
+    const data = await Promise.all(
+      songs.map(async (song) => {
+        const streamUrl = song.audioKey ? await getPresignedUrl(song.audioKey, 3600) : song.audioUrl;
+        const imageUrl = song.imageKey ? await getPresignedUrl(song.imageKey, 3600) : song.imageUrl;
+        return { ...song.toObject(), streamUrl, imageUrl };
+      }),
+    );
+    res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Lấy 1 bài hát theo ID
 export const getSongById = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
-    if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
-    res.json({ success: true, data: song });
+    if (!song) return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+    const streamUrl = song.audioKey ? await getPresignedUrl(song.audioKey, 3600) : song.audioUrl;
+    const imageUrl = song.imageKey ? await getPresignedUrl(song.imageKey, 3600) : song.imageUrl;
+    res.json({ success: true, data: { ...song.toObject(), streamUrl, imageUrl } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Tạo bài hát mới — hỗ trợ cả URL lẫn upload file
 export const createSong = async (req, res) => {
   try {
     const { title, artist, album, genre, duration } = req.body;
+    if (!title || !artist)
+      return res.status(400).json({ success: false, message: "Thiếu title hoặc artist" });
 
     const audioFile = req.files?.audio?.[0];
     const imageFile = req.files?.image?.[0];
 
-    // multer-storage-cloudinary trả URL trong path.
-    const audioUrl =
-      audioFile?.path ||
-      audioFile?.secure_url ||
-      audioFile?.url ||
-      req.body.audioUrl;
-    const imageUrl =
-      imageFile?.path ||
-      imageFile?.secure_url ||
-      imageFile?.url ||
-      req.body.imageUrl;
+    if (!audioFile && !req.body.audioUrl)
+      return res.status(400).json({ success: false, message: "Cần có audio (file hoặc URL)" });
 
-    // Xác định nguồn upload
+    let audioUrl = req.body.audioUrl || null;
+    let imageUrl = req.body.imageUrl || null;
+    let audioKey = null;
+    let imageKey = null;
     const sourceType = audioFile ? "upload" : "url";
 
-    if (!audioUrl) {
-      return res.status(400).json({ success: false, message: "Cần có audio (file hoặc URL)" });
+    if (audioFile) {
+      audioKey = await uploadToB2(audioFile.buffer, audioFile.originalname, audioFile.mimetype, "audio");
+      audioUrl = null;
     }
 
-    if (!title || !artist) {
-      return res.status(400).json({ success: false, message: "Thiếu trường bắt buộc: title/artist" });
+    if (imageFile) {
+      imageKey = await uploadToB2(imageFile.buffer, imageFile.originalname, imageFile.mimetype, "images");
+      imageUrl = null;
     }
 
-    // Debug upload pipeline: body + files sau khi qua multer
-    console.log("[createSong] body:", req.body);
-    console.log(
-      "[createSong] files:",
-      Object.fromEntries(
-        Object.entries(req.files || {}).map(([key, files]) => [
-          key,
-          files.map((f) => ({
-            mimetype: f.mimetype,
-            path: f.path,
-            secure_url: f.secure_url,
-            url: f.url,
-            originalname: f.originalname,
-          })),
-        ])
-      )
-    );
-
-    const song = await Song.create({
-      title,
-      artist,
-      album,
-      genre,
-      duration,
-      audioUrl,
-      imageUrl,
-      sourceType,
-    });
-
+    const song = await Song.create({ title, artist, album, genre, duration, audioUrl, imageUrl, audioKey, imageKey, sourceType });
     res.status(201).json({ success: true, data: song });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
 };
 
-// Sửa bài hát
 export const updateSong = async (req, res) => {
   try {
+    const song = await Song.findById(req.params.id);
+    if (!song) return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+
     const updateData = { ...req.body };
 
-    // Nếu có upload file mới thì ghi đè URL cũ
     if (req.files?.audio?.[0]) {
-      updateData.audioUrl = req.files.audio[0].path;
-      updateData.sourceType = "upload";
+      const audioFile = req.files.audio[0];
+      const audioKey = await uploadToB2(audioFile.buffer, audioFile.originalname, audioFile.mimetype, "audio");
+      updateData.audioKey = audioKey;
+      updateData.audioUrl = null;
+    } else if (req.body.audioUrl) {
+      updateData.audioKey = null; // xoá B2 key, dùng URL ngoài
     }
+
     if (req.files?.image?.[0]) {
-      updateData.imageUrl = req.files.image[0].path;
+      const imageFile = req.files.image[0];
+      const imageKey = await uploadToB2(imageFile.buffer, imageFile.originalname, imageFile.mimetype, "images");
+      updateData.imageKey = imageKey;
+      updateData.imageUrl = null;
+    } else if (req.body.imageUrl) {
+      updateData.imageKey = null; // xoá B2 key, dùng URL ngoài
     }
 
-    console.log("[updateSong] body:", req.body);
-    console.log(
-      "[updateSong] files:",
-      Object.fromEntries(
-        Object.entries(req.files || {}).map(([key, files]) => [
-          key,
-          files.map((f) => ({ mimetype: f.mimetype, path: f.path })),
-        ])
-      )
-    );
-
-    const song = await Song.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
-
-    res.json({ success: true, data: song });
+    const updated = await Song.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.json({ success: true, data: updated });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
 };
 
-// Xoá bài hát — nếu là file upload thì xoá luôn trên Cloudinary
 export const deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
-    if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
-
-    // Nếu audio được upload lên Cloudinary thì xoá file đó luôn
-    if (song.sourceType === "upload" && song.audioUrl) {
-      // Lấy public_id từ URL Cloudinary để xoá
-      const publicId = song.audioUrl.split("/").slice(-2).join("/").split(".")[0];
-      await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
-    }
-
+    if (!song) return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+    if (song.audioKey) await deleteFromB2(song.audioKey);
+    if (song.imageKey) await deleteFromB2(song.imageKey);
     await song.deleteOne();
     res.json({ success: true, message: "Đã xoá bài hát" });
   } catch (err) {
@@ -147,40 +113,49 @@ export const deleteSong = async (req, res) => {
   }
 };
 
-// Tăng lượt nghe
 export const incrementPlay = async (req, res) => {
   try {
-    const song = await Song.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { plays: 1 } },
-      { new: true }
-    );
+    const song = await Song.findByIdAndUpdate(req.params.id, { $inc: { plays: 1 } }, { new: true });
     res.json({ success: true, data: song });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-export const searchSongs =  async( req, res)=>{
-  try{
-    const q = req.query.q?.trim(); 
-    /*
-       req.query.q: đọc ?q=abc từ URL
-       ? (optional chaining): tránh lỗi không gõ j, trả về undefined thay vì crash
-       trim: xoá khoảng trắng đầu cuối
-    */
-    if(!q){
-      return res.json({ success: true, data: []}); // trả về mảng rỗng
-    }
-    const songs = await Song.find({ // tìm trong collection songs theo điều kiện
-      $or:[ //Tìm theo title hoặc artist
-        { title: {$regex: q,$options: "i"}}, // $regex: q : TK gần đúng
-        { artist: {$regex: q,$options: "i"}}, // $options:'i':  k phân biệt hoa/thường
-      ],
-    }).limit(20);// max 20 kq
+export const searchSongs = async (req, res) => {
+  try {
+    const q = req.query.q?.trim();
+    if (!q) return res.json({ success: true, data: [] });
 
-    res.json({ success: true, data: songs}); // trả về json cho FE gồm tbáo succ và mảng tìm đc
-  }catch(err){ // bắt lỗi
-    res.status(500).json({ success: false, message: err.message});
+    const songs = await Song.find({
+      $or: [
+        { title: { $regex: q, $options: "i" } },
+        { artist: { $regex: q, $options: "i" } },
+      ],
+    }).limit(20);
+
+    const data = await Promise.all(
+      songs.map(async (song) => {
+        const streamUrl = song.audioKey ? await getPresignedUrl(song.audioKey, 3600) : song.audioUrl;
+        const imageUrl = song.imageKey ? await getPresignedUrl(song.imageKey, 3600) : song.imageUrl;
+        return { ...song.toObject(), streamUrl, imageUrl };
+      }),
+    );
+
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
-}
+};
+
+export const streamSong = async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+    if (!song) return res.status(404).json({ message: "Song not found" });
+    if (!song.audioKey) return res.status(400).json({ message: "Song has no audioKey" });
+    const url = await getPresignedUrl(song.audioKey);
+    res.json({ url });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

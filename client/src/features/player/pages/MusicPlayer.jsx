@@ -1,33 +1,21 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "../context/PlayerContext";
-import { getRandomSongs } from "../../home/services/songService";
 import "../styles/MusicPlayer.css";
 
 export default function MusicPlayer() {
   const navigate = useNavigate();
-  const { currentSong, isPlaying, playSong, queue, setQueue } = usePlayer();
-  const [songList, setSongList] = useState([]);
-
-  // Fetch random songs để làm queue gợi ý
-  useEffect(() => {
-    async function init() {
-      try {
-        const randoms = await getRandomSongs(20);
-        setSongList(randoms);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    init();
-  }, []);
+  const { currentSong, playSong, queue, fallbackList } = usePlayer();
 
   if (!currentSong) return null;
 
   const displayQueue =
     queue.length > 0
       ? [currentSong, ...queue]
-      : [currentSong, ...songList.filter((s) => s._id !== currentSong._id)];
+      : [currentSong, ...fallbackList.filter((s) => s._id !== currentSong._id)];
+
+  const dedupedQueue = [
+    ...new Map(displayQueue.map((s) => [s._id, s])).values(),
+  ];
 
   return (
     <div className="player-body">
@@ -46,19 +34,11 @@ export default function MusicPlayer() {
       <div className="player-right">
         <h2 className="queue-title">Tiếp theo</h2>
         <div className="queue-list">
-          {displayQueue.map((s) => (
+          {dedupedQueue.map((s) => (
             <div
               key={s._id}
               className={`queue-item ${s._id === currentSong._id ? "queue-item--active" : ""}`}
-              onClick={() => {
-                const newQueue = displayQueue.filter(
-                  (item) => item._id !== s._id,
-                );
-
-                setQueue(newQueue);
-
-                playSong(s);
-              }}
+              onClick={() => playSong(s, dedupedQueue)}
             >
               <img
                 src={s.imageUrl || "/placeholder.jpg"}
@@ -66,9 +46,7 @@ export default function MusicPlayer() {
                 className="queue-thumb"
               />
               <div className="queue-info">
-                <p
-                  className={`queue-item-title ${s._id === currentSong._id ? "queue-item-title--active" : ""}`}
-                >
+                <p className={`queue-item-title ${s._id === currentSong._id ? "queue-item-title--active" : ""}`}>
                   {s.title}
                 </p>
                 <p className="queue-item-artist">{s.artist}</p>

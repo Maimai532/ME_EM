@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "antd": "^6.3.7",
+    "axios": "^1.16.1",
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.6.2",
     "react-toastify": "^10.0.6"
   }
 }

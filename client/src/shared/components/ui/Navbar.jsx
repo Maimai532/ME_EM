@@ -32,7 +32,7 @@ function saveToHistory(query) {
 function Navbar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
-  const { stopPlayer } = usePlayer();
+  const { stopPlayer, playSong } = usePlayer();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -64,7 +64,6 @@ function Navbar({ isOpen, setIsOpen }) {
     const songs = await searchSongs(value);
     setResults(songs);
     setSearching(false);
-    
   };
 
   const handleKeyDown = (e) => {
@@ -135,7 +134,6 @@ function Navbar({ isOpen, setIsOpen }) {
         {/* 1 dropdown duy nhất chứa cả lịch sử + kết quả */}
         {isDropdownOpen && (
           <div className="search-dropdown">
-
             {/* Lịch sử */}
             {showHistory && (
               <div className="search-dropdown__section">
@@ -148,7 +146,9 @@ function Navbar({ isOpen, setIsOpen }) {
                     onClick={() => handleHistoryClick(item)}
                   >
                     <Clock size={14} className="search-dropdown__clock" />
-                    <span className="search-dropdown__history-text">{item}</span>
+                    <span className="search-dropdown__history-text">
+                      {item}
+                    </span>
                     <button
                       className="search-dropdown__remove"
                       onMouseDown={(e) => e.stopPropagation()}
@@ -170,14 +170,16 @@ function Navbar({ isOpen, setIsOpen }) {
             {showResults && (
               <div className="search-dropdown__section">
                 <p className="search-dropdown__label">Kết quả</p>
-                {searching && <p className="search-dropdown__loading">Đang tìm...</p>}
+                {searching && (
+                  <p className="search-dropdown__loading">Đang tìm...</p>
+                )}
                 {results.map((song) => (
                   <div
                     key={song._id}
                     className="search-dropdown__result-item"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      navigate(`/player/${song._id}`);
+                      playSong(song, results);
                       setQuery("");
                       setResults([]);
                       setShowDropdown(false);
@@ -189,14 +191,17 @@ function Navbar({ isOpen, setIsOpen }) {
                       className="search-dropdown__result-img"
                     />
                     <div>
-                      <p className="search-dropdown__result-title">{song.title}</p>
-                      <p className="search-dropdown__result-artist">{song.artist}</p>
+                      <p className="search-dropdown__result-title">
+                        {song.title}
+                      </p>
+                      <p className="search-dropdown__result-artist">
+                        {song.artist}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-
           </div>
         )}
       </nav>

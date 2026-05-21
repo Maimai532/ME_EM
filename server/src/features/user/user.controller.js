@@ -54,20 +54,27 @@ export const getMe = async (req, res) => {
 };
 
 // PATCH /api/users/me — cập nhật thông tin cá nhân
+// PATCH /api/users/me
 export const updateMe = async (req, res) => {
   try {
     const { username, email } = req.body;
 
-    // Không cho để trống
     if (!username?.trim() || !email?.trim()) {
       return res.status(400).json({ message: "Username và email không được để trống" });
     }
 
     const updateData = { username, email };
 
-    // Nếu có upload ảnh mới
-    if (req.file?.path) {
-      updateData.avatar = req.file.path;
+    // ✅ Sửa: dùng .buffer thay vì .path (multer memoryStorage)
+    if (req.file?.buffer) {
+      const avatarKey = await uploadToB2(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype,
+        "avatars"
+      );
+      updateData.avatarKey = avatarKey;
+      updateData.avatar = ""; // clear URL cũ nếu có
     }
 
     const user = await User.findByIdAndUpdate(
@@ -76,7 +83,12 @@ export const updateMe = async (req, res) => {
       { new: true }
     ).select("-password");
 
-    res.json({ success: true, data: user });
+    // Generate URL tươi cho avatar nếu có key
+    const avatar = user.avatarKey
+      ? await getPresignedUrl(user.avatarKey, 3600)
+      : user.avatar;
+
+    res.json({ success: true, data: { ...user.toObject(), avatar } });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }

@@ -14,10 +14,10 @@
 
 .music-player-overlay {
   position: fixed;
-  top: 60px;        /* chiều cao navbar */
-  left: 120px;      /* chiều cao sidebar */
+  top: 60px;       
+  left: 120px;      
   right: 0;
-  bottom: 70px;     /* chiều cao playerbar */
+  bottom: 0;    
   z-index: 500;
   transform: translateY(0);
   transition: transform 0.3s ease;

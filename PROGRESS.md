@@ -33,6 +33,7 @@
 * Admin crud song, playlist, quản lí user(chưa có new user)
 * search, lọc song
 * profile
+* Migration
 
 
 ## Đang tập trung
@@ -66,3 +67,5 @@
 
 
 
+## Task cần lm
+* Xoá field audioUrl cũ trong DB sau khi confirm frontend ổn định

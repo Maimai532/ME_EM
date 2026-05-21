@@ -244,7 +244,6 @@ a.player-bar__song {
   justify-content: center;
   transition: all 0.2s;
 }
-/* hide/show */
 .player-bar__toggle:hover {
   background: var(--color-button2);
   color: var(--color-text1);
