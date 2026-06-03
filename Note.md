@@ -12,3 +12,5 @@ text-align → căn text trong block thường, không phải flex center chuẩ
 - Trong JSX, mọi thứ là JavaScript phải đặt trong {}
 
 - Dung b2 thay cloudinary ->stream trực tiếp từ b2 
+
+- extract “dominant color”: Bản chất là đọc tất cả pixel của ảnh, rồi tìm màu xuất hiện nhiều nhất

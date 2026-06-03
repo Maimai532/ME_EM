@@ -34,6 +34,7 @@ export default function PlayerBar() {
     isPlayerVisible,
     setIsPlayerVisible,
     setIsMusicPlayerVisible,
+    toggleMute,
   } = usePlayer();
 
   if (!currentSong) return null;
@@ -42,6 +43,7 @@ export default function PlayerBar() {
     <>
       <div
         className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""}`}
+        // onClick={() => setIsMusicPlayerVisible((v) => !v)}
       >
         {/* Bài đang phát */}
         <div
@@ -62,6 +64,25 @@ export default function PlayerBar() {
 
         {/* Controls + Progress */}
         <div className="player-bar__center">
+          <div className="player-bar__progress">
+            <span className="player-bar__time">{formatTime(currentTime)}</span>
+            <input
+              type="range"
+              min={0}
+              max={duration || 0}
+              step={0.1}
+              value={currentTime}
+              onChange={(e) => seek(Number(e.target.value))}
+              className="player-bar__seek"
+              style={{
+                background: `linear-gradient(to right, 
+              #68c6ed ${(currentTime / (duration || 1)) * 100}%, 
+              rgba(255,255,255,0.15) ${(currentTime / (duration || 1)) * 100}%)`,
+              }}
+            />
+            <span className="player-bar__time">{formatTime(duration)}</span>
+          </div>
+
           <div className="player-bar__controls">
             <button
               className={`player-btn ${isShuffle ? "active" : ""}`}
@@ -88,32 +109,16 @@ export default function PlayerBar() {
               <Repeat size={18} />
             </button>
           </div>
-
-          <div className="player-bar__progress">
-            <span className="player-bar__time">{formatTime(currentTime)}</span>
-            <input
-              type="range"
-              min={0}
-              max={duration || 0}
-              step={0.1}
-              value={currentTime}
-              onChange={(e) => seek(Number(e.target.value))}
-              className="player-bar__seek"
-              style={{
-                background: `linear-gradient(to right, 
-              #68c6ed ${(currentTime / (duration || 1)) * 100}%, 
-              rgba(255,255,255,0.15) ${(currentTime / (duration || 1)) * 100}%)`,
-              }}
-            />
-            <span className="player-bar__time">{formatTime(duration)}</span>
-          </div>
         </div>
 
         {/* Volume */}
         <div className="player-bar__right">
           <button
             className="player-btn"
-            onClick={() => changeVolume(volume > 0 ? 0 : 0.8)}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMute();
+            }}
           >
             {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>

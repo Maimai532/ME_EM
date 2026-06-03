@@ -18,7 +18,7 @@ import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// ✅ Static POST routes — PHẢI đặt TRƯỚC bất kỳ /:id nào
+// Static POST routes — PHẢI đặt TRƯỚC bất kỳ /:id nào
 router.post("/sync-songs", syncAllSongsToArtists);
 
 // Public GET

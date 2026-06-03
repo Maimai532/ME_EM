@@ -9,6 +9,10 @@
 - `client/`: frontend app
 - `server/`: backend API
 
+## Cài đặt:
+- npm install fast-average-color
+- npm install node-vibrant
+
 ## Hướng dẫn chạy
 npm install
 ### Server
@@ -99,3 +103,5 @@ server
 └── .env
 
 # ME_EM
+
+

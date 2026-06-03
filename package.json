@@ -13,7 +13,10 @@
     "antd": "^6.3.7",
     "axios": "^1.16.1",
     "dotenv": "^17.4.2",
+    "fast-average-color": "^9.5.2",
     "mongoose": "^9.6.2",
+    "node-vibrant": "^4.0.4",
+    "react-indiana-drag-scroll": "^2.2.1",
     "react-toastify": "^10.0.6"
   }
 }

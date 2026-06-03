@@ -19,6 +19,8 @@ export function PlayerProvider({ children }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
+  const lastVolumeRef = useRef(0.8);
+
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
@@ -81,8 +83,15 @@ export function PlayerProvider({ children }) {
       try {
         const fresh = await getSongById(song._id);
         src = fresh.streamUrl || fresh.audioUrl;
-      } catch {
+      } catch (err) {
+        console.error("Không fetch được URL mới:", err);
         src = song.streamUrl || song.audioUrl;
+      }
+
+      if (!src) {
+        console.warn("Không có URL để play:", song.title);
+        playNext(); // ← tự động skip bài lỗi thay vì dừng lại
+        return;
       }
 
       if (!src) return console.warn("Không có URL để play:", song.title);
@@ -167,6 +176,8 @@ export function PlayerProvider({ children }) {
   playNextRef.current = playNext;
 
   const playPrev = useCallback(() => {
+    // Spotify behavior:
+    // đang nghe > 3s => restart bài hiện tại
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
       setCurrentTime(0);
@@ -175,6 +186,7 @@ export function PlayerProvider({ children }) {
 
     const history = historyRef.current;
 
+    // Không có lịch sử => restart bài
     if (history.length === 0) {
       audio.currentTime = 0;
       setCurrentTime(0);
@@ -182,17 +194,30 @@ export function PlayerProvider({ children }) {
     }
 
     const prevSong = history[history.length - 1];
+
+    // Xóa khỏi history trước
     historyRef.current = history.slice(0, -1);
 
+    // Trường hợp lỗi:
+    // history chứa chính bài hiện tại
+    if (prevSong?._id === currentSongRef.current?._id) {
+      audio.currentTime = 0;
+      setCurrentTime(0);
+      return;
+    }
+
+    // Đưa bài hiện tại lên đầu queue
     if (currentSongRef.current) {
       const newQueue = [
         currentSongRef.current,
         ...queueRef.current.filter((s) => s._id !== currentSongRef.current._id),
       ];
+
       updateQueue(newQueue);
     }
 
-    playSong(prevSong, [], true, true); // skipHistory + skipFallbackUpdate
+    // Phát bài trước đó
+    playSong(prevSong, [], true, true);
   }, [playSong, updateQueue]);
 
   const togglePlay = useCallback(() => {
@@ -233,8 +258,32 @@ export function PlayerProvider({ children }) {
 
   const changeVolume = useCallback((val) => {
     volumeRef.current = val;
+
+    // update volume gần nhất khi > 0
+    if (val > 0) {
+      lastVolumeRef.current = val;
+    }
+
     audio.volume = val;
     setVolume(val);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    if (volumeRef.current > 0) {
+      // nhớ volume hiện tại rồi mute
+      lastVolumeRef.current = volumeRef.current;
+
+      volumeRef.current = 0;
+      audio.volume = 0;
+      setVolume(0);
+    } else {
+      // khôi phục volume gần nhất
+      const restored = lastVolumeRef.current || 0.8;
+
+      volumeRef.current = restored;
+      audio.volume = restored;
+      setVolume(restored);
+    }
   }, []);
 
   const stopPlayer = useCallback(() => {
@@ -300,6 +349,7 @@ export function PlayerProvider({ children }) {
         setIsMusicPlayerVisible,
         setFallbackList,
         fallbackList,
+        toggleMute,
       }}
     >
       {children}

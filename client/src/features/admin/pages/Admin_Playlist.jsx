@@ -1,11 +1,31 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../auth/context/AuthContext";
 import axios from "axios";
+
 import AdminPage from "./Admin_Page";
+import { useToast } from "../../../shared/hooks/useToast";
+import ConfirmModal from "../components/ConfirmModal";
 import "../styles/Admin_Playlist.css";
 import { API_URL } from "../../../shared/constants/api";
 
 const emptyForm = { name: "", description: "", layout: "scroll", order: 0 };
+
+function normalizeGenre(g) {
+  return g
+    .trim()
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function splitGenres(genreStr) {
+  if (!genreStr) return [];
+  return genreStr
+    .split(/,|\/| và /)
+    .map(normalizeGenre)
+    .filter(Boolean);
+}
 
 function SectionModal({ section, onClose, onSaved, token }) {
   const isEdit = !!section._id;
@@ -140,25 +160,13 @@ function ManageSongsModal({ section, onClose, token }) {
     "all",
     ...Array.from(
       new Set(
-        songsNotInSection.flatMap((s) =>
-          s.genre
-            ? s.genre
-                .split(/[,/]+/)
-                .map((g) => g.trim())
-                .filter(Boolean)
-            : [],
-        ),
+        songsNotInSection.flatMap((s) => (s.genre ? splitGenres(s.genre) : [])),
       ),
     ).sort(),
   ];
 
   const filteredSongs = songsNotInSection.filter((song) => {
-    const songGenres = song.genre
-      ? song.genre
-          .split(/[,/]+/)
-          .map((g) => g.trim())
-          .filter(Boolean)
-      : [];
+    const songGenres = splitGenres(song.genre);
     const matchGenre =
       selectedGenre === "all" || songGenres.includes(selectedGenre);
     const q = searchQuery.trim().toLowerCase();
@@ -169,101 +177,32 @@ function ManageSongsModal({ section, onClose, token }) {
     return matchGenre && matchSearch;
   });
 
-  // helper render badge
   function renderGenreBadges(genre) {
-    if (!genre) return "—";
-    return genre
-      .split(/[,/]+/)
-      .map((g) => g.trim())
-      .filter(Boolean)
-      .map((g) => (
-        <span key={g} className="song-admin__genre-badge">
-          {g}
-        </span>
-      ));
+    const genres = splitGenres(genre);
+    if (genres.length === 0) return "—";
+    return genres.map((g) => (
+      <span key={g} className="song-admin__genre-badge">
+        {g}
+      </span>
+    ));
   }
 
   return (
     <div className="playlist-admin-overlay">
       <div className="playlist-admin-modal playlist-admin-modal--wide">
         <div className="playlist-admin__head">
-          <h2 className="playlist-admin-modal__title">
-            Playlist: <strong>{section.name}</strong>
-          </h2>
-          <button
-            type="button"
-            className="playlist-admin__btn-save"
-            onClick={onClose}
-          >
-            Xong
-          </button>
-        </div>
-
-        {/* Bảng bài hát ĐANG CÓ */}
-        <div className="playlist-table-block">
-          <p className="playlist-table-label playlist-table-label--in">
-            Đã có
-            <span className="playlist-table-count">{sectionSongs.length}</span>
-          </p>
-          <table className="playlist-table">
-            <thead>
-              <tr>
-                <th className="playlist-table__th">#</th>
-                <th className="playlist-table__th">Name</th>
-                <th className="playlist-table__th">Artist</th>
-                <th className="playlist-table__th">Genre</th>
-                <th className="playlist-table__th"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {sectionSongs.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="playlist-table__empty">
-                    Trống
-                  </td>
-                </tr>
-              ) : (
-                sectionSongs.map((song, i) => (
-                  <tr
-                    key={song._id}
-                    className="playlist-table__row playlist-table__row--in"
-                  >
-                    <td className="playlist-table__td playlist-table__td--num">
-                      {i + 1}
-                    </td>
-                    <td className="playlist-table__td playlist-table__td--title">
-                      {song.title}
-                    </td>
-                    <td className="playlist-table__td">{song.artist}</td>
-                    <td className="playlist-table__td">
-                      {renderGenreBadges(song.genre)}
-                    </td>{" "}
-                    {/* ✅ */}
-                    <td className="playlist-table__td playlist-table__td--action">
-                      <button
-                        type="button"
-                        className="playlist-table__btn playlist-table__btn--remove"
-                        onClick={() => handleRemove(song._id)}
-                      >
-                        −
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Bảng bài hát CHƯA CÓ */}
-        <div className="playlist-table-block">
-          <p className="playlist-table-label playlist-table-label--add">
-            Chưa có
-            <span className="playlist-table-count">
-              {songsNotInSection.length}
-            </span>{" "}
-            {/* ✅ */}
-          </p>
+          <div className="playlist-admin-modal__title">
+            <h2>
+              Playlist: <strong>{section.name}</strong>
+            </h2>
+            <button
+              type="button"
+              className="playlist-admin__btn-save"
+              onClick={onClose}
+            >
+              Xong
+            </button>
+          </div>
 
           <div className="playlist-filter-bar">
             <div className="playlist-filter-bar__search-wrap">
@@ -315,57 +254,122 @@ function ManageSongsModal({ section, onClose, token }) {
               {filteredSongs.length}/{songsNotInSection.length} bài
             </span>
           </div>
+        </div>
 
-          <table className="playlist-table">
-            <thead>
-              <tr>
-                <th className="playlist-table__th">#</th>
-                <th className="playlist-table__th">Tên bài</th>
-                <th className="playlist-table__th">Artist</th>
-                <th className="playlist-table__th">Genre</th>
-                <th className="playlist-table__th"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSongs.length === 0 ? (
+        {/* Bảng bài hát ĐANG CÓ */}
+        <div className="playlist-table-body">
+          <div className="playlist-table-block">
+            <table className="playlist-table">
+              <thead>
                 <tr>
-                  <td colSpan="5" className="playlist-table__empty">
-                    {songsNotInSection.length === 0
-                      ? "Trống"
-                      : "Không tìm thấy bài hát phù hợp"}
-                  </td>
+                  <th className="playlist-table__th">#</th>
+                  <th className="playlist-table__th">Name</th>
+                  <th className="playlist-table__th">Artist</th>
+                  <th className="playlist-table__th">Genre</th>
+                  <th className="playlist-table__th playlist-table-label--in">
+                    <span className="playlist-table-count">
+                      {sectionSongs.length}
+                    </span>
+                  </th>
                 </tr>
-              ) : (
-                filteredSongs.map((song, i) => (
-                  <tr
-                    key={song._id}
-                    className="playlist-table__row playlist-table__row--add"
-                  >
-                    <td className="playlist-table__td playlist-table__td--num">
-                      {i + 1}
-                    </td>
-                    <td className="playlist-table__td playlist-table__td--title">
-                      {song.title}
-                    </td>
-                    <td className="playlist-table__td">{song.artist}</td>
-                    <td className="playlist-table__td">
-                      {renderGenreBadges(song.genre)}
-                    </td>{" "}
-                    {/* ✅ */}
-                    <td className="playlist-table__td playlist-table__td--action">
-                      <button
-                        type="button"
-                        className="playlist-table__btn playlist-table__btn--add"
-                        onClick={() => handleAdd(song._id)}
-                      >
-                        +
-                      </button>
+              </thead>
+              <tbody>
+                {sectionSongs.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="playlist-table__empty">
+                      Trống
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  sectionSongs.map((song, i) => (
+                    <tr
+                      key={song._id}
+                      className="playlist-table__row playlist-table__row--in"
+                    >
+                      <td className="playlist-table__td playlist-table__td--num">
+                        {i + 1}
+                      </td>
+                      <td className="playlist-table__td playlist-table__td--title">
+                        {song.title}
+                      </td>
+                      <td className="playlist-table__td">{song.artist}</td>
+                      <td className="playlist-table__td">
+                        {renderGenreBadges(song.genre)}
+                      </td>{" "}
+                      {/* ✅ */}
+                      <td className="playlist-table__td playlist-table__td--action">
+                        <button
+                          type="button"
+                          className="playlist-table__btn playlist-table__btn--remove"
+                          onClick={() => handleRemove(song._id)}
+                        >
+                          −
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Bảng bài hát CHƯA CÓ */}
+          <div className="playlist-table-block">
+            <table className="playlist-table">
+              <thead>
+                <tr>
+                  <th className="playlist-table__th">#</th>
+                  <th className="playlist-table__th">Name</th>
+                  <th className="playlist-table__th">Artist</th>
+                  <th className="playlist-table__th">Genre</th>
+                  <th className="playlist-table__th playlist-table-label--add">
+                    <span className="playlist-table-count">
+                      {songsNotInSection.length}
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSongs.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="playlist-table__empty">
+                      {songsNotInSection.length === 0
+                        ? "Trống"
+                        : "Không tìm thấy bài hát phù hợp"}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredSongs.map((song, i) => (
+                    <tr
+                      key={song._id}
+                      className="playlist-table__row playlist-table__row--add"
+                    >
+                      <td className="playlist-table__td playlist-table__td--num">
+                        {i + 1}
+                      </td>
+                      <td className="playlist-table__td playlist-table__td--title">
+                        {song.title}
+                      </td>
+                      <td className="playlist-table__td">{song.artist}</td>
+                      <td className="playlist-table__td">
+                        {renderGenreBadges(song.genre)}
+                      </td>{" "}
+                      {/* ✅ */}
+                      <td className="playlist-table__td playlist-table__td--action">
+                        <button
+                          type="button"
+                          className="playlist-table__btn playlist-table__btn--add"
+                          onClick={() => handleAdd(song._id)}
+                        >
+                          +
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -378,6 +382,8 @@ function Admin_Playlist() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [manageModal, setManageModal] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const { showToast } = useToast();
 
   function fetchSections() {
     setLoading(true);
@@ -392,17 +398,25 @@ function Admin_Playlist() {
     fetchSections();
   }, []);
 
-  async function handleDelete(id) {
-    if (!window.confirm("Xoá section này?")) return;
-    try {
-      await axios.delete(`${API_URL}/sections/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchSections();
-    } catch {
-      alert("Xoá thất bại");
-    }
-  }
+  const handleDelete = (id) => {
+    setConfirm({
+      message: "Xoá playlist này?",
+      onConfirm: async () => {
+        setConfirm(null);
+
+        try {
+          await axios.delete(`${API_URL}/sections/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          fetchSections();
+
+          showToast("Đã xoá playlist", "success");
+        } catch {
+          showToast("Xoá thất bại", "error");
+        }
+      },
+    });
+  };
 
   const layoutLabel = { scroll: "Scroll", grid: "Grid", list: "List" };
 
@@ -481,6 +495,13 @@ function Admin_Playlist() {
             setManageModal(null);
             fetchSections();
           }}
+        />
+      )}
+      {confirm && (
+        <ConfirmModal
+          message={confirm.message}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
         />
       )}
     </AdminPage>

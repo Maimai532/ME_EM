@@ -9,12 +9,52 @@ const FILTERS = [
   { label: "30 ngày qua", value: "30days" },
 ];
 
+function getDayLabel(dateStr) {
+  const date = new Date(dateStr);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const isSameDay = (a, b) =>
+    a.getDate() === b.getDate() &&
+    a.getMonth() === b.getMonth() &&
+    a.getFullYear() === b.getFullYear();
+
+  if (isSameDay(date, today)) return "Hôm nay";
+  if (isSameDay(date, yesterday)) return "Hôm qua";
+
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function groupByDate(histories) {
+  const groups = [];
+  const map = new Map();
+
+  for (const h of histories) {
+    const date = new Date(h.listenedAt);
+    const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+    if (!map.has(key)) {
+      const group = { label: getDayLabel(h.listenedAt), items: [] };
+      map.set(key, group);
+      groups.push(group);
+    }
+    map.get(key).items.push(h);
+  }
+
+  return groups;
+}
+
 export default function HistoryPage() {
   const { histories, filter, setFilter, loading, handleDelete } = useHistory();
   const { playSong } = usePlayer();
 
-  // histories là array của { _id, songId: {...}, listenedAt }
   const songs = histories.map((h) => h.songId);
+  const groups = groupByDate(histories);
 
   return (
     <div className="history-page">
@@ -51,54 +91,59 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* Danh sách */}
+      {/* Trạng thái loading / rỗng */}
       {loading && <p className="history-page__loading">Đang tải...</p>}
 
       {!loading && histories.length === 0 && (
         <p className="history-page__empty">Không có lịch sử nào.</p>
       )}
 
-      <div className="history-page__list">
-        {histories.map((h) => {
-          const song = h.songId;
-          if (!song) return null; // phòng trường hợp bài đã bị xoá
+      {/* Danh sách nhóm theo ngày */}
+      {!loading && (
+        <div className="history-page__list">
+          {groups.map((group) => (
+            <div key={group.label} className="history-page__group">
+              <p className="history-page__group-label">{group.label}</p>
 
-          return (
-            <div
-              key={h._id}
-              className="history-page__item"
-              onClick={() => playSong(song, songs)}
-            >
-              <div className="history-page__img-wrap">
-                <img
-                  src={song.imageUrl || "/placeholder.jpg"}
-                  alt={song.title}
-                  className="history-page__img"
-                />
-                <div className="history-page__play-overlay">
-                  <Play size={16} fill="white" color="white" />
-                </div>
-              </div>
+              {group.items.map((h) => {
+                const song = h.songId;
+                if (!song) return null;
 
-              <div className="history-page__info">
-                <p className="history-page__song-title">{song.title}</p>
-                <p className="history-page__artist">{song.artist}</p>
-              </div>
+                return (
+                  <div
+                    key={h._id}
+                    className="history-page__item"
+                    onClick={() => playSong(song, songs)}
+                  >
+                    <div className="history-page__img-wrap">
+                      <img
+                        src={song.imageUrl || "/placeholder.jpg"}
+                        alt={song.title}
+                        className="history-page__img"
+                      />
+                      <div className="history-page__play-overlay">
+                        <Play size={16} fill="white" color="white" />
+                      </div>
+                    </div>
 
-              {/* Time */}
-              <p className="history-page__time">
-                {new Date(h.listenedAt).toLocaleString("vi-VN", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+                    <div className="history-page__info">
+                      <p className="history-page__song-title">{song.title}</p>
+                      <p className="history-page__artist">{song.artist}</p>
+                    </div>
+
+                    <p className="history-page__time">
+                      {new Date(h.listenedAt).toLocaleTimeString("vi-VN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

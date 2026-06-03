@@ -154,7 +154,7 @@
   max-width: 520px;
 }
 
-.artist-form__preview {
+.artist-album__preview {
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -163,13 +163,77 @@
   margin-bottom: 8px;
 }
 
+
+.form-group-avtar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+
+
+.form-group-avtar input {
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: 1px solid rgb(164, 175, 178);
+  width: 100%;
+  font-size: 14px;
+  outline: none;
+  
+}
+
+.avatar-mode-toggle {
+  gap: 10px;
+  width: 60%;
+}
+
+.mode {
+  gap: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgb(7, 41, 80);
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.avatar-mode-toggle button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(174, 174, 174);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.avatar-mode-toggle button.active {
+  background-color: rgb(7, 41, 80);
+  color: #fff;
+}
+
+.avatar-mode-preview {
+  display: flex;
+  gap: 0;
+  width: 40%;
+  width: fit-content;
+}
+
+.artist-form__preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.form-group label {
+.form-group label, .form-group-avtar label {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text1);
@@ -255,52 +319,172 @@
 }
 
 .artist-detail__header button {
-  padding: 7px 14px;
-  border-radius: 7px;
+  background: #000000;
+  color: white;
   border: none;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
   cursor: pointer;
-  background-color: black;
-  color: #fff;
-  transition: opacity 0.2s;
+  transition: 0.3s;
+  font-size: 14px;
 }
 
 .artist-detail__header button:hover {
-  opacity: 0.6;
+  transform: scale(0.9);
+  background: #0000008b;
 }
 
-.artist-detail__info {
+
+
+/* Artist info*/
+.artist-detail_info {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 16px;
-  border-radius: 10px;
-  background: linear-gradient(to left, #68c6ed, #000000);
+  justify-content: space-around;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(
+    125deg,
+    #000000,
+    #68c6ed
+    
+  );
+  backdrop-filter: blur(15px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  
 }
 
-.artist-detail__info img {
-  width: 90px;
-  height: 90px;
+.artist-detail__name {
+  width: 45%;
+  padding: 24px;
+  border-radius: 18px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+
+.artist-detail__name img {
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0;
+  border: 4px solid rgba(255, 255, 255, 0.2);
 }
 
-.artist-detail__info h2 {
-  font-size: 20px;
-  font-weight: 700;
+.artist-detail__name h2 {
+  margin-bottom: 8px;
   color: white;
-  margin: 0 0 4px;
+  font-size: 30px;
+  font-weight: 700;
 }
 
-.artist-detail__info p {
-  font-size: 13px;
-  color: var(--color-text2);
+.artist-detail__name p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+/* Song List */
+.artist-detail__song {
+  width: 50%;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+
+  height: 350px;
+
+}
+
+.artist-detail__song-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.artist-detail__song-header h3 {
+  color: white;
+  font-size: 16px;
+}
+
+.artist-detail__song-header button {
+  background: #000000;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.artist-detail__song-header button:hover {
+  transform: scale(0.9);
+  background: #0000008b;
+}
+
+
+.song-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
-/* ── Section (albums / songs) ── */
+.song-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.25s ease;
+}
+
+.song-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(6px);
+}
+
+.song-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.song-item span {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 1000px) {
+  .artist-detail_info {
+    display: block;
+  }
+  .artist-detail__song {
+    width: 100%;
+    height: 300px;
+
+  }
+  .artist-detail__name {
+    width: 100%;
+ 
+  }
+
+}
+
+
+/* ── Album ── */
 
 .artist-detail__section {
   display: flex;
@@ -308,37 +492,35 @@
   gap: 12px;
 }
 
-.section-header {
+.album-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #31a6c649;
   border-radius: 8px;
   padding: 5px;
 
 }
 
-.section-header h3 {
-  font-size: 14px;
-  margin: 0;
+.album-header h3 {
+  font-size: 16px;
   font-weight: bold;
   color: #000000;
 }
 
-.section-header button {
-  padding: 6px 14px;
-  border-radius: 6px;
+.album-header button {
+  background: #000000;
+  color: white;
   border: none;
-  font-size: 14px;
-  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
   cursor: pointer;
-  background-color: rgb(10, 41, 63);
-  color: #fff;
-  transition: opacity 0.1s;
+  transition: 0.3s;
+  font-size: 14px;
 }
 
-.section-header button:hover {
-  opacity: 0.6;
+.album-header button:hover {
+  transform: scale(0.9);
+  background: #0000008b;
 }
 
 /* ── Album card ── */
@@ -414,9 +596,7 @@
   opacity: 0.8;
 }
 
-/* ── Song list ── */
-
-.song-list {
+.album-list {
   list-style: none;
   margin: 0;
   padding: 0 16px 12px;
@@ -425,20 +605,21 @@
   gap: 8px;
 }
 
-.song-item {
+.album-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px 10px;
   border-radius: 7px;
-  transition: background-color 0.2s;
+  transition: all 0.25s ease;
 }
 
-.song-item:hover {
-  background-color: var(--color-button2-mute);
+.album-item:hover {
+  background: rgba(169, 169, 169, 0.147);
+  transform: translateX(6px);
 }
 
-.song-item img {
+.album-item img {
   width: 38px;
   height: 38px;
   border-radius: 4px;
@@ -446,13 +627,13 @@
   flex-shrink: 0;
 }
 
-.song-item span {
+.album-item span {
   flex: 1;
   font-size: 14px;
   color: var(--color-title1);
 }
 
-.song-item button {
+.album-item button {
   padding: 4px 10px;
   border-radius: 5px;
   border: none;
@@ -463,7 +644,7 @@
   transition: opacity 0.2s;
 }
 
-.song-item button:hover {
+.album-item button:hover {
   opacity: 0.8;
 }
 
@@ -497,6 +678,9 @@
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid black;
+}
+.modal__header button {
+  cursor: pointer;
 }
 
 .modal__header h3 {
@@ -580,31 +764,7 @@
   color: var(--color-text1);
   margin: 0;
 }
-.avatar-mode-toggle {
-  display: flex;
-  gap: 0;
-  border-radius: 7px;
-  overflow: hidden;
-  border: 1px solid rgb(7, 41, 80);
-  width: fit-content;
-  margin-bottom: 10px;
-}
 
-.avatar-mode-toggle button {
-  padding: 6px 16px;
-  border: none;
-  background: none;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgb(174, 174, 174);
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.avatar-mode-toggle button.active {
-  background-color: rgb(7, 41, 80);
-  color: #fff;
-}
 
 /* ── Song picker (modal chọn song có sẵn) ── */
 
@@ -618,6 +778,14 @@
   max-height: 280px;
   overflow-y: auto;
 }
+
+.song-picker__select-all{
+  gap: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
 
 .song-picker li {
   display: flex;
@@ -671,6 +839,8 @@
   font-size: 13px;
   outline: none;
 }
+
+
 
 /* Search */
 .artist-management__search {
@@ -740,6 +910,7 @@
 
 .context-menu .btn--danger {
   color: #d32f2f;
+  border-radius: 6px;
 }
 
 .context-menu .btn--danger:hover {

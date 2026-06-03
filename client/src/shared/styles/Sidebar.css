@@ -1,7 +1,7 @@
 /* Sidebar.jsx */
 
 .sidebar {
-  background-color: #000000;
+  /* background-color: #ce8585; */
   align-self: flex-start;
   overflow: hidden;
   transform: translateX(0);
@@ -12,11 +12,12 @@
   position: fixed;
   top: 60px;
   left: 0;
-  width: 120px;
+  width: 100px;
   height: calc(100vh - 60px);
   color: white;
-  padding: 20px;
-  margin-right: 20px;
+  padding: 10px;
+  /* margin-right: 20px; */
+  
 }
 
 /* .sidebar--closed {

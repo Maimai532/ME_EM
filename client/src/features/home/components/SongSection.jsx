@@ -2,6 +2,8 @@
 
 import SongCard from "./SongCard";
 import "../styles/SongSection.css";
+import ScrollContainer from "react-indiana-drag-scroll";
+import "react-indiana-drag-scroll/dist/style.css";
 
 // layout = "scroll" : hàng ngang cuộn
 // layout = "grid"   : lưới nhiều cột
@@ -16,7 +18,8 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
         </button>
       </div>
 
-      <div className={`song-section__grid song-section__grid--${layout}`}>
+    
+        <ScrollContainer className={`song-section__grid song-section__grid--${layout}`}>
         {songs.map((song) => (
           <SongCard
             key={song._id}
@@ -26,7 +29,8 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
             songList={songs}
           />
         ))}
-      </div>
+        </ScrollContainer>
+
     </section>
   );
 }

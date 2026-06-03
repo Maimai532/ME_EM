@@ -229,8 +229,10 @@ export const deleteAlbum = async (req, res) => {
 // ─── Thêm song có sẵn vào artist ─────────────────────────
 export const addSongToArtist = async (req, res) => {
   try {
-    const { songId } = req.body;
-    const artist = await Artist.findById(req.params.id);
+    const { songId, albumId } = req.body;
+    const artistId = req.params.id;
+
+    const artist = await Artist.findById(artistId);
     if (!artist)
       return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
@@ -238,24 +240,25 @@ export const addSongToArtist = async (req, res) => {
     if (!song)
       return res.status(404).json({ message: "Không tìm thấy bài hát" });
 
-    // So sánh string để tránh ObjectId mismatch
-    const alreadyLinked = artist.songs.some(
-      (s) => s.toString() === songId.toString(),
-    );
-    if (!alreadyLinked) {
-      artist.songs.push(songId);
-      await artist.save();
+    if (albumId) {
+      // Thêm vào album.songs (dùng $addToSet tránh duplicate)
+      await Artist.updateOne(
+        { _id: artistId, "albums._id": albumId },
+        { $addToSet: { "albums.$.songs": songId, songs: songId } }
+      );
+    } else {
+      // Chỉ thêm vào artist.songs
+      await Artist.updateOne(
+        { _id: artistId },
+        { $addToSet: { songs: songId } }
+      );
     }
 
     song.artistId = artist._id;
     await song.save();
 
-    res.json({
-      message: alreadyLinked
-        ? "Bài hát đã có trong danh sách"
-        : "Đã thêm bài hát vào nghệ sĩ",
-      artist,
-    });
+    const updated = await Artist.findById(artistId);
+    res.json({ message: "Đã thêm bài hát", artist: updated });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

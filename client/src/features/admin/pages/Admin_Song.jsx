@@ -5,6 +5,7 @@ import AdminPage from "./Admin_Page";
 import "../styles/Admin_Songs.css";
 import { API_URL } from "../../../shared/constants/api";
 import { useState, useEffect, useRef } from "react";
+import ConfirmModal from "../components/ConfirmModal";
 
 const emptyForm = {
   title: "",
@@ -111,47 +112,10 @@ function normalizeSongForm(input = {}) {
     audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
     audioKey: input.sourceType === "b2key" ? (input.audioKey ?? "") : "",
     imageUrl: input.imageUrl ?? "",
-    sourceType: input.sourceType ?? "b2key", // mặc định cho audio url
+    sourceType: input.sourceType ?? "b2key",
     _id: input._id,
   };
-}
-
-function ConfirmModal({ message, onConfirm, onCancel }) {
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        onConfirm();
-      }
-      if (e.key === "Escape") onCancel();
-    }
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onConfirm, onCancel]);
-
-  return (
-    <div className="song-admin-overlay">
-      <div className="song-admin-modal song-admin-modal--narrow">
-        <p className="song-admin-modal__message">{message}</p>
-        <div className="song-admin-modal__footer">
-          <button
-            type="button"
-            className="song-admin__btn-cancel"
-            onClick={onCancel}
-          >
-            Huỷ
-          </button>
-          <button
-            type="button"
-            className="song-admin__btn-save song-admin__btn-save--danger"
-            onClick={onConfirm}
-          >
-            Xoá
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  localStorage.getItem("token")
 }
 
 function SongModal({ song, onClose, onSaved, token }) {
@@ -261,12 +225,10 @@ function SongModal({ song, onClose, onSaved, token }) {
         }
       }
 
-      onSaved();
+      showToast(isEdit ? "Update success!" : "Create success!", "success");
 
-      showToast(
-        isEdit ? "Update success!" : "Creat success!",
-        "success",
-      );
+      // Gọi onSaved để refresh data (có scroll restore bên ngoài)
+      onSaved();
 
       onClose();
     } catch {
@@ -522,11 +484,18 @@ function Admin_Song() {
   const [showGenreDropdown, setShowGenreDropdown] = useState(false);
   const [missingFilter, setMissingFilter] = useState("");
 
-  function fetchSongs() {
+  // Ref để track scroll position của table
+  const tableRef = useRef(null);
+
+  // fetchSongs nhận optional callback gọi sau khi data đã được set
+  function fetchSongs(onDone) {
     setLoading(true);
     axios
       .get(`${API_URL}/songs`)
-      .then((res) => setSongs(res.data.data))
+      .then((res) => {
+        setSongs(res.data.data);
+        onDone?.();
+      })
       .catch(() => setSongs([]))
       .finally(() => setLoading(false));
   }
@@ -535,39 +504,22 @@ function Admin_Song() {
     fetchSongs();
   }, []);
 
+  // onSaved có scroll restore: lưu scrollTop trước fetch, restore sau
+  function handleSaved() {
+    const scrollTop = tableRef.current?.scrollTop ?? 0;
+    fetchSongs(() => {
+      requestAnimationFrame(() => {
+        if (tableRef.current) {
+          tableRef.current.scrollTop = scrollTop;
+        }
+      });
+    });
+  }
+
   function toggleSelect(id) {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
-  }
-
-  function toggleSelectAll() {
-    setSelected(
-      selected.length === songs.length ? [] : songs.map((s) => s._id),
-    );
-  }
-
-  async function handleDeleteSelected() {
-    setConfirm({
-      message: `Xoá ${selected.length} bài hát?`,
-      onConfirm: async () => {
-        setConfirm(null);
-        try {
-          await Promise.all(
-            selected.map((id) =>
-              axios.delete(`${API_URL}/songs/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-              }),
-            ),
-          );
-          setSelected([]);
-          fetchSongs();
-          showToast(`Đã xoá ${selected.length} bài hát`, "success");
-        } catch {
-          alert("Có lỗi khi xoá");
-        }
-      },
-    });
   }
 
   const genres = [
@@ -587,7 +539,8 @@ function Admin_Song() {
       !missingFilter ||
       (missingFilter === "title" && !song.title?.trim()) ||
       (missingFilter === "genre" && !song.genre?.trim()) ||
-      (missingFilter === "image" && !song.imageUrl?.trim());
+      (missingFilter === "image" && !song.imageUrl?.trim()) ||
+      (missingFilter === "audio" && !song.audioUrl?.trim() && !song.audioKey?.trim());
 
     return matchSearch && matchGenre && matchMissing;
   });
@@ -608,6 +561,41 @@ function Admin_Song() {
         return 0;
     }
   });
+
+  const visibleSongIds = sortedSongs.map((song) => song._id);
+
+  const allVisibleSelected =
+    visibleSongIds.length > 0 &&
+    visibleSongIds.every((id) => selected.includes(id));
+
+  function toggleSelectAll() {
+    setSelected(allVisibleSelected ? [] : visibleSongIds);
+  }
+
+  async function handleDeleteSelected() {
+    const selectedCount = selected.length;
+
+    setConfirm({
+      message: `Xoá ${selectedCount} bài hát?`,
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await Promise.all(
+            selected.map((id) =>
+              axios.delete(`${API_URL}/songs/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ),
+          );
+          setSelected([]);
+          fetchSongs();
+          showToast(`Đã xoá ${selectedCount} bài hát`, "success");
+        } catch {
+          alert("Có lỗi khi xoá");
+        }
+      },
+    });
+  }
 
   const headerActions = (
     <>
@@ -640,7 +628,10 @@ function Admin_Song() {
           type="text"
           placeholder="Tìm tên bài hát/nghệ sĩ..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setSelected([]);
+          }}
           className="song-admin__search-input"
         />
 
@@ -653,6 +644,7 @@ function Admin_Song() {
             onChange={(e) => {
               setGenreInput(e.target.value);
               setGenreFilter(e.target.value.trim());
+              setSelected([]);
               setShowGenreDropdown(true);
             }}
             onFocus={() => setShowGenreDropdown(true)}
@@ -672,18 +664,21 @@ function Admin_Song() {
                   onMouseDown={() => {
                     setGenreFilter(g);
                     setGenreInput(g);
+                    setSelected([]);
                     setShowGenreDropdown(false);
                   }}
                 >
                   {g}
                 </li>
               ))}
+
               {genreInput.trim() && (
                 <li
                   className="song-admin__genre-suggestion-item song-admin__genre-suggestion-item--clear"
                   onMouseDown={() => {
                     setGenreFilter("");
                     setGenreInput("");
+                    setSelected([]);
                     setShowGenreDropdown(false);
                   }}
                 >
@@ -708,12 +703,16 @@ function Admin_Song() {
 
         <CustomSelect
           value={missingFilter}
-          onChange={setMissingFilter}
+          onChange={(value) => {
+            setMissingFilter(value);
+            setSelected([]);
+          }}
           options={[
             { value: "", label: "Tất cả" },
             { value: "title", label: "⚠ Thiếu tên" },
             { value: "genre", label: "⚠ Thiếu thể loại" },
             { value: "image", label: "⚠ Thiếu ảnh" },
+            { value: "audio", label: "⚠ Thiếu audio" },
           ]}
         />
       </div>
@@ -721,7 +720,7 @@ function Admin_Song() {
       {loading ? (
         <p>Đang tải...</p>
       ) : (
-        <div className="song-admin__table-wrapper">
+        <div className="song-admin__table-wrapper" ref={tableRef}>
           <table className="song-admin__table">
             <colgroup>
               <col className="song-admin__col-select" />
@@ -736,9 +735,7 @@ function Admin_Song() {
                 <th className="song-admin__th">
                   <input
                     type="checkbox"
-                    checked={
-                      selected.length === songs.length && songs.length > 0
-                    }
+                    checked={allVisibleSelected}
                     onChange={toggleSelectAll}
                   />
                 </th>
@@ -819,7 +816,7 @@ function Admin_Song() {
           song={modal}
           token={token}
           onClose={() => setModal(null)}
-          onSaved={fetchSongs}
+          onSaved={handleSaved}
         />
       )}
       {confirm && (

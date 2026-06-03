@@ -44,16 +44,6 @@
   height: 200px;
 }
 
-/* .playlist-admin__card::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 15px;
-  background-color: #16a34a;
-  z-index: -1;
-  padding: 10px;
-} */
 
 .playlist-admin__card-title {
   font-size: 16px;
@@ -137,28 +127,36 @@
   background-color: white;
   border-radius: 12px;
   padding: 28px;
-  width: 440px;
+  width: 400px;
 }
 
 .playlist-admin-modal--wide {
-  width: 680px;
-  max-height: 85vh;
+  width: 90%;
+  height: 80vh;
   overflow-y: auto;
 }
 
 /* ── Modal header ── */
-.playlist-admin-modal__title {
+.playlist-admin-modal__title  {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  
+}
+.playlist-admin-modal__title h2 {
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 4px 0;
   color: #1e3a5f;
+  
 }
 
 .playlist-admin__head {
-  display: flex;
+  /* display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-start; */
   margin-bottom: 20px;
+
 }
 
 /* ── Form (SectionModal) ── */
@@ -221,21 +219,20 @@
 
 /* ManageSongsModal*/
 
+.playlist-table-body {
+  display: flex;
+  justify-content: space-between;
+
+}
 .playlist-table-block {
-  margin-bottom: 24px;
+  max-height: 60vh;
+  overflow-x: hidden;
+  width: 49%;
+
 }
 
-/* Label phân loại có/k */
-.playlist-table-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
+/* Label */
+
 
 .song-admin__genre-badge {
   display: inline-block;
@@ -250,11 +247,12 @@
 }
 
 .playlist-table-label--in {
-  color: var(--color-success);
+  color: #0c5d0c;
+  
 }
 
 .playlist-table-label--add {
-  color: var(--color-bg-2);
+  color: #920707;
 }
 
 .playlist-table-count {
@@ -262,22 +260,22 @@
   align-items: center;
   justify-content: center;
   min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 999px;
-  font-size: 11px;
+  height: 25px;
+  padding: 5px;
+  margin: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 700;
-  background-color: currentColor;
+  color: white;
 }
 
 .playlist-table-label--in .playlist-table-count {
-  background-color: var(--color-success);
-  color: white;
+  background-color: #0c5d0c;
+  
 }
 
 .playlist-table-label--add .playlist-table-count {
-  background-color: var(--color-bg-2);
-  color: white;
+  background-color: #920707;
 }
 
 /* Bảng */
@@ -285,7 +283,7 @@
   width: 100%;
   border-collapse: collapse;
   border-radius: var(--radius-md);
-  overflow: hidden;
+  /* overflow: hidden; */
   font-size: 13px;
 }
 
@@ -296,21 +294,25 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background-color: var(--color-glass-2);
-  color: #64748b;
+  background-color: #85c6e6;
+  color: black;
   border-bottom: 1px solid #e2e8f0;
+  
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .playlist-table__td {
   padding: 9px 12px;
   color: #374151;
   vertical-align: middle;
+  
 }
 
 .playlist-table__td--num {
   color: #9ca3af;
   font-size: 12px;
-  width: 28px;
 }
 
 .playlist-table__td--title {
@@ -319,7 +321,7 @@
 }
 
 .playlist-table__td--action {
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -392,6 +394,10 @@
   background-color: #f1f5f9;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+
+    position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .playlist-filter-bar__search-wrap {

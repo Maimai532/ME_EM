@@ -16,19 +16,17 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* 2 cột fill đúng chiều cao còn lại sau Navbar + PlayerBar */
 .player-body {
   position: fixed;
   inset: 0;
 
-  width: 100vw;
+  width: 100%;
+  left: -15px;
   height: 100vh;
-
   display: flex;
   overflow: hidden;
 
   z-index: 500;
-
   transform: translateY(0);
   transition: transform 0.5s ease;
 }
@@ -48,11 +46,60 @@
   overflow-y: auto;
   top: -20px;
 
+background:
+  radial-gradient(
+    circle at center,
+    var(--bg) 2%,
+    #000 45%,
+    #000 100%
+  );
+
+    /* background:
+  linear-gradient(var(--bg), var(--bg)) center/40% 40% no-repeat,
+  radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%),
+  #121212; */
+
+  /* background:
+  radial-gradient(
+    ellipse at center,
+    var(--bg) 1%,
+    #000000 70%
+  ); */
+
+  position: relative;
+  overflow: hidden;
+
   /* background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px); */
-  background-color: black;
+  /* background-color: black; */
+}
+.player-left::before {
+  content: "";
 
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at center,
+      var(--bg) 0%,
+      transparent 70%
+    );
+
+  filter:
+    blur(120px)
+    saturate(160%)
+    brightness(0.8);
+
+  transform: scale(1.4);
+
+  z-index: 0;
+}
+
+.player-left > * {
+  position: relative;
+  z-index: 1;
 }
 
 .player-cover {
@@ -60,7 +107,7 @@
   height: 600px;
   border-radius: 5px;
   object-fit: cover;
-  box-shadow: 0 8px 32px rgba(109,109,109,0.4);
+  /* box-shadow: 0 8px 32px rgba(109,109,109,0.4); */
 }
 
 @keyframes rotate-cover {

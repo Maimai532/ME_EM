@@ -18,13 +18,14 @@
 
 /* Bài đang phát */
 .player-bar__song {
-  width: 250px;
+  width: 400px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
   cursor: pointer;
+
 }
 
 a.player-bar__song {
@@ -75,14 +76,11 @@ a.player-bar__song {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-
   width: 600px;
-
   display: flex;
   flex-direction: column; /* đổi */
   align-items: center;
   justify-content: center;
-
   gap: 8px;
 }
 .player-bar__controls {
@@ -96,6 +94,7 @@ a.player-bar__song {
   display: flex;
   align-items: center;
   gap: 8px;
+
 }
 
 /* Bật lại cho controls và progress */
@@ -192,7 +191,7 @@ a.player-bar__song {
   gap: 8px;
   justify-content: flex-end;
   flex-shrink: 0;
-  overflow: hidden; /* ← thêm */
+  overflow: hidden; 
 }
 
 .player-bar__volume {

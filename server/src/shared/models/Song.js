@@ -7,7 +7,7 @@ const songSchema = new mongoose.Schema(
     album:      { type: String, default: "" },
     genre:      { type: String, default: "" },
     duration:   { type: Number, default: 0 },
-    sourceType: { type: String, enum: ["url", "upload"], default: "url" },
+    sourceType: { type: String, enum: [ "b2key" ,"url", "upload"], default: "b2key" },
     plays:      { type: Number, default: 0 },
     artistId:   { type: mongoose.Schema.Types.ObjectId, ref: "Artist", default: null },
 

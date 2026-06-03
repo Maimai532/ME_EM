@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../auth/context/AuthContext";
 import { Trash2, ShieldCheck, ShieldOff } from "lucide-react";
-import AdminPage from "./Admin_Page";
+
 import "../styles/Admin_User.css";
+import AdminPage from "./Admin_Page";
+import { useToast } from "../../../shared/hooks/useToast";
+import ConfirmModal from "../components/ConfirmModal";
 import { API_URL } from "../../../shared/constants/api";
 
 function Admin_User() {
@@ -15,6 +18,8 @@ function Admin_User() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { showToast } = useToast();
+  const [confirm, setConfirm] = useState(null);
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -26,14 +31,23 @@ function Admin_User() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm("Xác nhận xoá user này?")) return;
-    try {
-      await axios.delete(`${API_URL}/users/${id}`, authHeader);
-      setUsers(users.filter((u) => u._id !== id));
-    } catch {
-      alert("Xoá thất bại");
-    }
+  const handleDelete = (id) => {
+    setConfirm({
+      message: "Xác nhận xoá user này?",
+      onConfirm: async () => {
+        setConfirm(null);
+
+        try {
+          await axios.delete(`${API_URL}/users/${id}`, authHeader);
+
+          setUsers((prev) => prev.filter((u) => u._id !== id));
+
+          showToast("Đã xoá user", "success");
+        } catch {
+          showToast("Xoá user thất bại", "error");
+        }
+      },
+    });
   };
 
   const handleToggleRole = async (id, currentRole) => {
@@ -46,7 +60,7 @@ function Admin_User() {
       );
       setUsers(users.map((u) => (u._id === id ? res.data.user : u)));
     } catch {
-      alert("Đổi role thất bại");
+      showToast("Đổi role thất bại", "error");
     }
   };
 
@@ -55,7 +69,9 @@ function Admin_User() {
 
   return (
     <AdminPage title="Quản lý User">
-      <div className="user-admin-meta">Users: <span>{users.length}</span> </div>
+      <div className="user-admin-meta">
+        Users: <span>{users.length}</span>{" "}
+      </div>
 
       <div className="user-admin__table-wrapper">
         <table className="user-admin-table">
@@ -115,6 +131,13 @@ function Admin_User() {
           </tbody>
         </table>
       </div>
+      {confirm && (
+        <ConfirmModal
+          message={confirm.message}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
     </AdminPage>
   );
 }
