@@ -12,6 +12,7 @@ import Playlist from "../../features/playlist/pages/Playlist";
 import Library from "../../features/library/pages/Library";
 import Search from "../../features/search/pages/Search";
 import History from "../../features/history/pages/History.jsx";
+import LikedSongs from "../../features/library/pages/LikedSongs";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
 import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
@@ -36,10 +37,10 @@ const AppRoutes = () => {
           <Route path="/library" element={<Library />} />
           <Route path="/favorite" element={<Library />} />
           <Route path="/settings" element={<Profile />} />
-          <Route path="/playlist" element={<Playlist />} />
           <Route path="/search" element={<Search />} />
           <Route path="/history" element={<History />} />
-          {/* Xóa /player/:id */}
+          <Route path="/playlist/:id" element={<Playlist />} />
+          <Route path="/liked-songs" element={<LikedSongs />} />
         </Route>
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>

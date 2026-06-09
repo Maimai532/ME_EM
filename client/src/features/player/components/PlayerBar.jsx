@@ -10,10 +10,15 @@ import {
   VolumeX,
   ChevronDown,
   ChevronUp,
+  Heart,
 } from "lucide-react";
 import { usePlayer } from "../context/PlayerContext";
 import { formatTime } from "../../../shared/utils/formatTime";
 import "../styles/PlayerBar.css";
+import { ListPlus } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "../../auth/hooks/useAuth";
+import AddToPlaylistModal from "../../playlist/components/AddToPlaylistModal";
 
 export default function PlayerBar() {
   const {
@@ -36,7 +41,9 @@ export default function PlayerBar() {
     setIsMusicPlayerVisible,
     toggleMute,
   } = usePlayer();
-
+  const { likedSongs, toggleLike } = useAuth();
+  const isLiked = likedSongs.some((s) => s._id === currentSong?._id);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   if (!currentSong) return null;
 
   return (
@@ -136,6 +143,32 @@ export default function PlayerBar() {
             rgba(255,255,255,0.15) ${volume * 100}%)`,
             }}
           />
+          <button
+            className={`player-btn ${isLiked ? "player-btn--liked" : ""}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLike(currentSong._id);
+            }}
+            title={isLiked ? "Bỏ thích" : "Yêu thích"}
+          >
+            <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+          </button>
+          <button
+            className="player-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPlaylistModal(true);
+            }}
+            title="Thêm vào playlist"
+          >
+            <ListPlus size={18} />
+          </button>
+          {showPlaylistModal && currentSong && (
+            <AddToPlaylistModal
+              song={currentSong}
+              onClose={() => setShowPlaylistModal(false)}
+            />
+          )}
         </div>
       </div>
 

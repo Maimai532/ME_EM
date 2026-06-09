@@ -1,6 +1,8 @@
 // user.controller.js
 import User from "../../shared/models/User.js";
 import bcrypt from "bcryptjs";
+import asyncHandler from "../../shared/utils/asyncHandler.js";
+import { sendSuccess, sendError } from "../../shared/utils/responseHandler.js";
 
 // GET /api/users — lấy danh sách tất cả user
 export const getAllUsers = async (req, res) => {
@@ -54,7 +56,6 @@ export const getMe = async (req, res) => {
 };
 
 // PATCH /api/users/me — cập nhật thông tin cá nhân
-// PATCH /api/users/me
 export const updateMe = async (req, res) => {
   try {
     const { username, email } = req.body;
@@ -65,7 +66,6 @@ export const updateMe = async (req, res) => {
 
     const updateData = { username, email };
 
-    // ✅ Sửa: dùng .buffer thay vì .path (multer memoryStorage)
     if (req.file?.buffer) {
       const avatarKey = await uploadToB2(
         req.file.buffer,
@@ -123,3 +123,24 @@ export const changePassword = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+
+export const likeSong = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id);
+  const { songId } = req.params;
+  const index = user.likedSongs.indexOf(songId);
+  if (index === -1) {
+    user.likedSongs.push(songId);
+  } else {
+    user.likedSongs.splice(index, 1);
+  }
+  await user.save();
+  sendSuccess(res, { likedSongs: user.likedSongs });
+});
+
+export const getLikedSongs = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).populate(
+    "likedSongs",
+    "title artist imageUrl audioUrl duration"
+  );
+  sendSuccess(res, user.likedSongs);
+});

@@ -1,7 +1,8 @@
 import express from "express";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 import { uploadAvatar } from "../../shared/services/cloudinary.service.js";
-import { getAllUsers, deleteUser, updateUserRole, getMe, updateMe, changePassword } from "./user.controller.js";
+import { getAllUsers, deleteUser, updateUserRole, getMe, updateMe, changePassword,  getLikedSongs,
+  likeSong, } from "./user.controller.js";
 
 const router = express.Router();
 
@@ -12,5 +13,7 @@ router.get("/", protect, adminOnly, getAllUsers);
 router.delete("/:id", protect, adminOnly, deleteUser);
 router.patch("/:id/role", protect, adminOnly, updateUserRole);
 router.patch("/me/password", protect, changePassword);
+router.get("/liked-songs", protect, getLikedSongs);
+router.post("/liked-songs/:songId", protect, likeSong);
 
 export default router;

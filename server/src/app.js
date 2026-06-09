@@ -8,16 +8,27 @@ import sectionRoutes from "./features/section/section.routes.js";
 import healthRoutes from "./shared/routes/healthRoutes.js";
 import artistRoutes from "./features/artists/artist.routes.js";
 import historyRoutes from "./features/history/history.routes.js";
+import playlistRoutes from "./features/playlist/playlist.routes.js";
 
 export function createApp() {
   const app = express();
+
+/* 
+cors() phải đứng đầu:  Browser gửi request → Express kiểm tra CORS ngay lập tức
+ Nếu cors() chưa chạy → browser bị block, request không đi tiếp được
+ */
 
   app.use(
     cors({
       origin: "http://localhost:5173",
       credentials: true,
-    })
+    }),
   );
+
+  /* 
+express.json() phải trước các route :  Request có body (POST/PUT) → express.json() parse body thành req.body
+Nếu chưa parse → req.body = undefined → controller đọc không được
+ */
 
   app.use(express.json());
 
@@ -28,6 +39,7 @@ export function createApp() {
   app.use("/api/health", healthRoutes);
   app.use("/api/artists", artistRoutes);
   app.use("/api/history", historyRoutes);
-  
+  app.use("/api/playlists", playlistRoutes);
+
   return app;
 }

@@ -1,0 +1,97 @@
+import { useEffect, useState } from "react";
+import { X, Plus, Check, ListMusic } from "lucide-react";
+import { usePlaylist } from "../context/PlaylistContext";
+import "../styles/AddToPlaylistModal.css";
+import { createPortal } from "react-dom";
+
+export default function AddToPlaylistModal({ song, onClose }) {
+  const { playlists, fetchPlaylists, createPlaylist, addSong } = usePlaylist();
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [addedIds, setAddedIds] = useState(new Set());
+
+  useEffect(() => {
+    fetchPlaylists();
+  }, []);
+
+  async function handleAdd(playlistId) {
+    await addSong(playlistId, song._id);
+    setAddedIds((prev) => new Set([...prev, playlistId]));
+  }
+
+  async function handleCreate() {
+    if (!newName.trim()) return;
+    const playlist = await createPlaylist(newName.trim());
+    await handleAdd(playlist._id);
+    setNewName("");
+    setCreating(false);
+  }
+
+  return createPortal(
+    <div className="atp-overlay" onClick={onClose}>
+      <div className="atp-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="atp-header">
+          <span className="atp-title">Lưu vào playlist</span>
+          <button className="atp-close" onClick={onClose}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Song info */}
+        <div className="atp-song">
+          <img src={song.imageUrl || "/placeholder.jpg"} alt={song.title} />
+          <div>
+            <p className="atp-song__title">{song.title}</p>
+            <p className="atp-song__artist">{song.artist}</p>
+          </div>
+        </div>
+
+        {/* New playlist */}
+        {creating ? (
+          <div className="atp-create">
+            <input
+              autoFocus
+              className="atp-input"
+              placeholder="Tên playlist..."
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+            />
+            <button className="atp-btn atp-btn--confirm" onClick={handleCreate}>
+              Tạo
+            </button>
+            <button className="atp-btn atp-btn--cancel" onClick={() => setCreating(false)}>
+              Huỷ
+            </button>
+          </div>
+        ) : (
+          <button className="atp-new" onClick={() => setCreating(true)}>
+            <Plus size={16} />
+            <span>Tạo playlist mới</span>
+          </button>
+        )}
+
+        {/* Playlist list */}
+        <div className="atp-list">
+          {playlists.length === 0 && (
+            <p className="atp-empty">Chưa có playlist nào</p>
+          )}
+          {playlists.map((pl) => (
+            <button
+              key={pl._id}
+              className={`atp-item ${addedIds.has(pl._id) ? "atp-item--added" : ""}`}
+              onClick={() => !addedIds.has(pl._id) && handleAdd(pl._id)}
+            >
+              <ListMusic size={16} className="atp-item__icon" />
+              <span className="atp-item__name">{pl.name}</span>
+              <span className="atp-item__count">{pl.songs?.length ?? 0} bài</span>
+              {addedIds.has(pl._id) && <Check size={16} className="atp-item__check" />}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}

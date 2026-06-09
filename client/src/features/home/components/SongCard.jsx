@@ -1,14 +1,19 @@
-import { Play, Heart } from "lucide-react";
+import { Play, Heart, ListPlus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePlayer } from "../../player/context/PlayerContext";
 import "../styles/SongCard.css";
+import { usePlayer } from "../../player/context/PlayerContext";
+import AddToPlaylistModal from "../../playlist/components/AddToPlaylistModal";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 function SongCard({ song, songList = [], layout = "scroll" }) {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const { playSong } = usePlayer();
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const { likedSongs, toggleLike } = useAuth();
+  const isLiked = likedSongs.some((s) => s._id === song._id);
 
   if (!song) return null;
 
@@ -21,6 +26,16 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
   function handleLike(e) {
     e.stopPropagation();
     setLiked(!liked);
+  }
+
+  function handleLike(e) {
+    e.stopPropagation();
+    toggleLike(song._id);
+  }
+
+  function handleAddToPlaylist(e) {
+    e.stopPropagation();
+    setShowPlaylistModal(true);
   }
 
   if (layout === "scroll") {
@@ -53,7 +68,29 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           </p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
+        {/* <button
+          type="button"
+          className="song-card__playlist-btn"
+          onClick={handleAddToPlaylist}
+          title="Thêm vào playlist"
+        >
+          <ListPlus size={15} />
+        </button>
 
+        {showPlaylistModal && (
+          <AddToPlaylistModal
+            song={song}
+            onClose={() => setShowPlaylistModal(false)}
+          />
+        )}
+        <button
+          type="button"
+          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
+          onClick={handleLike}
+          title={isLiked ? "Bỏ thích" : "Yêu thích"}
+        >
+          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
+        </button> */}
       </div>
     );
   }
@@ -82,7 +119,29 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
+        {/* <button
+          type="button"
+          className="song-card__playlist-btn"
+          onClick={handleAddToPlaylist}
+          title="Thêm vào playlist"
+        >
+          <ListPlus size={15} />
+        </button>
 
+        {showPlaylistModal && (
+          <AddToPlaylistModal
+            song={song}
+            onClose={() => setShowPlaylistModal(false)}
+          />
+        )}
+        <button
+          type="button"
+          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
+          onClick={handleLike}
+          title={isLiked ? "Bỏ thích" : "Yêu thích"}
+        >
+          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
+        </button> */}
       </div>
     );
   }
@@ -111,7 +170,29 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
+        {/* <button
+          type="button"
+          className="song-card__playlist-btn"
+          onClick={handleAddToPlaylist}
+          title="Thêm vào playlist"
+        >
+          <ListPlus size={15} />
+        </button> */}
 
+        {/* {showPlaylistModal && (
+          <AddToPlaylistModal
+            song={song}
+            onClose={() => setShowPlaylistModal(false)}
+          />
+        )}
+        <button
+          type="button"
+          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
+          onClick={handleLike}
+          title={isLiked ? "Bỏ thích" : "Yêu thích"}
+        >
+          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
+        </button> */}
       </div>
     );
   }
