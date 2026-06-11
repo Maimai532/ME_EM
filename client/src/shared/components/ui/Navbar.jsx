@@ -8,6 +8,7 @@ import { useAuth } from "../../../features/auth/context/AuthContext";
 import { usePlayer } from "../../../features/player/context/PlayerContext";
 import "../../styles/Navbar.css";
 import { searchSongs } from "../../../features/home/services/songService";
+import ConfirmModal from "./ConfirmModal";
 
 const HISTORY_KEY = "search_history";
 const MAX_HISTORY = 3;
@@ -39,7 +40,7 @@ function Navbar({ isOpen, setIsOpen }) {
   const [searching, setSearching] = useState(false);
   const [history, setHistory] = useState(getHistory());
   const [showDropdown, setShowDropdown] = useState(false);
-
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const wrapperRef = useRef(null);
 
   useEffect(() => {
@@ -95,13 +96,16 @@ function Navbar({ isOpen, setIsOpen }) {
   const handleLogout = () => {
     stopPlayer();
     logout();
-    navigate("/");
+    setShowLogoutModal(false);
   };
 
   const userMenuItems = [
     { key: "1", label: <Link to="/profile">Profile</Link> },
     { key: "2", label: <Link to="/settings">Settings</Link> },
-    { key: "3", label: <button onClick={handleLogout}>Logout</button> },
+    {
+      key: "3",
+      label: <button onClick={() => setShowLogoutModal(true)}>Logout</button>,
+    },
   ];
 
   const showHistory = history.length > 0;
@@ -117,7 +121,6 @@ function Navbar({ isOpen, setIsOpen }) {
           className="navbar-logo"
           onClick={() => setIsOpen(!isOpen)}
         />
-        {/* <h1 className="navbar-title">Me_EM</h1> */}
       </div>
 
       <nav className="navbar-search" ref={wrapperRef}>
@@ -131,10 +134,8 @@ function Navbar({ isOpen, setIsOpen }) {
           onFocus={() => setShowDropdown(true)}
         />
 
-        {/* 1 dropdown duy nhất chứa cả lịch sử + kết quả */}
         {isDropdownOpen && (
           <div className="search-dropdown">
-            {/* Lịch sử */}
             {showHistory && (
               <div className="search-dropdown__section">
                 <p className="search-dropdown__label">Lịch sử tìm kiếm</p>
@@ -161,12 +162,10 @@ function Navbar({ isOpen, setIsOpen }) {
               </div>
             )}
 
-            {/* Divider nếu có cả 2 */}
             {showHistory && showResults && (
               <div className="search-dropdown__divider" />
             )}
 
-            {/* Kết quả API */}
             {showResults && (
               <div className="search-dropdown__section">
                 <p className="search-dropdown__label">Kết quả</p>
@@ -227,6 +226,13 @@ function Navbar({ isOpen, setIsOpen }) {
           </>
         )}
       </div>
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        title="Đăng xuất ?"
+        message="Bạn có chắc muốn đăng xuất không ?"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </nav>
   );
 }

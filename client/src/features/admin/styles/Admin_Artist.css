@@ -163,14 +163,12 @@
   margin-bottom: 8px;
 }
 
-
 .form-group-avtar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   
 }
-
 
 .form-group-avtar input {
   padding: 9px 12px;

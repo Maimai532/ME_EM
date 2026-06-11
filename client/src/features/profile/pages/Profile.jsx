@@ -24,8 +24,8 @@ function AvatarDefault({ name, size = 200 }) {
   return (
     <div
       style={{
-        width: size,       // ← dùng size
-        height: size,      // ← dùng size
+        width: size, // ← dùng size
+        height: size, // ← dùng size
         borderRadius: "50%",
         backgroundColor: bg,
         display: "flex",
@@ -129,13 +129,13 @@ function Profile() {
       return;
     }
 
-    // validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Email không đúng định dạng");
       return;
     }
 
+    // Validate password nếu user muốn đổi
     if (oldPassword || newPassword || confirmPassword) {
       if (!oldPassword.trim()) {
         setError("Vui lòng nhập mật khẩu cũ");
@@ -157,9 +157,6 @@ function Profile() {
         setError("Mật khẩu xác nhận không khớp");
         return;
       }
-      if (oldPassword && newPassword) {
-        await changePassword(oldPassword, newPassword);
-      }
     }
 
     try {
@@ -169,9 +166,14 @@ function Profile() {
       formData.append("username", username);
       formData.append("email", email);
       if (avatarFile) formData.append("avatar", avatarFile);
+
       const updated = await updateMe(formData);
-      setUser(updated);
-      setAvatarPreview(updated.avatar || "");
+
+      const avatarUrl = updated.avatar
+        ? `${updated.avatar}?t=${Date.now()}`
+        : "";
+      setUser({ ...updated, avatar: updated.avatar }); // user state giữ URL gốc
+      setAvatarPreview(avatarUrl); 
 
       if (oldPassword && newPassword) {
         await changePassword(oldPassword, newPassword);
@@ -186,11 +188,10 @@ function Profile() {
       setShowConfirm(false);
       setShowModal(false);
     } catch (err) {
-      // backend trả lỗi gì thì hiện đúng cái đó
       setError(err.response?.data?.message || "Lỗi server, thử lại sau");
+    } finally {
+      setLoading(false); 
     }
-
-    setLoading(false);
   };
 
   if (!user) return <p className="profile-loading">Đang tải...</p>;

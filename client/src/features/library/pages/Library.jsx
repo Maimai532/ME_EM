@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePlaylist } from "../../playlist/context/PlaylistContext";
-import "../../Library/styles/Library.css";
+import "../../library/styles/Library.css";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { Plus, Trash2, Play } from "lucide-react";

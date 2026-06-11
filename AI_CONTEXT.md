@@ -132,6 +132,8 @@ USER:
 * Quản lý tài khoản
 * Đổi avatar / tên / mật khẩu
 * Xoá tài khoản
+* libraly, tạo playlist
+
 
 ADMIN:
 * Quản lí songs

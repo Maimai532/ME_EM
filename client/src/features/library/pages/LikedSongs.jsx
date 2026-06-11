@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { Heart } from "lucide-react";
-import "../../Library/styles/LikedSongs.css";
+import "../../library/styles/LikedSongs.css";
 
 export default function LikedSongs() {
   const { likedSongs, fetchLikedSongs, toggleLike } = useAuth();

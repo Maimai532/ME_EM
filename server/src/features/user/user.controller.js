@@ -66,15 +66,9 @@ export const updateMe = async (req, res) => {
 
     const updateData = { username, email };
 
-    if (req.file?.buffer) {
-      const avatarKey = await uploadToB2(
-        req.file.buffer,
-        req.file.originalname,
-        req.file.mimetype,
-        "avatars"
-      );
-      updateData.avatarKey = avatarKey;
-      updateData.avatar = ""; // clear URL cũ nếu có
+    // Cloudinary storage lưu URL vào req.file.path, không có req.file.buffer
+    if (req.file?.path) {
+      updateData.avatar = req.file.path; // URL Cloudinary trả về
     }
 
     const user = await User.findByIdAndUpdate(
@@ -83,12 +77,7 @@ export const updateMe = async (req, res) => {
       { new: true }
     ).select("-password");
 
-    // Generate URL tươi cho avatar nếu có key
-    const avatar = user.avatarKey
-      ? await getPresignedUrl(user.avatarKey, 3600)
-      : user.avatar;
-
-    res.json({ success: true, data: { ...user.toObject(), avatar } });
+    res.json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
