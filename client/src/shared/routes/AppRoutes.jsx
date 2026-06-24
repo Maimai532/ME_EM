@@ -9,10 +9,10 @@ import Register from "../../features/auth/pages/Register";
 import Home from "../../features/home/pages/Home";
 import Profile from "../../features/profile/pages/Profile";
 import Playlist from "../../features/playlist/pages/Playlist";
-import Library from "../../features/library/pages/Library";
+import Library from "../../features/playlist/pages/Library";
 import Search from "../../features/search/pages/Search";
 import History from "../../features/history/pages/History.jsx";
-import LikedSongs from "../../features/library/pages/LikedSongs";
+import LikedSongs from "../../features/playlist/pages/LikedSongs";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
 import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
@@ -34,7 +34,7 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/library" element={<Library />} />
+          {/* <Route path="/library" element={<Library />} /> */}
           <Route path="/favorite" element={<Library />} />
           <Route path="/settings" element={<Profile />} />
           <Route path="/search" element={<Search />} />

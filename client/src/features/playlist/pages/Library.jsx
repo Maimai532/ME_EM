@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePlaylist } from "../../playlist/context/PlaylistContext";
-import "../../library/styles/Library.css";
+import { usePlaylist } from "../context/PlaylistContext";
+import "../styles/Library.css";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
-import { Plus, Trash2, Play } from "lucide-react";
+import { Plus, Trash2, ListMusic } from "lucide-react";
 
 export default function Library() {
   const { playlists, fetchPlaylists, createPlaylist, deletePlaylist } =
