@@ -42,6 +42,7 @@ function Navbar({ isOpen, setIsOpen }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const wrapperRef = useRef(null);
+  const { isMusicPlayerVisible } = usePlayer();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -113,7 +114,7 @@ function Navbar({ isOpen, setIsOpen }) {
   const isDropdownOpen = showDropdown && (showHistory || showResults);
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${isMusicPlayerVisible ? "navbar--player-open" : ""}`}>
       <div className="navbar-brand">
         <img
           src="/logo2.png"

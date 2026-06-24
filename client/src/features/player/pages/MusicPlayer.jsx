@@ -84,12 +84,6 @@ export default function MusicPlayer() {
           className="player-cover"
           crossOrigin="anonymous"
         />
-
-        <div className="player-meta">
-          <h1 className="player-title">{currentSong.title}</h1>
-
-          <p className="player-artist">{currentSong.artist}</p>
-        </div>
       </div>
 
       <div className="player-right">

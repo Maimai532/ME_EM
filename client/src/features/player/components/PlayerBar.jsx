@@ -44,53 +44,65 @@ export default function PlayerBar() {
   const { likedSongs, toggleLike } = useAuth();
   const isLiked = likedSongs.some((s) => s._id === currentSong?._id);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const { isMusicPlayerVisible } = usePlayer();
   if (!currentSong) return null;
 
   return (
     <>
-      <div
-        className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""}`}
-        // onClick={() => setIsMusicPlayerVisible((v) => !v)}
+      {/* <button
+        className={`player-bar__toggle ${!isPlayerVisible ? "player-bar__toggle--hidden" : ""}`}
+        onClick={() => setIsPlayerVisible((v) => !v)}
+        title={isPlayerVisible ? "Ẩn player" : "Hiện player"}
       >
-        {/* Bài đang phát */}
+        {isPlayerVisible ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+      </button> */}
+      <div
+        className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""} ${isMusicPlayerVisible ? "player-bar--player-open" : ""}`}
+        onClick={() => setIsMusicPlayerVisible((v) => !v)}
+      >
         <div
-          className="player-bar__song"
-          onClick={() => setIsMusicPlayerVisible((v) => !v)}
-          style={{ cursor: "pointer" }}
+          className="player-bar__timeline "
+          onClick={(e) => e.stopPropagation()}
         >
-          <img
-            src={currentSong.imageUrl || "/placeholder.jpg"}
-            alt={currentSong.title}
-            className="player-bar__thumb"
+          <input
+            type="range"
+            min={0}
+            max={duration || 0}
+            step={0.1}
+            value={currentTime}
+            onChange={(e) => seek(Number(e.target.value))}
+            className="player-bar__progress-top"
+            style={{
+              background: `linear-gradient(to right, 
+              #68c6ed ${(currentTime / (duration || 1)) * 100}%, 
+              rgba(255,255,255,0.15) ${(currentTime / (duration || 1)) * 100}%)`,
+            }}
           />
-          <div className="player-bar__info">
-            <p className="player-bar__title">{currentSong.title}</p>
-            <span className="player-bar__artist">{currentSong.artist}</span>
+          <div className="player-bar__times">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
 
-        {/* Controls + Progress */}
-        <div className="player-bar__center">
-          <div className="player-bar__progress">
-            <span className="player-bar__time">{formatTime(currentTime)}</span>
-            <input
-              type="range"
-              min={0}
-              max={duration || 0}
-              step={0.1}
-              value={currentTime}
-              onChange={(e) => seek(Number(e.target.value))}
-              className="player-bar__seek"
-              style={{
-                background: `linear-gradient(to right, 
-              #68c6ed ${(currentTime / (duration || 1)) * 100}%, 
-              rgba(255,255,255,0.15) ${(currentTime / (duration || 1)) * 100}%)`,
-              }}
+        <div className="player-bar__content">
+          <div className="player-bar__song" style={{ cursor: "pointer" }}>
+            <img
+              src={currentSong.imageUrl || "/placeholder.jpg"}
+              alt={currentSong.title}
+              className="player-bar__thumb"
             />
-            <span className="player-bar__time">{formatTime(duration)}</span>
+            <div className="player-bar__info">
+              <p className="player-bar__title">{currentSong.title}</p>
+              <span className="player-bar__artist">{currentSong.artist}</span>
+            </div>
           </div>
 
-          <div className="player-bar__controls">
+          {/* Controls*/}
+
+          <div
+            className="player-bar__controls"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               className={`player-btn ${isShuffle ? "active" : ""}`}
               onClick={toggleShuffle}
@@ -116,70 +128,66 @@ export default function PlayerBar() {
               <Repeat size={18} />
             </button>
           </div>
-        </div>
 
-        {/* Volume */}
-        <div className="player-bar__right">
-          <button
-            className="player-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleMute();
-            }}
+          {/* Volume */}
+          <div
+            className="player-bar__right"
+            onClick={(e) => e.stopPropagation()}
           >
-            {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(e) => changeVolume(Number(e.target.value))}
-            className="player-bar__volume"
-            style={{
-              background: `linear-gradient(to right, 
-            #68c6ed ${volume * 100}%, 
-            rgba(255,255,255,0.15) ${volume * 100}%)`,
-            }}
-          />
-          <button
-            className={`player-btn ${isLiked ? "player-btn--liked" : ""}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleLike(currentSong._id);
-            }}
-            title={isLiked ? "Bỏ thích" : "Yêu thích"}
-          >
-            <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-          </button>
-          <button
-            className="player-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowPlaylistModal(true);
-            }}
-            title="Thêm vào playlist"
-          >
-            <ListPlus size={18} />
-          </button>
-          {showPlaylistModal && currentSong && (
-            <AddToPlaylistModal
-              song={currentSong}
-              onClose={() => setShowPlaylistModal(false)}
+            <button
+              className="player-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMute();
+              }}
+            >
+              {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={(e) => changeVolume(Number(e.target.value))}
+              className="player-bar__volume"
+              style={{
+                background: `linear-gradient(to right, 
+                #68c6ed ${volume * 100}%, 
+                rgba(255,255,255,0.15) ${volume * 100}%)`,
+              }}
             />
-          )}
+            <button
+              className={`player-btn ${isLiked ? "player-btn--liked" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleLike(currentSong._id);
+              }}
+              title={isLiked ? "Bỏ thích" : "Yêu thích"}
+            >
+              <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+            </button>
+            <button
+              className="player-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPlaylistModal(true);
+              }}
+              title="Thêm vào playlist"
+            >
+              <ListPlus size={18} />
+            </button>
+            {showPlaylistModal && currentSong && (
+              <AddToPlaylistModal
+                song={currentSong}
+                onClose={() => setShowPlaylistModal(false)}
+              />
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Nút ẩn/hiện */}
-      <button
-        className={`player-bar__toggle ${!isPlayerVisible ? "player-bar__toggle--hidden" : ""}`}
-        onClick={() => setIsPlayerVisible((v) => !v)}
-        title={isPlayerVisible ? "Ẩn player" : "Hiện player"}
-      >
-        {isPlayerVisible ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-      </button>
+        {/* Nút ẩn/hiện */}
+      </div>
     </>
   );
 }

@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 65px - 72px);
+  height: calc(100vh - 65px - 80px);
   background-color: #9b470e;
   color: white;
 }
@@ -18,11 +18,12 @@
 
 .player-body {
   position: fixed;
-  inset: 0;
-
-  width: 100%;
-  left: -15px;
-  height: 100vh;
+  top: 0; 
+  left: 0;
+  right: 0;
+  bottom: 80px;
+  /* width: 100%;
+  height: 100%;  */
   display: flex;
   overflow: hidden;
 
@@ -30,8 +31,9 @@
   transform: translateY(0);
   transition: transform 0.5s ease;
 }
+
 .player-body--hidden {
-  transform: translate3d(0, 100vh, 0);
+  transform: translateY(100%);
 }
 
 /* TRÁI */
@@ -40,39 +42,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
+  height: 100%; 
   gap: 20px;
-  padding: 50px;
   overflow-y: auto;
-  top: -20px;
 
-background:
-  radial-gradient(
-    circle at center,
-    var(--bg) 2%,
-    #000 45%,
-    #000 100%
-  );
-
-    /* background:
-  linear-gradient(var(--bg), var(--bg)) center/40% 40% no-repeat,
-  radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%),
-  #121212; */
-
-  /* background:
-  radial-gradient(
-    ellipse at center,
-    var(--bg) 1%,
-    #000000 70%
-  ); */
+  background:
+    radial-gradient(
+      circle at center,
+      var(--bg) 2%,
+      #000 45%,
+      #000 100%
+    );
 
   position: relative;
   overflow: hidden;
 
-  /* background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); */
-  /* background-color: black; */
 }
 .player-left::before {
   content: "";
@@ -107,7 +92,6 @@ background:
   height: 600px;
   border-radius: 5px;
   object-fit: cover;
-  /* box-shadow: 0 8px 32px rgba(109,109,109,0.4); */
 }
 
 @keyframes rotate-cover {
@@ -122,14 +106,14 @@ background:
 /* PHẢI */
 .player-right {
   flex: 0 0 30%;
-  /* border-left: 1px solid #1e3a5f; */
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.75);
+  background-color: #000;
+  /* background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
- 
+  -webkit-backdrop-filter: blur(20px); */
   
 }
 
@@ -154,6 +138,7 @@ background:
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
+
 .queue-list::-webkit-scrollbar { width: 4px; }
 .queue-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 

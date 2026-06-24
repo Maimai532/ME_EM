@@ -1,4 +1,4 @@
-.player-bar {
+/* .player-bar {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -14,18 +14,83 @@
   -webkit-backdrop-filter: blur(20px);
   transition: transform 0.3s ease;
   
+} */
+
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 80px;
+  width: 100%;
+
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.3s ease;
+ 
+}
+
+.player-bar--player-open {
+  background: #000 !important;
+}
+
+.player-bar__times {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(255,255,255,.6);
+  padding: 0 10px;
+}
+
+.player-bar__progress-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 2px;
+
+  outline: none;
+  border: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.player-bar__progress-top::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0;
+  height: 0;
+  background: #68c6ed;
+  cursor: pointer;
+}
+
+.player-bar__progress-top:hover::-webkit-slider-thumb {
+  height: 3px;
+}
+
+.player-bar__content {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 10px;
 }
 
 /* Bài đang phát */
 .player-bar__song {
-  width: 400px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 0;
-  cursor: pointer;
-
+  cursor: pointer;  
+  justify-self: start;
+  min-width: 0;
 }
 
 a.player-bar__song {
@@ -59,10 +124,6 @@ a.player-bar__song {
   text-overflow: ellipsis;
 }
 
-.player-bar__title:hover {
-  /* text-decoration: underline; */
-}
-
 .player-bar__artist {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
@@ -71,36 +132,16 @@ a.player-bar__song {
   text-overflow: ellipsis;
 }
 
-/* Center - controls + progress */
-.player-bar__center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  display: flex;
-  flex-direction: column; /* đổi */
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
+/* controls*/
+
 .player-bar__controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-}
-.player-bar__progress {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-}
-
-/* Bật lại cho controls và progress */
-.player-bar__controls,
-.player-bar__progress {
+  gap: 50px;
+  padding: 0 10px;
   pointer-events: all;
+  justify-self: center;
 }
 
 .player-btn {
@@ -136,69 +177,23 @@ a.player-bar__song {
   color: #0f5486;
 }
 
-/* Progress */
-.player-bar__progress {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.player-bar__time {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  /* min-width: 36px; */
-  text-align: center;
-}
-
-.player-bar__seek {
-  flex: 1;
-  height: 5px;
-  cursor: pointer;
-  border-radius: 2px;
-  outline: none;
-  border: none;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.player-bar__seek::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #68c6ed;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.player-bar__seek:hover::-webkit-slider-thumb {
-  opacity: 1;
-}
-
-.player-bar__seek::-webkit-slider-runnable-track {
-  background: transparent;
-  border: none;
-}
-
 /* Volume */
 .player-bar__right {
   margin-left: auto;
-  width: 160px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
   flex-shrink: 0;
   overflow: hidden; 
+  justify-self: end;
 }
 
 .player-bar__volume {
   flex: 1;
   height: 5px;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 200px;
   outline: none;
   border: none;
   appearance: none;
