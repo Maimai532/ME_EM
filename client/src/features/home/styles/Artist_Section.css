@@ -2,23 +2,23 @@
 
 .artist-section {
   margin-bottom: 32px;
-  border: 1px solid #ccc;
   border-radius: 8px;
   padding: 20px;
-  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(100px); 
 }
 
 .artist-section__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 5px;
 }
 
 .artist-section__title {
   font-size: 20px;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
 }
 
 .artist-section__link-all {
@@ -29,25 +29,10 @@
   cursor: pointer;
 }
 
-.artist-section__grid--scroll {
+.artist-section__grid {
   display: flex;
   flex-direction: row;
   gap: 16px;
-  padding-bottom: 8px;
   overflow-x: auto;
-}
-
-.artist-section__grid--grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-
-.artist-section__grid--list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  height: 300px;
-  width: 100%;
-  overflow-y: auto;
+  scrollbar-width: none;
 }

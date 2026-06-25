@@ -1,0 +1,252 @@
+.artist {
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(245, 245, 220, 0.104);
+  height: calc(100vh - 65px);
+}
+
+/* ===== LOADING / ERROR ===== */
+
+.artist__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 14px;
+}
+
+/* ===== HEADER ===== */
+
+.artist__header {
+  gap: 2px;
+  width: 30%;
+  height: 60%;
+  /* border-radius: 20px; */
+  position: relative;
+  overflow: hidden;
+}
+
+.artist__avatar-wrap {
+  flex-shrink: 0;
+}
+
+.artist__avatar {
+  width: 100%;
+  /* width: 400px; */
+  height: 100%;
+  /* border-radius: 10px; */
+  object-fit: cover;
+  
+}
+
+.artist__overlay {
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    to top,
+    rgb(0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.665) 25%,
+    rgba(0, 0, 0, 0.15) 50%,
+    transparent 60%
+  );
+
+  pointer-events: none;
+}
+
+.artist__meta {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 10;
+  width: auto;
+  line-height: 18px;
+  
+  /* background: transparent;  */
+}
+
+.artist__name {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.7),
+    0 4px 20px rgba(0,0,0,.5);
+}
+
+.artist__country {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.artist__desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  max-width: 520px;
+  line-height: 1.6;
+
+  /* giới hạn 3 dòng */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.artist__count {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+/* ===== EMPTY ===== */
+
+.artist__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgb(212, 27, 27);
+  padding: 80px 0;
+}
+
+.artist__empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ===== LIST ===== */
+
+.artist__list {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  height: calc(100vh - 65px);
+  background-color: rgba(137, 43, 226, 0.144);
+}
+.artist__song {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 350px;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+/* ===== ITEM ===== */
+
+.artist__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.072);
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.artist__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.artist__index {
+  width: 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.artist__image {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.artist__info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.artist__song-title {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist__artist-name {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  margin: 0;
+}
+
+.artist__duration {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+
+
+.artist__albums {
+  margin-top: 30px;
+}
+
+.artist__section-title {
+  color: white;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.artist__albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+  gap: 10px;
+}
+
+.artist__album-card {
+  /* background: rgba(255,255,255,.05); */
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: .2s;
+  width: 150px;
+}
+
+.artist__album-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,.08);
+}
+
+.artist__album-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.artist__album-info {
+  padding: 8px 0;
+}
+
+.artist__album-info h3 {
+  color: white;
+  font-size: 16px;
+}
+
+.artist__album-info span {
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
+}

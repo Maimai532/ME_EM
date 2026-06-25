@@ -8,7 +8,7 @@ const navItems = [
   // { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/song_admin", label: "Songs", icon: Music, end: true },
   { to: "/admin/artist_admin", label: "Artists", icon: Mic2 },
-  { to: "/admin/playlist_admin", label: "Playlists", icon: ListMusic },
+  { to: "/admin/section_admin", label: "Sections", icon: ListMusic },
   { to: "/admin/user_admin", label: "Users", icon: Users },
   
 ];

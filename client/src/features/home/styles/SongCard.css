@@ -3,7 +3,6 @@
 .song-card{
   cursor: pointer;
   border-radius: var(--radius-md);
-  /* overflow: hidden; */
   isolation: isolate;
   position: relative;
 }
@@ -28,46 +27,12 @@
   margin-bottom: 2px;
   color: var(--color-text2);
 }
+
 .song-card__artist{
   font-size: 12px;
   color: #b4b4b4;
 }
 
-.song-card__playlist-btn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  display: flex;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
-}
-.song-card:hover .song-card__playlist-btn {
-  opacity: 1;
-}
-.song-card__playlist-btn:hover {
-  color: var(--color-primary, #68c6ed);
-}
-
-.song-card__like-btn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  display: flex;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
-}
-.song-card:hover .song-card__like-btn { opacity: 1; }
-.song-card__like-btn--active {
-  opacity: 1;
-  color: #ff5c8a;
-}
-.song-card__like-btn:hover { color: #ff5c8a; }
 
 /* ---------- scroll ---------- */
 .song-card--scroll {
@@ -115,11 +80,6 @@
   /* text-align: center; */
   width: 100%;
 }
-
-.song-card--scroll .song-card__title {
-}
-
-
 
 
 /* ---------- grid ---------- */

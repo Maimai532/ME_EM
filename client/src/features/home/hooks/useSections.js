@@ -1,18 +1,23 @@
-import { useState, useEffect } from "react";
-import { getSections } from "../services/sectionService";
+import { useState, useEffect } from 'react'
+import { getSections } from '../services/sectionService'
+import { artistService } from '../../../shared/services/artist.service'
 
 function useSections() {
-  const [sections, setSections] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [sections, setSections] = useState([])
+  const [artists, setArtists] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSections()
-      .then((data) => setSections(data))
-      .catch(() => setSections([]))
-      .finally(() => setLoading(false));
-  }, []);
+    Promise.all([getSections(), artistService.getAll()])
+      .then(([sectionsData, artistsRes]) => {
+        setSections(sectionsData)
+        setArtists(artistsRes.data.map(a => ({ ...a, imageUrl: a.avatar })))
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
-  return { sections, loading };
+  return { sections, artists, loading }
 }
 
-export default useSections;
+export default useSections

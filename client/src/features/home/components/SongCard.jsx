@@ -68,29 +68,6 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           </p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        {/* <button
-          type="button"
-          className="song-card__playlist-btn"
-          onClick={handleAddToPlaylist}
-          title="Thêm vào playlist"
-        >
-          <ListPlus size={15} />
-        </button>
-
-        {showPlaylistModal && (
-          <AddToPlaylistModal
-            song={song}
-            onClose={() => setShowPlaylistModal(false)}
-          />
-        )}
-        <button
-          type="button"
-          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
-          onClick={handleLike}
-          title={isLiked ? "Bỏ thích" : "Yêu thích"}
-        >
-          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
-        </button> */}
       </div>
     );
   }
@@ -119,29 +96,6 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        {/* <button
-          type="button"
-          className="song-card__playlist-btn"
-          onClick={handleAddToPlaylist}
-          title="Thêm vào playlist"
-        >
-          <ListPlus size={15} />
-        </button>
-
-        {showPlaylistModal && (
-          <AddToPlaylistModal
-            song={song}
-            onClose={() => setShowPlaylistModal(false)}
-          />
-        )}
-        <button
-          type="button"
-          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
-          onClick={handleLike}
-          title={isLiked ? "Bỏ thích" : "Yêu thích"}
-        >
-          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
-        </button> */}
       </div>
     );
   }
@@ -170,29 +124,6 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           <p className="song-card__title">{song.title}</p>
           <p className="song-card__artist">{song.artist}</p>
         </div>
-        {/* <button
-          type="button"
-          className="song-card__playlist-btn"
-          onClick={handleAddToPlaylist}
-          title="Thêm vào playlist"
-        >
-          <ListPlus size={15} />
-        </button> */}
-
-        {/* {showPlaylistModal && (
-          <AddToPlaylistModal
-            song={song}
-            onClose={() => setShowPlaylistModal(false)}
-          />
-        )}
-        <button
-          type="button"
-          className={`song-card__like-btn ${isLiked ? "song-card__like-btn--active" : ""}`}
-          onClick={handleLike}
-          title={isLiked ? "Bỏ thích" : "Yêu thích"}
-        >
-          <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
-        </button> */}
       </div>
     );
   }

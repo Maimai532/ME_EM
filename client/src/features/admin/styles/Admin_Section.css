@@ -1,0 +1,493 @@
+/* Admin_Section.css — Artist Section management */
+
+/* ── Nút tạo mới (header) ── */
+.section-admin__btn-add {
+  padding: 8px 16px;
+  background-color: var(--color-button1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: var(--fontsize-md);
+}
+
+/* ── Meta bar ── */
+.section-admin-meta {
+  padding: 10px;
+  background-color: #1172a347;
+  width: 200px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px rgb(0, 0, 0) solid;
+  font-size: 16px;
+}
+.section-admin-meta span {
+  color: rgb(6, 54, 101);
+  font-size: 30px;
+}
+
+/* ── Empty state ── */
+.section-admin__empty {
+  color: #9ca3af;
+  font-style: italic;
+  margin-top: 20px;
+}
+
+/* ── Grid card ── */
+.section-admin__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.section-admin__card {
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 16px;
+  width: 300px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.section-admin__card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.section-admin__card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e3a5f;
+}
+
+.section-admin__badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.section-admin__card-desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.section-admin__artist-count,
+.section-admin__item-count {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.section-admin__type-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.section-admin__type-badge--song {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.section-admin__type-badge--artist {
+  background-color: #fce7f3;
+  color: #be185d;
+}
+
+.section-admin__type-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #e5e7eb;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.section-admin__card-footer {
+  display: flex;
+  gap: 8px;
+}
+
+.section-admin__btn-manage {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #7c3aed;
+  border-radius: 6px;
+  color: #7c3aed;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.section-admin__btn-edit {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  color: #2563eb;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.section-admin__btn-del {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  color: #dc2626;
+  background-color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* ── Overlay + Modal ── */
+.section-admin-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.section-admin-modal {
+  background-color: white;
+  border-radius: 12px;
+  padding: 28px;
+  width: 400px;
+}
+
+.section-admin-modal--wide {
+  width: 90%;
+  height: 80vh;
+  overflow-y: auto;
+}
+
+.section-admin-modal__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #1e3a5f;
+}
+
+/* Header row trong modal wide */
+.section-admin-modal__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.section-admin-modal__header-row h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a5f;
+  margin: 0;
+}
+
+.section-admin__head {
+  margin-bottom: 20px;
+}
+
+/* ── Form ── */
+.section-admin__label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 12px;
+}
+
+.section-admin__input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.section-admin__select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.section-admin-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.section-admin__btn-cancel {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.section-admin__btn-save {
+  padding: 5px 16px;
+  background-color: var(--color-button1);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--fontsize-md);
+}
+
+.section-admin__btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Filter bar ── */
+.section-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.section-filter-bar__search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 180px;
+}
+
+.section-filter-bar__icon {
+  position: absolute;
+  left: 9px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.section-filter-bar__search {
+  width: 100%;
+  padding: 6px 28px 6px 30px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 13px;
+  color: #374151;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.section-filter-bar__search:focus {
+  border-color: #7c3aed;
+}
+
+.section-filter-bar__search::placeholder {
+  color: #9ca3af;
+}
+
+.section-filter-bar__clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #9ca3af;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.section-filter-bar__clear:hover {
+  color: #374151;
+}
+
+.section-filter-bar__count {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* ── Bảng đôi ── */
+.section-table-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-table-block {
+  max-height: 60vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 49%;
+}
+
+.section-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.section-table__th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: #e9d5ff;
+  color: #4c1d95;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.section-table__td {
+  padding: 9px 12px;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.section-table__td--num {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.section-table__td--name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.section-table__td--action {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Avatar inline */
+.section-artist-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-artist-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Màu xen kẽ */
+.section-table__row--in:nth-child(even) {
+  background-color: #faf5ff;
+}
+
+.section-table__row--add:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.section-table__row:hover {
+  background-color: #f5f3ff;
+}
+
+/* Label count */
+.section-table-label--in {
+  color: #0c5d0c;
+}
+
+.section-table-label--add {
+  color: #920707;
+}
+
+.section-table-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 25px;
+  padding: 5px;
+  margin: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+.section-table-label--in .section-table-count {
+  background-color: #0c5d0c;
+}
+
+.section-table-label--add .section-table-count {
+  background-color: #920707;
+}
+
+/* Empty row */
+.section-table__empty {
+  text-align: center;
+  padding: 20px;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Nút trong bảng */
+.section-table__btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.section-table__btn:hover {
+  opacity: 0.8;
+}
+
+.section-table__btn--remove {
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  background-color: #fff5f5;
+}
+
+.section-table__btn--add {
+  border: 1px solid #7c3aed;
+  color: #7c3aed;
+  background-color: #faf5ff;
+}

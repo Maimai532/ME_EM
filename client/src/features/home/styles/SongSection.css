@@ -2,20 +2,16 @@
 
 .song-section {
   margin-bottom: 32px;
-  /* border: 1px solid #5252527d; */
   border-radius: 8px;
   padding: 20px;
-  /* overflow: hidden; */
   background-color: rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(100px); 
-  /* gap: 15px;  */
 }
 
 .song-section__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* background-color: aqua; */
   margin-bottom: 5px;
 }
 
@@ -32,6 +28,7 @@
   padding: 6px 12px;
   cursor: pointer;
 }
+
 .song-section__play-btn:hover{
     background-color: var(--color-hover);
 }
@@ -51,7 +48,7 @@
   grid-auto-columns: minmax(180px, 1fr);
   overflow-x: auto;
   scrollbar-width: none;
-  column-gap: 90px; /* ngang */
+  column-gap: 90px; 
   row-gap: 0; 
 
 }

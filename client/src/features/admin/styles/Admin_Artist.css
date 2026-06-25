@@ -42,7 +42,7 @@
   scrollbar-width: none;
 }
 
-.artist-card {
+.artist-item {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -52,11 +52,11 @@
   transition: background-color 0.1s;
 }
 
-.artist-card:hover {
+.artist-item:hover {
   background-color: rgba(165, 220, 227, 0.426);
 }
 
-.artist-card__avatar {
+.artist-item__avatar {
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -65,7 +65,7 @@
   background-color: var(--color-button2-mute);
 }
 
-.artist-card__info {
+.artist-item__info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -73,25 +73,25 @@
   color: black;
 }
 
-.artist-card__info h3 {
+.artist-item__info h3 {
   font-size: 15px;
   font-weight: 600;
   color: black;
   margin: 0;
 }
 
-.artist-card__info span {
+.artist-item__info span {
   font-size: 13px;
   color: rgb(101, 101, 101);
 }
 
-.artist-card__actions {
+.artist-item__actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.artist-card__actions button {
+.artist-item__actions button {
   font-size: 13px;
   transition: opacity 0.2s;
   border-radius: var(--radius-del);
@@ -99,33 +99,33 @@
   padding: 6px 12px;
 }
 
-.artist-card__actions button:hover {
+.artist-item__actions button:hover {
   opacity: 0.8;
 }
 
-.artist-card__actions button:nth-child(1) {
+.artist-item__actions button:nth-child(1) {
   background-color: var(--color-bg-edit);
   color: var(--color-text-edit);
 }
 
-.artist-card__actions button:nth-child(2) {
+.artist-item__actions button:nth-child(2) {
   background-color: var(--color-bg-edit);
   color: var(--color-text-edit);
 }
 
-.artist-card__actions button:nth-child(1):hover {
+.artist-item__actions button:nth-child(1):hover {
   background-color: var(--hover-bg-edit);
 }
-.artist-card__actions button:nth-child(2):hover {
+.artist-item__actions button:nth-child(2):hover {
   background-color: var(--hover-bg-edit);
 }
 
-.artist-card__actions button:nth-child(3) {
+.artist-item__actions button:nth-child(3) {
   background-color: var(--color-bg-del);
   color: var(--color-text-del);
 }
 
-.artist-card__actions button:nth-child(3):hover {
+.artist-item__actions button:nth-child(3):hover {
   background-color: var(  --hover-bg-del);
 }
 
@@ -332,8 +332,6 @@
   background: #0000008b;
 }
 
-
-
 /* Artist info*/
 .artist-detail_info {
   display: flex;
@@ -362,7 +360,6 @@
   align-items: center;
   transition: transform 0.3s ease;
 }
-
 
 .artist-detail__name img {
   width: 160px;

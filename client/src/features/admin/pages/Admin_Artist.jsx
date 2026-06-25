@@ -836,14 +836,14 @@ const ArtistCard = memo(function ArtistCard({
   onDelete,
 }) {
   return (
-    <div className="artist-card" onClick={onView} style={{ cursor: "pointer" }}>
+    <div className="artist-item" onClick={onView} style={{ cursor: "pointer" }}>
       <img
         src={artist.avatar || "/default-artist.png"}
         alt={artist.name}
-        className="artist-card__avatar"
+        className="artist-item__avatar"
         loading="lazy"
       />
-      <div className="artist-card__info">
+      <div className="artist-item__info">
         <h3>{artist.name}</h3>
         <span>{artist.country || "Không rõ"}</span>
         <span>
@@ -851,7 +851,7 @@ const ArtistCard = memo(function ArtistCard({
         </span>
       </div>
       <div
-        className="artist-card__actions"
+        className="artist-item__actions"
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={onEdit}>Sửa</button>
@@ -872,6 +872,7 @@ export default function ArtistManagement() {
   const [showForm, setShowForm] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const { showToast } = useToast();
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const fetchArtists = useCallback(async () => {
     try {
@@ -934,6 +935,14 @@ export default function ArtistManagement() {
     setSelected(artist);
     setShowForm(true);
   };
+  function toggleSelect(id) {
+  setSelectedIds((prev) =>
+    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+  );
+}
+const allSelected =
+  filteredArtists.length > 0 &&
+  filteredArtists.every((a) => selectedIds.includes(a._id));
 
   if (view === "detail") {
     return (

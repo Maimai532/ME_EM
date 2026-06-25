@@ -13,13 +13,14 @@ import Library from "../../features/playlist/pages/Library";
 import Search from "../../features/search/pages/Search";
 import History from "../../features/history/pages/History.jsx";
 import LikedSongs from "../../features/playlist/pages/LikedSongs";
+import Artist from "../../features/artist/pages/Artist";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
-import Admin_Playlist from "../../features/admin/pages/Admin_Playlist";
 import Admin_Song from "../../features/admin/pages/Admin_Song";
 import Admin_User from "../../features/admin/pages/Admin_User";
 import AdminLayout from "../layouts/AdminLayout";
 import Admin_Artist from "../../features/admin/pages/Admin_Artist";
+import Admin_Section from "../../features/admin/pages/Admin_Section";
 
 const AppRoutes = () => {
   return (
@@ -41,13 +42,15 @@ const AppRoutes = () => {
           <Route path="/history" element={<History />} />
           <Route path="/playlist/:id" element={<Playlist />} />
           <Route path="/liked-songs" element={<LikedSongs />} />
+          <Route path="/artist/:id" element={<Artist />} />
         </Route>
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
           <Route index element={<Navigate to="song_admin" replace />} />
           <Route index element={<Admin_Page />} />
           <Route path="song_admin" element={<Admin_Song />} />
-          <Route path="playlist_admin" element={<Admin_Playlist />} />
+          <Route path="section_admin" element={<Admin_Section />} />
+          <Route path="playlist_admin" element={<Navigate to="/admin/section_admin" replace />} />
           <Route path="user_admin" element={<Admin_User />} />
           <Route path="artist_admin" element={<Admin_Artist />} />
         </Route>
