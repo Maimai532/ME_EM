@@ -22,12 +22,174 @@
   color: var(--color-title1);
   margin: 0;
 }
+
 .artist-management-btn {
   font-size: 14px;
   background-color: black;
   color: white;
   padding: 10px;
   border-radius: 8px;
+}
+/* ── Artist table (giống Song admin) ── */
+
+.artist-management__header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.artist-management-btn--danger {
+  background-color: #dc2626;
+}
+
+.artist-admin-meta {
+  padding: 10px 14px;
+  background-color: #1172a347;
+  width: 200px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px rgb(0, 0, 0) solid;
+  font-size: 15px;
+}
+
+.artist-admin-meta span {
+  color: rgb(6, 54, 101);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.artist-admin__filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.artist-admin__search-input {
+  width: 100%;
+  padding: 9px 36px 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.artist-admin__table-wrapper {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.artist-admin__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.artist-admin__col-select { width: 28px; }
+.artist-admin__col-image  { width: 56px; }
+.artist-admin__col-name   { width: 28%; }
+.artist-admin__col-country{ width: 18%; }
+.artist-admin__col-stat   { width: 22%; }
+.artist-admin__col-actions{ width: 130px; }
+
+.artist-admin__th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #7496b8;
+  color: #fff;
+}
+
+.artist-admin__td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.artist-admin__td--name {
+  font-weight: 500;
+}
+
+.artist-admin__row {
+  cursor: pointer;
+}
+
+.artist-admin__row:hover {
+  background-color: #eef5fb;
+}
+
+.artist-admin__row--selected {
+  background-color: #6f8bb0;
+  color: #fff;
+}
+
+.artist-admin__thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #e5e7eb;
+}
+
+.artist-admin__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 1px 2px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #b4cce0;
+  color: #033562;
+  white-space: nowrap;
+}
+
+.artist-admin__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.artist-admin__btn-edit {
+  background-color: #e2eef7;
+  color: #1e5a87;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.artist-admin__btn-edit:hover {
+  background-color: #c8dff0;
+}
+
+.artist-admin__btn-del {
+  background-color: #fdecea;
+  color: #d32f2f;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.artist-admin__btn-del:hover {
+  background-color: #f9c9c5;
+}
+
+.artist-admin__empty {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
 }
 
 

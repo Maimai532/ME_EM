@@ -43,6 +43,20 @@ function splitArtists(artistStr) {
     .filter(Boolean);
 }
 
+function normalizeSongForm(input = {}) {
+  return {
+    title: input.title ?? "",
+    artist: input.artist ?? "",
+    album: input.album ?? "",
+    genre: input.genre ?? "",
+    audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
+    audioKey: input.sourceType === "b2key" ? (input.audioKey ?? "") : "",
+    imageUrl: input.imageUrl ?? "",
+    sourceType: input.sourceType ?? "b2key",
+    _id: input._id,
+  };
+}
+
 function CustomSelect({ value, onChange, options }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -62,7 +76,7 @@ function CustomSelect({ value, onChange, options }) {
       <button
         type="button"
         className={`custom-select__trigger ${open ? "custom-select__trigger--open" : ""}`}
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((p) => !p)}
       >
         <span>{selected?.label}</span>
         <svg
@@ -103,22 +117,7 @@ function CustomSelect({ value, onChange, options }) {
   );
 }
 
-function normalizeSongForm(input = {}) {
-  return {
-    title: input.title ?? "",
-    artist: input.artist ?? "",
-    album: input.album ?? "",
-    genre: input.genre ?? "",
-    audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
-    audioKey: input.sourceType === "b2key" ? (input.audioKey ?? "") : "",
-    imageUrl: input.imageUrl ?? "",
-    sourceType: input.sourceType ?? "b2key",
-    _id: input._id,
-  };
-  localStorage.getItem("token")
-}
-
-function SongModal({ song, onClose, onSaved, token }) {
+function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   const safeSong = normalizeSongForm({ ...emptyForm, ...(song || {}) });
   const isEdit = !!safeSong._id;
   const { showToast } = useToast();
@@ -128,109 +127,68 @@ function SongModal({ song, onClose, onSaved, token }) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(safeSong.imageUrl || "");
   const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(!isEdit); // new song = always dirty
+
+  useEffect(() => {
+    const s = normalizeSongForm({ ...emptyForm, ...(song || {}) });
+    setForm(s);
+    setAudioFile(null);
+    setImageFile(null);
+    setImagePreview(s.imageUrl || "");
+    setIsDirty(!s._id);
+  }, [song?._id, song]);
 
   useEffect(() => {
     if (!imageFile) {
       setImagePreview(form.imageUrl || "");
       return undefined;
     }
-
-    const previewUrl = URL.createObjectURL(imageFile);
-    setImagePreview(previewUrl);
-
-    return () => URL.revokeObjectURL(previewUrl);
+    const url = URL.createObjectURL(imageFile);
+    setImagePreview(url);
+    return () => URL.revokeObjectURL(url);
   }, [imageFile, form.imageUrl]);
-
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === "Enter" && !loading) {
-        const tag = document.activeElement?.tagName;
-
-        if (tag === "INPUT" && document.activeElement.type === "file") return;
-
-        e.preventDefault();
-        handleSubmit();
-      }
-
-      if (e.key === "Escape") onClose();
-    }
-
-    window.addEventListener("keydown", handleKey);
-
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [loading, form, audioFile, imageFile]);
 
   function handleChange(e) {
     const { name, value } = e.target;
-
     if (name === "sourceType") {
-      if (value === "url" || value === "b2key") {
-        setAudioFile(null);
-      }
-
+      setAudioFile(null);
       setForm((prev) => ({
         ...prev,
         sourceType: value,
         audioUrl: value !== "url" ? "" : prev.audioUrl,
         audioKey: value !== "b2key" ? "" : prev.audioKey,
       }));
-
+      setIsDirty(true);
       return;
     }
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value ?? "",
-    }));
+    setForm((prev) => ({ ...prev, [name]: value ?? "" }));
+    setIsDirty(true);
   }
 
   async function handleSubmit() {
     setLoading(true);
-
     try {
-      const authHeader = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
       if (audioFile || imageFile) {
         const fd = new FormData();
-
         Object.entries(form).forEach(([k, v]) => {
-          if (v !== undefined && v !== null) {
-            fd.append(k, v);
-          }
+          if (v !== undefined && v !== null) fd.append(k, v);
         });
-
         if (audioFile) fd.append("audio", audioFile);
         if (imageFile) fd.append("image", imageFile);
-
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        if (isEdit) {
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        if (isEdit)
           await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
-        } else {
-          await axios.post(`${API_URL}/songs`, fd, config);
-        }
+        else await axios.post(`${API_URL}/songs`, fd, config);
       } else {
-        if (isEdit) {
+        if (isEdit)
           await axios.put(`${API_URL}/songs/${safeSong._id}`, form, authHeader);
-        } else {
-          await axios.post(`${API_URL}/songs`, form, authHeader);
-        }
+        else await axios.post(`${API_URL}/songs`, form, authHeader);
       }
 
-      showToast(isEdit ? "Update success!" : "Create success!", "success");
-
-      // Gọi onSaved để refresh data (có scroll restore bên ngoài)
+      showToast(isEdit ? "Đã lưu!" : "Đã tạo!", "success");
       onSaved();
-
-      onClose();
     } catch {
       showToast("Có lỗi!", "error");
     } finally {
@@ -238,232 +196,237 @@ function SongModal({ song, onClose, onSaved, token }) {
     }
   }
 
+  if (!song) {
+    return (
+      <div className="song-admin__detail-empty">
+        <div className="song-admin__detail-empty-icon">♪</div>
+        <span>Chọn bài hát để xem chi tiết</span>
+        <span style={{ fontSize: 11, marginTop: 2 }}>
+          hoặc nhấn New song để thêm mới
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="song-admin-overlay">
-      <div className="song-admin-modal">
-        <h2 className="song-admin-modal__title">
-          {isEdit ? "Edit Song" : "New Song"}
-        </h2>
+    <div className="song-admin__detail-form">
+      <div className="song-admin__detail-title">
+        {isEdit ? "Chi tiết bài hát" : "Thêm bài hát"}
+      </div>
 
-        <div className="song-input">
-          <div className="song-info">
-            <label className="song-admin__label">
-              Tên bài hát <span>*</span>
-            </label>
-
-            <input
-              className="song-admin__input"
-              name="title"
-              value={form.title || ""}
-              onChange={handleChange}
-            />
-
-            <label className="song-admin__label">
-              Nghệ sĩ <span>*</span>
-            </label>
-
-            <input
-              className="song-admin__input"
-              name="artist"
-              value={form.artist || ""}
-              onChange={handleChange}
-            />
-
-            <label className="song-admin__label">Album</label>
-
-            <input
-              className="song-admin__input"
-              name="album"
-              value={form.album || ""}
-              onChange={handleChange}
-            />
-
-            <label className="song-admin__label">
-              Thể loại <span>*</span>
-            </label>
-
-            <input
-              className="song-admin__input"
-              name="genre"
-              value={form.genre || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="song-src">
-            <label className="song-admin__label">Audio</label>
-
-            <div className="song-admin__radio-group">
-              <label>
-                <input
-                  type="radio"
-                  name="sourceType"
-                  value="b2key"
-                  checked={form.sourceType === "b2key"}
-                  onChange={handleChange}
-                />{" "}
-                B2 Key
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  name="sourceType"
-                  value="url"
-                  checked={form.sourceType === "url"}
-                  onChange={handleChange}
-                />{" "}
-                URL
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  name="sourceType"
-                  value="upload"
-                  checked={form.sourceType === "upload"}
-                  onChange={handleChange}
-                />{" "}
-                Upload
-              </label>
+      <div className="song-admin__detail-top">
+        <div className="song-admin__detail-image-col">
+          {imagePreview ? (
+            <div className="song-admin__preview-wrap">
+              <img
+                src={imagePreview}
+                alt="preview"
+                className="song-admin__preview"
+              />
+              <button
+                type="button"
+                className="song-admin__preview-remove"
+                onClick={() => {
+                  setImageFile(null);
+                  setImagePreview("");
+                  setForm((prev) => ({ ...prev, imageUrl: "" }));
+                }}
+              >
+                ×
+              </button>
             </div>
-
-            {form.sourceType === "b2key" && (
-              <input
-                className="song-admin__input song-admin__input--mt-sm"
-                name="audioKey"
-                value={form.audioKey || ""}
-                onChange={handleChange}
-                placeholder="new_song/abc123-song.mp3"
-              />
-            )}
-
-            {form.sourceType === "url" && (
-              <input
-                className="song-admin__input song-admin__input--mt-sm"
-                name="audioUrl"
-                value={form.audioUrl || ""}
-                onChange={handleChange}
-                placeholder="https://..."
-              />
-            )}
-
-            {form.sourceType === "upload" && (
-              <>
-                <label className="song-admin__file-picker">
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    hidden
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-
-                      setAudioFile(file);
-
-                      if (file) {
-                        setForm((prev) => ({
-                          ...prev,
-                          sourceType: "upload",
-                          audioUrl: "",
-                          audioKey: "",
-                        }));
-                      }
-                    }}
-                  />
-
-                  {audioFile ? "✓ Đã chọn tệp audio" : "Chưa chọn tệp audio"}
-                </label>
-
-                {audioFile && (
-                  <button
-                    type="button"
-                    className="song-admin__remove-file"
-                    onClick={() => setAudioFile(null)}
-                  >
-                    Xoá audio
-                  </button>
-                )}
-              </>
-            )}
-
-            <label className="song-admin__label">Ảnh bìa</label>
-
-            <input
-              className="song-admin__input"
-              name="imageUrl"
-              value={form.imageUrl || ""}
-              onChange={handleChange}
-              placeholder="https://..."
-            />
-
-            <label className="song-admin__file-picker">
+          ) : (
+            <label className="song-admin__preview-placeholder">
               <input
                 type="file"
                 accept="image/*"
                 hidden
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
-
                   setImageFile(file);
-
                   if (file) {
-                    setForm((prev) => ({
-                      ...prev,
-                      imageUrl: "",
-                    }));
+                    setForm((p) => ({ ...p, imageUrl: "" }));
+                    setIsDirty(true);
                   }
                 }}
               />
-
-              {imageFile ? "✓ Đã chọn ảnh" : "Chưa chọn ảnh"}
+              <span className="song-admin__preview-placeholder-icon">🖼️</span>
+              <span>Chọn ảnh</span>
             </label>
-
-            {imagePreview && (
-              <div className="song-admin__preview-wrap">
-                <img
-                  src={imagePreview}
-                  alt="preview"
-                  className="song-admin__preview"
-                />
-
-                <button
-                  type="button"
-                  className="song-admin__preview-remove"
-                  onClick={() => {
-                    setImageFile(null);
-                    setImagePreview("");
-
-                    setForm((prev) => ({
-                      ...prev,
-                      imageUrl: "",
-                    }));
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
-        <div className="song-admin-modal__footer">
-          <button
-            type="button"
-            className="song-admin__btn-cancel"
-            onClick={onClose}
-          >
-            Huỷ
-          </button>
+        <div className="song-admin__detail-fields-col">
+          <label className="song-admin__label" style={{ marginTop: 0 }}>
+            Tên bài hát <span>*</span>
+          </label>
+          <input
+            className="song-admin__input"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+          />
 
+          <label className="song-admin__label">
+            Nghệ sĩ <span>*</span>
+          </label>
+          <input
+            className="song-admin__input"
+            name="artist"
+            value={form.artist}
+            onChange={handleChange}
+          />
+
+          <label className="song-admin__label">Album</label>
+          <input
+            className="song-admin__input"
+            name="album"
+            value={form.album}
+            onChange={handleChange}
+          />
+
+          <label className="song-admin__label">
+            Thể loại <span>*</span>
+          </label>
+          <input
+            className="song-admin__input"
+            name="genre"
+            value={form.genre}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      <label className="song-admin__label">Audio</label>
+      <div className="song-admin__radio-group">
+        {["b2key", "url", "upload"].map((v) => (
+          <label key={v}>
+            <input
+              type="radio"
+              name="sourceType"
+              value={v}
+              checked={form.sourceType === v}
+              onChange={handleChange}
+            />
+            {v === "b2key" ? "B2 Key" : v === "url" ? "URL" : "Upload"}
+          </label>
+        ))}
+      </div>
+
+      {form.sourceType === "b2key" && (
+        <input
+          className="song-admin__input"
+          name="audioKey"
+          value={form.audioKey}
+          onChange={handleChange}
+          placeholder="new_song/abc123-song.mp3"
+          style={{ marginTop: 6 }}
+        />
+      )}
+      {form.sourceType === "url" && (
+        <input
+          className="song-admin__input"
+          name="audioUrl"
+          value={form.audioUrl}
+          onChange={handleChange}
+          placeholder="https://..."
+          style={{ marginTop: 6 }}
+        />
+      )}
+      {form.sourceType === "upload" && (
+        <>
+          <label className="song-admin__file-picker">
+            <input
+              type="file"
+              accept="audio/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setAudioFile(file);
+                if (file) {
+                  setForm((p) => ({
+                    ...p,
+                    sourceType: "upload",
+                    audioUrl: "",
+                    audioKey: "",
+                  }));
+                  setIsDirty(true);
+                }
+              }}
+            />
+            {audioFile ? "✓ Đã chọn tệp audio" : "Chưa chọn tệp audio"}
+          </label>
+          {audioFile && (
+            <button
+              type="button"
+              style={{
+                fontSize: 11,
+                color: "#dc2626",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                padding: "2px 0",
+              }}
+              onClick={() => setAudioFile(null)}
+            >
+              Xoá audio
+            </button>
+          )}
+        </>
+      )}
+
+      <label className="song-admin__label">Ảnh bìa (URL)</label>
+      <input
+        className="song-admin__input"
+        name="imageUrl"
+        value={form.imageUrl}
+        onChange={handleChange}
+        placeholder="https://..."
+      />
+
+      <label className="song-admin__file-picker" style={{ marginTop: 6 }}>
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setImageFile(file);
+            if (file) {
+              setForm((p) => ({ ...p, imageUrl: "" }));
+              setIsDirty(true);
+            }
+          }}
+        />
+        {imageFile ? "✓ Đã chọn ảnh" : "Chọn ảnh từ máy"}
+      </label>
+
+      <div className="song-admin__form-footer">
+        {isEdit && (
           <button
             type="button"
-            className="song-admin__btn-save"
-            onClick={handleSubmit}
-            disabled={loading}
+            className="song-admin__btn-del-song"
+            onClick={onDelete}
           >
-            {loading ? "Đang lưu..." : "Lưu"}
+            Xoá
           </button>
-        </div>
+        )}
+        <button
+          type="button"
+          className="song-admin__btn-cancel"
+          onClick={onClose}
+        >
+          Huỷ
+        </button>
+        <button
+          type="button"
+          className="song-admin__btn-save"
+          onClick={handleSubmit}
+          disabled={loading || !isDirty}
+        >
+          {loading ? "Đang lưu..." : "Lưu"}
+        </button>
       </div>
     </div>
   );
@@ -473,7 +436,7 @@ function Admin_Song() {
   const { token } = useAuth();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null);
+  const [activeSong, setActiveSong] = useState(null); // song shown in detail form
   const [selected, setSelected] = useState([]);
   const [confirm, setConfirm] = useState(null);
   const { showToast } = useToast();
@@ -483,11 +446,10 @@ function Admin_Song() {
   const [genreInput, setGenreInput] = useState("");
   const [showGenreDropdown, setShowGenreDropdown] = useState(false);
   const [missingFilter, setMissingFilter] = useState("");
+  const [page, setPage] = useState(1);
 
-  // Ref để track scroll position của table
   const tableRef = useRef(null);
 
-  // fetchSongs nhận optional callback gọi sau khi data đã được set
   function fetchSongs(onDone) {
     setLoading(true);
     axios
@@ -504,16 +466,21 @@ function Admin_Song() {
     fetchSongs();
   }, []);
 
-  // onSaved có scroll restore: lưu scrollTop trước fetch, restore sau
+  useEffect(() => {
+    setPage(1);
+  }, [search, genreFilter, sortBy, missingFilter]);
+
   function handleSaved() {
     const scrollTop = tableRef.current?.scrollTop ?? 0;
     fetchSongs(() => {
       requestAnimationFrame(() => {
-        if (tableRef.current) {
-          tableRef.current.scrollTop = scrollTop;
-        }
+        if (tableRef.current) tableRef.current.scrollTop = scrollTop;
       });
     });
+  }
+
+  function handleNewSong() {
+    setActiveSong({ ...emptyForm, _id: undefined });
   }
 
   function toggleSelect(id) {
@@ -527,21 +494,20 @@ function Admin_Song() {
   ].sort();
 
   const filteredSongs = songs.filter((song) => {
-    const keyword = search.toLowerCase();
+    const kw = search.toLowerCase();
     const matchSearch =
-      song.title?.toLowerCase().includes(keyword) ||
-      song.artist?.toLowerCase().includes(keyword);
-
+      song.title?.toLowerCase().includes(kw) ||
+      song.artist?.toLowerCase().includes(kw);
     const matchGenre =
       !genreFilter || splitGenres(song.genre).includes(genreFilter);
-
     const matchMissing =
       !missingFilter ||
       (missingFilter === "title" && !song.title?.trim()) ||
       (missingFilter === "genre" && !song.genre?.trim()) ||
       (missingFilter === "image" && !song.imageUrl?.trim()) ||
-      (missingFilter === "audio" && !song.audioUrl?.trim() && !song.audioKey?.trim());
-
+      (missingFilter === "audio" &&
+        !song.audioUrl?.trim() &&
+        !song.audioKey?.trim());
     return matchSearch && matchGenre && matchMissing;
   });
 
@@ -562,21 +528,30 @@ function Admin_Song() {
     }
   });
 
-  const visibleSongIds = sortedSongs.map((song) => song._id);
+  const PAGE_SIZE = 30;
+  const totalPages = Math.ceil(sortedSongs.length / PAGE_SIZE);
+  const pagedSongs = sortedSongs.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
 
+  const visibleSongIds = pagedSongs.map((s) => s._id);
   const allVisibleSelected =
     visibleSongIds.length > 0 &&
     visibleSongIds.every((id) => selected.includes(id));
 
   function toggleSelectAll() {
-    setSelected(allVisibleSelected ? [] : visibleSongIds);
+    setSelected((prev) =>
+      allVisibleSelected
+        ? prev.filter((id) => !visibleSongIds.includes(id))
+        : [...new Set([...prev, ...visibleSongIds])],
+    );
   }
 
-  async function handleDeleteSelected() {
-    const selectedCount = selected.length;
-
+  function handleDeleteSelected() {
+    const count = selected.length;
     setConfirm({
-      message: `Xoá ${selectedCount} bài hát?`,
+      message: `Xoá ${count} bài hát?`,
       onConfirm: async () => {
         setConfirm(null);
         try {
@@ -588,8 +563,29 @@ function Admin_Song() {
             ),
           );
           setSelected([]);
+          if (selected.includes(activeSong?._id)) setActiveSong(null);
           fetchSongs();
-          showToast(`Đã xoá ${selectedCount} bài hát`, "success");
+          showToast(`Đã xoá ${count} bài hát`, "success");
+        } catch {
+          alert("Có lỗi khi xoá");
+        }
+      },
+    });
+  }
+
+  function handleDeleteSingle() {
+    if (!activeSong?._id) return;
+    setConfirm({
+      message: `Xoá "${activeSong.title || "bài hát này"}"?`,
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await axios.delete(`${API_URL}/songs/${activeSong._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setActiveSong(null);
+          fetchSongs();
+          showToast("Đã xoá", "success");
         } catch {
           alert("Có lỗi khi xoá");
         }
@@ -611,7 +607,7 @@ function Admin_Song() {
       <button
         type="button"
         className="song-admin__btn-add"
-        onClick={() => setModal(emptyForm)}
+        onClick={handleNewSong}
       >
         New song
       </button>
@@ -620,205 +616,264 @@ function Admin_Song() {
 
   return (
     <AdminPage title="Quản lý bài hát" actions={headerActions}>
-      <div className="song-admin-meta">
-        Songs: <span>{songs.length}</span>
-      </div>
-      <div className="song-admin__filter-bar">
-        <input
-          type="text"
-          placeholder="Tìm tên bài hát/nghệ sĩ..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setSelected([]);
-          }}
-          className="song-admin__search-input"
-        />
+      <div className="song-admin__layout">
+        {/* ── Left panel ── */}
+        <div className="song-admin__left">
+          <div className="song-admin__meta">
+            Songs <span>{songs.length}</span>
+          </div>
 
-        <div className="song-admin__genre">
-          <input
-            type="text"
-            placeholder="Lọc thể loại..."
-            value={genreInput}
-            className="song-admin__search-input"
-            onChange={(e) => {
-              setGenreInput(e.target.value);
-              setGenreFilter(e.target.value.trim());
-              setSelected([]);
-              setShowGenreDropdown(true);
-            }}
-            onFocus={() => setShowGenreDropdown(true)}
-            onBlur={() => setTimeout(() => setShowGenreDropdown(false), 150)}
-          />
-          {showGenreDropdown && (
-            <ul className="song-admin__genre-suggestions">
-              {(genreInput.trim()
-                ? genres.filter((g) =>
-                    g.toLowerCase().includes(genreInput.toLowerCase()),
-                  )
-                : genres
-              ).map((g) => (
-                <li
-                  key={g}
-                  className="song-admin__genre-suggestion-item"
-                  onMouseDown={() => {
-                    setGenreFilter(g);
-                    setGenreInput(g);
-                    setSelected([]);
-                    setShowGenreDropdown(false);
-                  }}
-                >
-                  {g}
-                </li>
-              ))}
+          <div className="song-admin__filter">
+            <input
+              type="text"
+              placeholder="Tìm tên bài hát / nghệ sĩ..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setSelected([]);
+              }}
+              className="song-admin__search-input"
+            />
 
-              {genreInput.trim() && (
-                <li
-                  className="song-admin__genre-suggestion-item song-admin__genre-suggestion-item--clear"
-                  onMouseDown={() => {
-                    setGenreFilter("");
-                    setGenreInput("");
-                    setSelected([]);
-                    setShowGenreDropdown(false);
-                  }}
-                >
-                  Clear
-                </li>
+            <CustomSelect
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "newest", label: "Mới nhất" },
+                { value: "oldest", label: "Cũ nhất" },
+                { value: "name_asc", label: "A → Z" },
+                { value: "name_desc", label: "Z → A" },
+                { value: "plays_desc", label: "Lượt nghe" },
+              ]}
+            />
+
+            <CustomSelect
+              value={missingFilter}
+              onChange={(v) => {
+                setMissingFilter(v);
+                setSelected([]);
+              }}
+              options={[
+                { value: "", label: "Tất cả" },
+                { value: "title", label: "Thiếu tên" },
+                { value: "genre", label: "Thiếu thể loại" },
+                { value: "image", label: "Thiếu ảnh" },
+                { value: "audio", label: "Thiếu audio" },
+              ]}
+            />
+            <div className="song-admin__genre">
+              <input
+                type="text"
+                placeholder="Lọc thể loại..."
+                value={genreInput}
+                className="song-admin__sort-input"
+                onChange={(e) => {
+                  setGenreInput(e.target.value);
+                  setGenreFilter(e.target.value.trim());
+                  setSelected([]);
+                  setShowGenreDropdown(true);
+                }}
+                onFocus={() => setShowGenreDropdown(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowGenreDropdown(false), 150)
+                }
+              />
+              {showGenreDropdown && (
+                <ul className="song-admin__genre-suggestions">
+                  {(genreInput.trim()
+                    ? genres.filter((g) =>
+                        g.toLowerCase().includes(genreInput.toLowerCase()),
+                      )
+                    : genres
+                  ).map((g) => (
+                    <li
+                      key={g}
+                      className="song-admin__genre-suggestion-item"
+                      onMouseDown={() => {
+                        setGenreFilter(g);
+                        setGenreInput(g);
+                        setSelected([]);
+                        setShowGenreDropdown(false);
+                      }}
+                    >
+                      {g}
+                    </li>
+                  ))}
+                  {genreInput.trim() && (
+                    <li
+                      className="song-admin__genre-suggestion-item song-admin__genre-suggestion-item--clear"
+                      onMouseDown={() => {
+                        setGenreFilter("");
+                        setGenreInput("");
+                        setSelected([]);
+                        setShowGenreDropdown(false);
+                      }}
+                    >
+                      Clear
+                    </li>
+                  )}
+                </ul>
               )}
-            </ul>
+            </div>
+          </div>
+
+          {/* Inline detail / edit form */}
+          <DetailForm
+            key={activeSong?._id ?? "new-or-empty"}
+            song={activeSong}
+            token={token}
+            onSaved={() => {
+              handleSaved();
+              if (!activeSong?._id) setActiveSong(null);
+            }}
+            onClose={() => setActiveSong(null)}
+            onDelete={handleDeleteSingle}
+          />
+        </div>
+
+        {/* ── Right panel ── */}
+        <div className="song-admin__right">
+          {loading ? (
+            <p className="song-admin__loading">Đang tải...</p>
+          ) : (
+            <>
+              <div className="song-admin__table-shell">
+                <div className="song-admin__table-wrapper" ref={tableRef}>
+                  <table className="song-admin__table">
+                    <colgroup>
+                      <col className="song-admin__col-select" />
+                      <col className="song-admin__col-image" />
+                      <col className="song-admin__col-name" />
+                      <col className="song-admin__col-artist" />
+                      <col className="song-admin__col-genre" />
+                      <col className="song-admin__col-listen" />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th className="song-admin__th">
+                          <input
+                            type="checkbox"
+                            checked={allVisibleSelected}
+                            onChange={toggleSelectAll}
+                          />
+                        </th>
+                        <th className="song-admin__th">Ảnh</th>
+                        <th className="song-admin__th">Tên</th>
+                        <th className="song-admin__th">Nghệ sĩ</th>
+                        <th className="song-admin__th">Thể loại</th>
+                        <th className="song-admin__th">Nghe</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pagedSongs.length > 0 ? (
+                        pagedSongs.map((song) => (
+                          <tr
+                            key={song._id}
+                            className={[
+                              "song-admin__row",
+                              selected.includes(song._id)
+                                ? "song-admin__row--selected"
+                                : "",
+                              activeSong?._id === song._id
+                                ? "song-admin__row--active"
+                                : "",
+                            ].join(" ")}
+                            onClick={() =>
+                              setActiveSong({ ...emptyForm, ...song })
+                            }
+                          >
+                            <td className="song-admin__td">
+                              <input
+                                type="checkbox"
+                                checked={selected.includes(song._id)}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={() => toggleSelect(song._id)}
+                              />
+                            </td>
+                            <td className="song-admin__td">
+                              <img
+                                className="song-admin__thumb"
+                                src={
+                                  song.imageUrl || "https://picsum.photos/48"
+                                }
+                                alt={song.title}
+                              />
+                            </td>
+                            <td className="song-admin__td">{song.title}</td>
+                            <td className="song-admin__td">
+                              {splitArtists(song.artist).length > 0
+                                ? splitArtists(song.artist).map((a) => (
+                                    <span
+                                      key={a}
+                                      className="song-admin__artist-badge"
+                                    >
+                                      {a}
+                                    </span>
+                                  ))
+                                : "—"}
+                            </td>
+                            <td className="song-admin__td">
+                              {splitGenres(song.genre).length > 0
+                                ? splitGenres(song.genre).map((g) => (
+                                    <span
+                                      key={g}
+                                      className="song-admin__genre-badge"
+                                    >
+                                      {g}
+                                    </span>
+                                  ))
+                                : "—"}
+                            </td>
+                            <td className="song-admin__td td-listen">
+                              {song.plays}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="6" className="song-admin__empty">
+                            Không tìm thấy bài hát
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pagination">
+                  <button disabled={page === 1} onClick={() => setPage(1)}>
+                    ««
+                  </button>
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    ‹
+                  </button>
+                  <span className="pagination__info">
+                    Trang {page} / {totalPages}
+                  </span>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    ›
+                  </button>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(totalPages)}
+                  >
+                    »»
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
-
-        <CustomSelect
-          value={sortBy}
-          onChange={setSortBy}
-          options={[
-            { value: "newest", label: "Mới" },
-            { value: "oldest", label: "Cũ" },
-            { value: "name_asc", label: "A→Z" },
-            { value: "name_desc", label: "Z→A" },
-            { value: "plays_desc", label: "Lượt nghe" },
-          ]}
-        />
-
-        <CustomSelect
-          value={missingFilter}
-          onChange={(value) => {
-            setMissingFilter(value);
-            setSelected([]);
-          }}
-          options={[
-            { value: "", label: "Tất cả" },
-            { value: "title", label: "⚠ Thiếu tên" },
-            { value: "genre", label: "⚠ Thiếu thể loại" },
-            { value: "image", label: "⚠ Thiếu ảnh" },
-            { value: "audio", label: "⚠ Thiếu audio" },
-          ]}
-        />
       </div>
 
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : (
-        <div className="song-admin__table-wrapper" ref={tableRef}>
-          <table className="song-admin__table">
-            <colgroup>
-              <col className="song-admin__col-select" />
-              <col className="song-admin__col-image" />
-              <col className="song-admin__col-name" />
-              <col className="song-admin__col-artist" />
-              <col className="song-admin__col-genre" />
-              <col className="song-admin__col-listen" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className="song-admin__th">
-                  <input
-                    type="checkbox"
-                    checked={allVisibleSelected}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th className="song-admin__th">Ảnh</th>
-                <th className="song-admin__th">Name</th>
-                <th className="song-admin__th">Artist</th>
-                <th className="song-admin__th">Genre</th>
-                <th className="song-admin__th">Listens</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedSongs.length > 0 ? (
-                sortedSongs.map((song) => (
-                  <tr
-                    key={song._id}
-                    className={`song-admin__row ${
-                      selected.includes(song._id)
-                        ? "song-admin__row--selected"
-                        : ""
-                    }`}
-                    onClick={() => setModal({ ...emptyForm, ...song })}
-                  >
-                    <td className="song-admin__td td-box">
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(song._id)}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() => toggleSelect(song._id)}
-                      />
-                    </td>
-
-                    <td className="song-admin__td ">
-                      <img
-                        className="song-admin__thumb"
-                        src={song.imageUrl || "https://picsum.photos/48"}
-                        alt={song.title}
-                      />
-                    </td>
-
-                    <td className="song-admin__td td-title">{song.title}</td>
-                    <td className="song-admin__td td-artist ">
-                      {splitArtists(song.artist).length > 0
-                        ? splitArtists(song.artist).map((a) => (
-                            <span key={a} className="song-admin__artist-badge">
-                              {a}
-                            </span>
-                          ))
-                        : "—"}
-                    </td>
-
-                    <td className="song-admin__td td-genre">
-                      {splitGenres(song.genre).length > 0
-                        ? splitGenres(song.genre).map((g) => (
-                            <span key={g} className="song-admin__genre-badge">
-                              {g}
-                            </span>
-                          ))
-                        : "—"}
-                    </td>
-                    <td className="song-admin__td td-listen">{song.plays}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="song-admin__empty">
-                    Không tìm thấy bài hát
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {modal && (
-        <SongModal
-          key={modal?._id || "new-song"}
-          song={modal}
-          token={token}
-          onClose={() => setModal(null)}
-          onSaved={handleSaved}
-        />
-      )}
       {confirm && (
         <ConfirmModal
           message={confirm.message}

@@ -178,7 +178,7 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
     releaseYear: "",
     description: "",
   });
-  const [coverMode, setCoverMode] = useState("url"); // "url" | "file"
+  const [coverMode, setCoverMode] = useState("url");
   const [coverFile, setCoverFile] = useState(null);
   const [coverUrl, setCoverUrl] = useState("");
   const [preview, setPreview] = useState("");
@@ -224,19 +224,17 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <form
+        id="album-form"
+        className="modal"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
         <div className="modal__header">
           <h3>New Album</h3>
-          <div className="modal__footer">
-            <button type="button" onClick={onClose}>
-              Hủy
-            </button>
-            <button type="submit" disabled={loading}>
-              {loading ? "Đang tạo..." : "Tạo album"}
-            </button>
-          </div>
         </div>
-        <form className="modal__body" onSubmit={handleSubmit}>
+
+        <div className="modal__body">
           <div className="form-group">
             <label>Tên album *</label>
             <input
@@ -313,8 +311,18 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
               />
             )}
           </div>
-        </form>
-      </div>
+        </div>
+
+        {/* Footer nằm TRONG form — submit hoạt động đúng */}
+        <div className="modal__footer">
+          <button type="button" onClick={onClose}>
+            Hủy
+          </button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang tạo..." : "Tạo album"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -560,7 +568,6 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                 placeholder="https://..."
               />
             </div>
-
           </form>
         )}
       </div>
@@ -863,7 +870,7 @@ const ArtistCard = memo(function ArtistCard({
   );
 });
 
-export default function ArtistManagement() {
+export default function Admin_Artist() {
   const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState("list");
@@ -904,6 +911,32 @@ export default function ArtistManagement() {
       artist.country?.toLowerCase().includes(q)
     );
   });
+  const visibleArtistIds = filteredArtists.map((a) => a._id);
+  const allVisibleSelected =
+    visibleArtistIds.length > 0 &&
+    visibleArtistIds.every((id) => selectedIds.includes(id));
+
+  function toggleSelectAll() {
+    setSelectedIds(allVisibleSelected ? [] : visibleArtistIds);
+  }
+  const handleDeleteSelected = () => {
+    setConfirm({
+      message: `Xóa ${selectedIds.length} nghệ sĩ?`,
+      onConfirm: async () => {
+        setConfirm(null);
+        try {
+          await Promise.all(selectedIds.map((id) => artistService.delete(id)));
+          setArtists((prev) =>
+            prev.filter((a) => !selectedIds.includes(a._id)),
+          );
+          setSelectedIds([]);
+          showToast(`Đã xóa ${selectedIds.length} nghệ sĩ`, "success");
+        } catch {
+          showToast("Xóa thất bại", "error");
+        }
+      },
+    });
+  };
 
   const handleDelete = (id) => {
     setConfirm({
@@ -936,13 +969,13 @@ export default function ArtistManagement() {
     setShowForm(true);
   };
   function toggleSelect(id) {
-  setSelectedIds((prev) =>
-    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-  );
-}
-const allSelected =
-  filteredArtists.length > 0 &&
-  filteredArtists.every((a) => selectedIds.includes(a._id));
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  }
+  const allSelected =
+    filteredArtists.length > 0 &&
+    filteredArtists.every((a) => selectedIds.includes(a._id));
 
   if (view === "detail") {
     return (
@@ -992,52 +1025,151 @@ const allSelected =
     <div className="artist-management">
       <div className="artist-management__header">
         <h2>Quản lý nghệ sĩ</h2>
-        <button className="artist-management-btn" onClick={openCreate}>
-          New Artist
-        </button>
+        <div className="artist-management__header-actions">
+          {selectedIds.length > 0 && (
+            <button
+              className="artist-management-btn artist-management-btn--danger"
+              onClick={handleDeleteSelected}
+            >
+              Delete ({selectedIds.length})
+            </button>
+          )}
+          <button className="artist-management-btn" onClick={openCreate}>
+            New Artist
+          </button>
+        </div>
       </div>
 
-      <div className="artist-management__search">
-        <input
-          type="text"
-          placeholder="Tìm kiếm tên/quốc gia..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="artist-search-input"
-        />
-        {searchQuery && (
-          <button
-            className="artist-search-clear"
-            onClick={() => setSearchQuery("")}
-          >
-            ✕
-          </button>
-        )}
+      <div className="artist-admin-meta">
+        Artists <span>{artists.length}</span>
+      </div>
+
+      <div className="artist-admin__filter-bar">
+        <div style={{ position: "relative", flex: 1 }}>
+          <input
+            type="text"
+            placeholder="Tìm kiếm tên / quốc gia..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSelectedIds([]);
+            }}
+            className="artist-admin__search-input"
+          />
+          {searchQuery && (
+            <button
+              className="artist-search-clear"
+              onClick={() => setSearchQuery("")}
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (
         <p>Đang tải...</p>
       ) : (
-        <div className="artist-list">
-          {filteredArtists.map((artist) => (
-            <ArtistCard
-              key={artist._id}
-              artist={artist}
-              onView={() => {
-                setSelected(artist);
-                setView("detail");
-              }}
-              onEdit={() => openEdit(artist)}
-              onDelete={() => handleDelete(artist._id)}
-            />
-          ))}
-          {filteredArtists.length === 0 && (
-            <p>
-              {searchQuery
-                ? `Không có Artists "${searchQuery}".`
-                : "Chưa có nghệ sĩ."}
-            </p>
-          )}
+        <div className="artist-admin__table-wrapper">
+          <table className="artist-admin__table">
+            <colgroup>
+              <col className="artist-admin__col-select" />
+              <col className="artist-admin__col-image" />
+              <col className="artist-admin__col-name" />
+              <col className="artist-admin__col-country" />
+              <col className="artist-admin__col-stat" />
+              <col className="artist-admin__col-actions" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className="artist-admin__th">
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
+                <th className="artist-admin__th">Ảnh</th>
+                <th className="artist-admin__th">Tên</th>
+                <th className="artist-admin__th">Quốc gia</th>
+                <th className="artist-admin__th">Thống kê</th>
+                <th className="artist-admin__th">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredArtists.length > 0 ? (
+                filteredArtists.map((artist) => (
+                  <tr
+                    key={artist._id}
+                    className={`artist-admin__row ${selectedIds.includes(artist._id) ? "artist-admin__row--selected" : ""}`}
+                    onClick={() => {
+                      setSelected(artist);
+                      setView("detail");
+                    }}
+                  >
+                    <td
+                      className="artist-admin__td"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(artist._id)}
+                        onChange={() => toggleSelect(artist._id)}
+                      />
+                    </td>
+                    <td className="artist-admin__td">
+                      <img
+                        src={artist.avatar || "/default-artist.png"}
+                        alt={artist.name}
+                        className="artist-admin__thumb"
+                      />
+                    </td>
+                    <td className="artist-admin__td artist-admin__td--name">
+                      {artist.name}
+                    </td>
+                    <td className="artist-admin__td">
+                      {artist.country || "—"}
+                    </td>
+                    <td className="artist-admin__td">
+                      <span className="artist-admin__badge">
+                        {artist.songs?.length || 0} bài
+                      </span>
+                      <span className="artist-admin__badge">
+                        {artist.albums?.length || 0} album
+                      </span>
+                    </td>
+                    <td
+                      className="artist-admin__td"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="artist-admin__actions">
+                        <button
+                          className="artist-admin__btn-edit"
+                          onClick={() => openEdit(artist)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          className="artist-admin__btn-del btn--danger"
+                          onClick={() => handleDelete(artist._id)}
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="artist-admin__empty">
+                    {searchQuery
+                      ? `Không có Artists "${searchQuery}".`
+                      : "Chưa có nghệ sĩ."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -1055,7 +1187,6 @@ const allSelected =
           >
             <div className="modal__header">
               <h3>{selected ? "Sửa nghệ sĩ" : "Thêm nghệ sĩ mới"}</h3>
-              
             </div>
             <div className="modal__body">
               <ArtistForm

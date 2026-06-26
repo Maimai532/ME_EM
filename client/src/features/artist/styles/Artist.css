@@ -1,11 +1,8 @@
 .artist {
   display: flex;
   justify-content: space-between;
-  background-color: rgba(245, 245, 220, 0.104);
-  height: calc(100vh - 65px);
+  height: 100%;
 }
-
-/* ===== LOADING / ERROR ===== */
 
 .artist__loading {
   display: flex;
@@ -21,7 +18,7 @@
 .artist__header {
   gap: 2px;
   width: 30%;
-  height: 60%;
+  height: 400px;
   /* border-radius: 20px; */
   position: relative;
   overflow: hidden;
@@ -33,7 +30,6 @@
 
 .artist__avatar {
   width: 100%;
-  /* width: 400px; */
   height: 100%;
   /* border-radius: 10px; */
   object-fit: cover;
@@ -123,18 +119,16 @@
   flex-direction: column;
   width: 60%;
   height: calc(100vh - 65px);
-  background-color: rgba(137, 43, 226, 0.144);
 }
+
 .artist__song {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 350px;
+  height: 400px;
   overflow-x: hidden;
   scrollbar-width: none;
 }
-
-/* ===== ITEM ===== */
 
 .artist__item {
   display: flex;

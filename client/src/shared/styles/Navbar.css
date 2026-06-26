@@ -7,7 +7,6 @@
   width: 100%;
   height: 60px;
   padding: 10px 20px;
-  /* background-color: #000000; */
   gap: 5px;
   display: flex;
   align-items: center;
@@ -17,6 +16,7 @@
   -webkit-backdrop-filter: blur(12px);/* tương thíhc cho safari */
   transition: background 0.3s ease;
 }
+
 .navbar--player-open {
   background: #000 !important;
 }
@@ -51,17 +51,24 @@
 
 .navbar-input {
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 30px;
   outline: none;
   font-size: 14px;
   width: 450px;
-  border: none;
+  color: #fff;
+  border: 1px rgba(255, 255, 255, 0.602) solid;
+  background:transparent;
+}
+.navbar-input placeholder {
+  color: #fff;
+
 }
 
 .navbar-actions {
   display: flex;
   gap: 12px;
   align-items: center;
+  background:transparent;
 }
 
 .navbar-btn {
@@ -79,15 +86,11 @@
 }
 
 /* index.css */
-
-
 /* Search wrapper — cần position relative để dropdown hiện đúng chỗ */
 .navbar-search {
   position: relative;
 }
 
-
-/* Ảnh bìa */
 .search-item img {
   width: 42px;
   height: 42px;
@@ -96,7 +99,6 @@
   flex-shrink: 0;
 }
 
-/* Tên bài hát */
 .search-item__title {
   font-size: 14px;
   font-weight: 500;
@@ -104,7 +106,6 @@
   margin: 0;
 }
 
-/* Tên nghệ sĩ */
 .search-item__artist {
   font-size: 12px;
   color: var(--text-secondary);
@@ -112,13 +113,11 @@
   margin-top: 2px;
 }
 
-/* Đang tìm kiếm */
 .search-loading {
   padding: 10px 14px;
   font-size: 13px;
   color: var(--text-secondary);
 }
-
 
 @keyframes dropdownFade {
   from { opacity: 0; transform: translateY(-4px); }
