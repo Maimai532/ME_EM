@@ -1,6 +1,8 @@
+import "../styles/Playlist.css";
+
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Play, Trash2 } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Play, Trash2, ArrowLeft, Music } from "lucide-react";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { usePlaylist } from "../context/PlaylistContext";
 import * as playlistService from "../services/playlistService";
@@ -10,93 +12,160 @@ export default function Playlist() {
   const { playSong } = usePlayer();
   const { removeSong } = usePlaylist();
   const [playlist, setPlaylist] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetch() {
+    async function fetchData() {
       try {
         const res = await playlistService.getPlaylistById(id);
-        setPlaylist(res.data?.data ?? res.data);
+        const data = res.data?.data ?? res.data;
+        setPlaylist(data);
+
       } finally {
         setLoading(false);
       }
     }
-    fetch();
+    fetchData();
   }, [id]);
 
-  if (loading) return <p style={{ padding: 32, color: "#fff" }}>Đang tải...</p>;
-  if (!playlist) return <p style={{ padding: 32, color: "#fff" }}>Không tìm thấy playlist</p>;
+  if (loading)
+    return <p style={{ padding: 32, color: "#fff" }}>Đang tải...</p>;
+  if (!playlist)
+    return (
+      <p style={{ padding: 32, color: "#fff" }}>Không tìm thấy playlist</p>
+    );
 
   const songs = playlist.songs ?? [];
 
   return (
-    <div style={{ padding: "32px 24px", maxWidth: 800 }}>
-      <h1 style={{ color: "#fff", fontSize: 24, fontWeight: 700, marginBottom: 24 }}>
-        {playlist.name}
-      </h1>
+    <div className="playlist-page">
+      <button className="playlist__back" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        Back
+      </button>
 
-      {songs.length === 0 ? (
-        <p style={{ color: "rgba(255,255,255,0.4)" }}>Playlist chưa có bài nào.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {songs.map((song, index) => (
-            <div
-              key={song._id}
-              onClick={() => playSong(song, songs)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "10px 12px",
-                borderRadius: 8,
-                cursor: "pointer",
-                background: "rgba(255,255,255,0.04)",
-                transition: "background 0.15s",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.09)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-            >
-              <span style={{ color: "rgba(255,255,255,0.3)", width: 20, fontSize: 13 }}>
-                {index + 1}
-              </span>
-              <img
-                src={song.imageUrl || "/placeholder.jpg"}
-                alt={song.title}
-                style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover" }}
-              />
-              <div style={{ flex: 1 }}>
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 600, margin: 0 }}>
-                  {song.title}
-                </p>
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, margin: 0 }}>
-                  {song.artist}
-                </p>
-              </div>
-              <Play size={16} style={{ color: "rgba(255,255,255,0.4)" }} />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeSong(id, song._id);
-                  setPlaylist((prev) => ({
-                    ...prev,
-                    songs: prev.songs.filter((s) => s._id !== song._id),
-                  }));
-                }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.3)",
-                  cursor: "pointer",
-                  padding: 4,
-                  borderRadius: "50%",
-                  display: "flex",
-                }}
-                title="Xoá khỏi playlist"
-              >
-                <Trash2 size={15} />
-              </button>
+      <div className="playlist__hero">
+        <div className="playlist__hero-info">
+          {/* {playlist.imageUrl ? (
+            <img
+              src={playlist.imageUrl}
+              alt={playlist.name}
+              className="playlist__avatar"
+            />
+          ) : (
+            <div className="playlist__avatar-placeholder">
+              <Music size={36} />
             </div>
-          ))}
+          )} */}
+
+          <div className="playlist__text">
+            <h1 className="playlist__name">{playlist.name}</h1>
+            {playlist.description && (
+              <p className="playlist__meta">{playlist.description}</p>
+            )}
+            <p className="playlist__meta" style={{ marginTop: 6 }}>
+              {songs.length} bài hát
+            </p>
+            {songs.length > 0 && (
+              <button
+                className="playlist__play-all"
+                onClick={() => playSong(songs[0], songs)}
+              >
+                <Play size={16} fill="currentColor" />
+                Phát tất cả
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="playlist__hero-songs">
+          {songs.length === 0 ? (
+            <p className="playlist__empty">Playlist chưa có bài nào.</p>
+          ) : (
+            <div className="song-list">
+              {songs.map((song, index) => (
+                <div
+                  key={song._id}
+                  className="song-row"
+                  onClick={() => playSong(song, songs)}
+                >
+                  <div className="song-row__index-wrap">
+                    <span className="song-row__index">{index + 1}</span>
+                    <span className="song-row__play">
+                      <Play size={12} fill="currentColor" />
+                    </span>
+                  </div>
+
+                  <img
+                    src={song.imageUrl || "/placeholder.jpg"}
+                    alt={song.title}
+                    className="song-row__thumb"
+                  />
+
+                  <div className="song-row__info">
+                    <p className="song-row__title">{song.title}</p>
+                    <p className="song-row__artist">{song.artist}</p>
+                  </div>
+
+                  <button
+                    className="song-row__remove"
+                    title="Xoá khỏi playlist"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSong(id, song._id);
+                      setPlaylist((prev) => ({
+                        ...prev,
+                        songs: prev.songs.filter((s) => s._id !== song._id),
+                      }));
+                    }}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ══ GỢI Ý THÊM VÀO ══ */}
+      {suggestions.length > 0 && (
+        <div className="suggestions">
+          <div className="suggestions__header">
+            <h2 className="suggestions__title">
+              Gợi ý ({suggestions.length})
+            </h2>
+          </div>
+
+          <div className="suggestions__list">
+            {suggestions.map((song) => (
+              <div key={song._id} className="suggestion-row">
+                <img
+                  src={song.imageUrl || "/placeholder.jpg"}
+                  alt={song.title}
+                  className="suggestion-row__thumb"
+                />
+
+                <div className="suggestion-row__info">
+                  <p className="suggestion-row__title">{song.title}</p>
+                  <p className="suggestion-row__artist">{song.artist}</p>
+                </div>
+
+                <button
+                  className="suggestion-row__add"
+                  title="Thêm vào playlist"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // TODO: addSong(id, song._id)
+                  }}
+                >
+                  + Thêm
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

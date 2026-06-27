@@ -13,10 +13,10 @@ function Sidebar({ isOpen }) {
           <img src="/library.png" alt="Library" className="sidebar__icon" />
           Library
         </Link>
-        <Link to="/favorite" className="sidebar__link">
+        {/* <Link to="/favorite" className="sidebar__link">
           <img src="/favorite.png" alt="Favorite" className="sidebar__icon" />
           Favorite
-        </Link>
+        </Link> */}
         <Link to="/history" className="sidebar__link">
           <img src="/history.png" alt="History" className="sidebar__icon" />
           History

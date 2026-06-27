@@ -5,7 +5,7 @@
   right: 0;
   z-index: 1000;
   width: 100%;
-  height: 60px;
+  height: 45px;
   padding: 10px 20px;
   gap: 5px;
   display: flex;
@@ -51,24 +51,28 @@
 
 .navbar-input {
   padding: 8px 12px;
-  border-radius: 30px;
+  border-radius: 8px;
   outline: none;
   font-size: 14px;
-  width: 450px;
+  width: 300px;
+  height: 30px;
   color: #fff;
-  border: 1px rgba(255, 255, 255, 0.602) solid;
-  background:transparent;
+  border: 1px rgba(146, 146, 146, 0.602) solid;
+  background: transparent;
 }
-.navbar-input placeholder {
-  color: #fff;
+.navbar-input::placeholder {
+  color: #5e5e5e;
 
+}
+.navbar-input:focus {
+  background: transparent;
 }
 
 .navbar-actions {
   display: flex;
   gap: 12px;
   align-items: center;
-  background:transparent;
+  /* background:transparent; */
 }
 
 .navbar-btn {
@@ -85,8 +89,6 @@
   background-color: #438aa87c;
 }
 
-/* index.css */
-/* Search wrapper — cần position relative để dropdown hiện đúng chỗ */
 .navbar-search {
   position: relative;
 }
@@ -151,6 +153,131 @@
   margin: 0;
 }
 
+
+
+
+/* Avatar button */
+.user-menu-wrapper {
+  position: relative;
+}
+
+.user-avatar-btn {
+  /* width: 35px;
+  height: 35px; */
+  border-radius: 9999px;
+  border: 1px solid #68c6ed;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar-fallback {
+  width: 35px;
+  height: 35px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #68c6ed, #2a7fa8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.user-avatar-fallback--lg {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.user-avatar-img--lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+/* avata Dropdown */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -1px;
+  width: 180px;
+  background: rgba(15, 15, 15, 0.92);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 3000;
+  animation: dropdownFade 0.15s ease;
+}
+
+.user-dropdown__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+
+.user-dropdown__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.user-dropdown__email {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.user-dropdown__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.user-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.user-dropdown__item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.user-dropdown__item--danger {
+  color: #ff6b6b;
+}
+
+.user-dropdown__item--danger:hover {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff4444;
+}
+
 /* Lịch sử */
 .search-dropdown__history-item {
   display: flex;
@@ -207,17 +334,13 @@
   top: calc(100% + 2px);
   left: 0;
   right: 0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   overflow-y: auto;
   max-height: 500px;
-  z-index: 200;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  z-index: 2000;
   animation: dropdownFade 0.15s ease;
-
-  background: rgba(20, 20, 35, 0.75); 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px); 
+  background: rgb(30, 30, 30);
+  transition: background 0.3s ease;
 
   scrollbar-width: none;      
   -ms-overflow-style: none;    

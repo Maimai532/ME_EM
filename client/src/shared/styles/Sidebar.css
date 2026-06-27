@@ -10,14 +10,12 @@
     transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
-  top: 60px;
+  top: 45px;
   left: 0;
-  width: 100px;
+  width: 120px;
   height: calc(100vh - 60px);
   color: white;
   padding: 10px;
-  /* margin-right: 20px; */
-  
 }
 
 /* .sidebar--closed {

@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePlaylist } from "../context/PlaylistContext";
 import "../styles/Library.css";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { Plus, Trash2, ListMusic } from "lucide-react";
+import ConfirmModal from "../../../shared/components/ui/ConfirmModal";
 
 export default function Library() {
   const { playlists, fetchPlaylists, createPlaylist, deletePlaylist } =
@@ -12,7 +13,8 @@ export default function Library() {
   const navigate = useNavigate();
   const { likedSongs, fetchLikedSongs } = useAuth();
   const { playSong } = usePlayer();
-
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   useEffect(() => {
     fetchPlaylists();
     fetchLikedSongs();
@@ -22,10 +24,16 @@ export default function Library() {
     const name = prompt("Tên playlist:");
     if (name?.trim()) await createPlaylist(name.trim());
   }
+  const handleConfirmDelete = async () => {
+    if (selectedPlaylistId) {
+      await deletePlaylist(selectedPlaylistId);
+      setSelectedPlaylistId(null);
+    }
+    setShowDeleteModal(false);
+  };
 
   return (
     <div className="library">
-      {/* === YÊU THÍCH — dạng playlist card === */}
       <div className="library__header" style={{ marginBottom: 12 }}>
         <h2 className="library__title" style={{ fontSize: 18 }}>
           Playlist của bạn
@@ -36,7 +44,6 @@ export default function Library() {
       </div>
 
       <div className="library__grid" style={{ marginBottom: 40 }}>
-        {/* Card yêu thích */}
         <div
           key="liked"
           className="library__card library__card--liked"
@@ -47,15 +54,13 @@ export default function Library() {
             style={{
               background: "linear-gradient(135deg, #ff5c8a33, #ff5c8a11)",
             }}
-          >
-          </div>
+          ></div>
           <div className="library__card-info">
             <p className="library__card-name">Bài hát yêu thích</p>
             <p className="library__card-count">{likedSongs.length} bài</p>
           </div>
         </div>
 
-        {/* Các playlist bình thường */}
         {playlists.map((pl) => (
           <div
             key={pl._id}
@@ -64,11 +69,18 @@ export default function Library() {
           >
             <div className="library__card-cover">
               {pl.songs?.[0]?.imageUrl ? (
-                <img src={pl.songs[0].imageUrl} alt={pl.name} />
+                <div className="library__stack">
+                  <img
+                    className="library__stack-img"
+                    src={pl.songs[0].imageUrl}
+                    alt={pl.name}
+                  />
+                </div>
               ) : (
                 <ListMusic size={32} opacity={0.4} />
               )}
             </div>
+
             <div className="library__card-info">
               <p className="library__card-name">{pl.name}</p>
               <p className="library__card-count">{pl.songs?.length ?? 0} bài</p>
@@ -77,7 +89,8 @@ export default function Library() {
               className="library__card-delete"
               onClick={(e) => {
                 e.stopPropagation();
-                deletePlaylist(pl._id);
+                setSelectedPlaylistId(pl._id);
+                setShowDeleteModal(true);
               }}
               title="Xoá playlist"
             >
@@ -86,6 +99,18 @@ export default function Library() {
           </div>
         ))}
       </div>
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        // title="Đăng xuất ?"
+        message="Bạn có chắc muốn xoá playlist này không ?"
+        cancel="Huỷ"
+        confirm="Xoá"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedPlaylistId(null);
+        }}
+      />
     </div>
   );
 }

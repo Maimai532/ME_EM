@@ -1,8 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { Input, Button, Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Clock, X } from "lucide-react";
+import { Clock, X, Search } from "lucide-react";
 
 import { useAuth } from "../../../features/auth/context/AuthContext";
 import { usePlayer } from "../../../features/player/context/PlayerContext";
@@ -32,7 +31,7 @@ function saveToHistory(query) {
 
 function Navbar({ isOpen, setIsOpen }) {
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
   const { stopPlayer, playSong } = usePlayer();
 
   const [query, setQuery] = useState("");
@@ -41,6 +40,8 @@ function Navbar({ isOpen, setIsOpen }) {
   const [history, setHistory] = useState(getHistory());
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
   const wrapperRef = useRef(null);
   const { isMusicPlayerVisible } = usePlayer();
 
@@ -54,6 +55,15 @@ function Navbar({ isOpen, setIsOpen }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const handleSearch = async (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -114,7 +124,9 @@ function Navbar({ isOpen, setIsOpen }) {
   const isDropdownOpen = showDropdown && (showHistory || showResults);
 
   return (
-    <nav className={`navbar ${isMusicPlayerVisible ? "navbar--player-open" : ""}`}>
+    <nav
+      className={`navbar ${isMusicPlayerVisible ? "navbar--player-open" : ""}`}
+    >
       <div className="navbar-brand">
         <img
           src="/logo2.png"
@@ -124,8 +136,11 @@ function Navbar({ isOpen, setIsOpen }) {
         />
       </div>
 
-      <nav className="navbar-search" ref={wrapperRef}>
-        <Input
+
+
+      <div className="navbar-actions">
+              <nav className="navbar-search" ref={wrapperRef}>
+        <input
           type="search"
           placeholder="Search..."
           className="navbar-input"
@@ -205,14 +220,73 @@ function Navbar({ isOpen, setIsOpen }) {
           </div>
         )}
       </nav>
-
-      <div className="navbar-actions">
         {isLoggedIn ? (
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Button>
-              You <DownOutlined />
-            </Button>
-          </Dropdown>
+          <div className="user-menu-wrapper" ref={userMenuRef}>
+            <button
+              className="user-avatar-btn"
+              onClick={() => setShowUserMenu((v) => !v)}
+            >
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.username}
+                  className="user-avatar-img"
+                />
+              ) : (
+                <span className="user-avatar-fallback">
+                  {user?.username?.[0]?.toUpperCase() ?? "U"}
+                </span>
+              )}
+            </button>
+
+            {showUserMenu && (
+              <div className="user-dropdown">
+                <div className="user-dropdown__header">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.username}
+                      className="user-avatar-img user-avatar-img--lg"
+                    />
+                  ) : (
+                    <div className="user-avatar-fallback user-avatar-fallback--lg">
+                      {user?.username?.[0]?.toUpperCase() ?? "U"}
+                    </div>
+                  )}
+                  <div>
+                    <p className="user-dropdown__name">{user?.username}</p>
+                    <p className="user-dropdown__email">{user?.email}</p>
+                  </div>
+                </div>
+
+                <div className="user-dropdown__divider" />
+                <Link
+                  to="/profile"
+                  className="user-dropdown__item"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/settings"
+                  className="user-dropdown__item"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  Settings
+                </Link>
+                <div className="user-dropdown__divider" />
+                <button
+                  className="user-dropdown__item user-dropdown__item--danger"
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    setShowLogoutModal(true);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <button className="navbar-btn" onClick={() => navigate("/login")}>
@@ -227,10 +301,13 @@ function Navbar({ isOpen, setIsOpen }) {
           </>
         )}
       </div>
+
       <ConfirmModal
         isOpen={showLogoutModal}
         title="Đăng xuất ?"
         message="Bạn có chắc muốn đăng xuất không ?"
+        cancel = "Huỷ"
+        confirm = "Đăng xuất"
         onConfirm={handleLogout}
         onCancel={() => setShowLogoutModal(false)}
       />

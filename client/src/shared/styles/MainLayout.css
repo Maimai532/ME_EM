@@ -1,8 +1,8 @@
 /* MainLayout.css */
 .main-layout__content {
-  margin-top: 60px;
-  margin-left: 100px;
-  padding: 20px;
+  margin-top: 45px;
+  margin-left: 120px;
+  padding: 15px;
   background-color: #0F0F0F;
 }
 
@@ -13,7 +13,7 @@
 
 .music-player-overlay {
   position: fixed;
-  top: 60px;       
+  top: 45px;       
   left: 120px;      
   right: 0;
   bottom: 0;    

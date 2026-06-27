@@ -35,8 +35,8 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
-          {/* <Route path="/library" element={<Library />} /> */}
-          <Route path="/favorite" element={<Library />} />
+          <Route path="/library" element={<Library />} />
+          {/* <Route path="/favorite" element={<Library />} /> */}
           <Route path="/settings" element={<Profile />} />
           <Route path="/search" element={<Search />} />
           <Route path="/history" element={<History />} />

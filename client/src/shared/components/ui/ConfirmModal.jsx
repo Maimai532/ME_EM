@@ -1,6 +1,6 @@
 import "../../styles/ConfirmModal.css";
 
-const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
+const ConfirmModal = ({ isOpen, title, message, cancel, confirm, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
@@ -9,8 +9,8 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
         <h3 className="modal-title">{title}</h3>
         <p className="modal-message">{message}</p>
         <div className="modal-actions">
-          <button className="btn-cancel" onClick={onCancel}>Huỷ</button>
-          <button className="btn-confirm" onClick={onConfirm}>Đăng xuất</button>
+          <button className="btn-cancel" onClick={onCancel}>{cancel}</button>
+          <button className="btn-confirm" onClick={onConfirm}>{confirm}</button>
         </div>
       </div>
     </div>
