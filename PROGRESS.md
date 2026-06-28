@@ -35,13 +35,14 @@
 * profile
 * Migration cloudinary -> B2
 * Frontend stream từ B2
+* User đc tạo libary, likesong
+* Gợi ý bài hát tìm kiếm = api grop
 
 
 ## Đang tập trung
 * JavaScript cơ bản
 * UI layout
 * DOM manipulation
-* Music player bằng JS
 * Học Git workflow
 
 ## Cần học thêm
@@ -65,8 +66,3 @@
 * Chia nhỏ task
 * Ưu tiên dễ hiểu
 * Không overengineering
-
-
-
-## Task cần lm
-* Xoá field audioUrl cũ trong DB sau khi confirm frontend ổn định

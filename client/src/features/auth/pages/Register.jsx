@@ -1,5 +1,5 @@
-import Input from "../../../shared/components/ui/Input";
-import Button from "../../../shared/components/ui/Button";
+import Input from "../../../shared/components/Input";
+import Button from "../../../shared/components/Button";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";

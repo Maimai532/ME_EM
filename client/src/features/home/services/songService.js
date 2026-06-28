@@ -44,6 +44,10 @@ export const songService = {
     return { data: res.data.data || res.data };
   },
 };
+export async function getAllSongs() {
+  const res = await axios.get(`${API_URL}/songs`);
+  return res.data.data || res.data;
+}
 
 /*
 ?q=${query}: 

@@ -9,6 +9,7 @@ import healthRoutes from "./shared/routes/healthRoutes.js";
 import artistRoutes from "./features/artists/artist.routes.js";
 import historyRoutes from "./features/history/history.routes.js";
 import playlistRoutes from "./features/playlist/playlist.routes.js";
+import aiRoutes from "./features/ai/ai.routes.js";
 
 export function createApp() {
   const app = express();
@@ -40,6 +41,7 @@ Nếu chưa parse → req.body = undefined → controller đọc không được
   app.use("/api/artists", artistRoutes);
   app.use("/api/history", historyRoutes);
   app.use("/api/playlists", playlistRoutes);
+  app.use("/api/ai", aiRoutes);
 
   return app;
 }

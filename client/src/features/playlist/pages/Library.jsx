@@ -5,7 +5,7 @@ import "../styles/Library.css";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { Plus, Trash2, ListMusic } from "lucide-react";
-import ConfirmModal from "../../../shared/components/ui/ConfirmModal";
+import ConfirmModal from "../../../shared/components/ConfirmModal";
 
 export default function Library() {
   const { playlists, fetchPlaylists, createPlaylist, deletePlaylist } =

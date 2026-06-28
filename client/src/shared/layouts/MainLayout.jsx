@@ -3,8 +3,8 @@ import { useAuth } from "../../features/auth/context/AuthContext";
 import { usePlayer } from "../../features/player/context/PlayerContext";
 import { useState, useEffect } from "react";
 
-import Navbar from "../components/ui/Navbar";
-import Sidebar from "../components/ui/Sidebar";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
 import PlayerBar from "../../features/player/components/PlayerBar";
 import MusicPlayer from "../../features/player/pages/MusicPlayer";
 import "../styles/MainLayout.css";

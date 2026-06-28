@@ -1,6 +1,6 @@
 // client/src/shared/context/ToastContext.jsx
 import { createContext, useState, useCallback } from "react";
-import Toast from "../components/ui/Toast";
+import Toast from "../components/Toast";
 
 export const ToastContext = createContext(null);
 

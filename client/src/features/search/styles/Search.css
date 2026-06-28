@@ -1,237 +1,163 @@
-.search-page {
-  padding: 24px;
+ .search-page {
+  
 }
-
-/* ── Search bar ── */
-.search-page__bar-wrap {
-  position: relative;
-  margin-bottom: 24px;
-}
-
-.search-page__bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 10px 14px;
-  transition: border-color 0.2s;
-}
-
-.search-page__bar:focus-within {
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.search-page__bar-icon {
-  color: var(--color-text3);
+/* ── Dropdown search ── */
+.search-item img {
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  object-fit: cover;
   flex-shrink: 0;
 }
 
-.search-page__input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--color-text2);
-  font-size: 15px;
-}
-
-.search-page__input::placeholder {
-  color: var(--color-text3);
-}
-
-.search-page__clear-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text3);
-  display: flex;
-  align-items: center;
-  padding: 0;
-  transition: color 0.15s;
-}
-
-.search-page__clear-btn:hover {
-  color: var(--color-text2);
-}
-
-.search-page__search-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text2);
+.search-item__title {
   font-size: 14px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
-  transition: color 0.15s;
+  color: white;
+  margin: 0;
 }
 
-.search-page__search-btn:hover {
-  color: #fff;
+.search-item__artist {
+  font-size: 12px;
+  color: gray;
+  margin: 0;
+  margin-top: 2px;
+  
 }
 
-/* ── Dropdown lịch sử ── */
-.search-page__dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: #1e1e2e;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  padding: 8px 0;
-  z-index: 100;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: dropdownFade 0.15s ease;
+.search-page__label {
+  font-size: 16px;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
+.search-page__empty {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+
 
 @keyframes dropdownFade {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.search-page__dropdown-label {
+.search-dropdown__section {
+  padding: 6px 0;
+}
+
+.search-dropdown__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0;
+}
+
+.search-dropdown__label {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-text3);
-  padding: 4px 16px 8px;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 4px 14px 6px;
   margin: 0;
 }
 
-.search-page__dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.search-page__dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.search-page__dropdown-clock {
-  color: var(--color-text3);
-  flex-shrink: 0;
-}
-
-.search-page__dropdown-text {
-  flex: 1;
-  font-size: 14px;
-  color: var(--color-text2);
-}
-
-.search-page__dropdown-remove {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--color-text3);
-  display: flex;
-  align-items: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: color 0.15s, background 0.15s;
-  opacity: 0;
-}
-
-.search-page__dropdown-item:hover .search-page__dropdown-remove {
-  opacity: 1;
-}
-
-.search-page__dropdown-remove:hover {
-  color: var(--color-text2);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* ── Trạng thái ── */
-.search-page__title {
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--color-text2);
-  margin-bottom: 20px;
-}
-
-.search-page__loading,
-.search-page__empty {
-  color: var(--color-text2);
-  font-size: 24px;
+.search-dropdown__loading {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 6px 14px;
+  margin: 0;
 }
 
 /* ── Danh sách kết quả ── */
+
+
 .search-page__list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* justify-content: space-around; */
+  /* flex-wrap: wrap; */
+  /* height: 400px; */
+  max-height: 400px;
+  overflow-x: auto;
+  /* background-color: aqua; */
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 .search-page__item {
+  /* display: flex; 
+  flex-direction: column;
+  gap: 14px;
+  width: 180px;
+  flex-shrink: 0;
+  padding: 5px;
+  margin: 10px 8px;
+  isolation: isolate;
+  position: relative; */
+
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 16px;
-  padding: 10px 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-  border-bottom: 1px gray solid;
+  margin: 0px 10px;
+  height: 60px;
+  padding: 6px 8px; 
+  gap: 10px;
+  isolation: isolate;
+  position: relative;
+  border-radius: 8px;
+
 }
 
-.search-page__index {
-  width: 24px;
-  text-align: center;
-  font-size: 14px;
-  color: var(--color-text2);
-  flex-shrink: 0;
+/* .search-page__item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-md);
+  z-index: 0;
+  transition: transform 0.3s ease;
+} */
+
+.search-page__item:hover {
+  background-color: rgba(255, 255, 255, 0.09);
 }
 
 .search-page__img {
-  width: 48px;
-  height: 48px;
-  border-radius: 4px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  flex-shrink: 0;
-}
-
-.search-page__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.search-page__song-title {
-  font-size: 18px;
-  font-weight: 500;
-  margin: 0;
-  color: var(--color-text2);
-}
-
-.search-page__artist {
-  font-size: 16px;
-  margin: 0;
-  color: var(--color-text3);
 }
 
 .search-page__img-wrap {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.search-page__img-wrap img {
+.search-page__info {
+  /* display: flex;
+  flex-direction: column;
+  gap: 4px; */
   width: 100%;
-  height: 100%;
-  border-radius: 4px;
-  object-fit: cover;
+  color: azure;
+}
+
+.search-page__song-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: var(--color-text2);
+}
+
+.search-page__artist {
+  font-size: 12px;
+  color: #b4b4b4;
 }
 
 .search-page__play-overlay {

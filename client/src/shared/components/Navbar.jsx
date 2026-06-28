@@ -3,10 +3,10 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Clock, X, Search } from "lucide-react";
 
-import { useAuth } from "../../../features/auth/context/AuthContext";
-import { usePlayer } from "../../../features/player/context/PlayerContext";
-import "../../styles/Navbar.css";
-import { searchSongs } from "../../../features/home/services/songService";
+import { useAuth } from "../../features/auth/context/AuthContext";
+import { usePlayer } from "../../features/player/context/PlayerContext";
+import "./../styles/Navbar.css";
+import { searchSongs } from "../../features/home/services/songService";
 import ConfirmModal from "./ConfirmModal";
 
 const HISTORY_KEY = "search_history";
@@ -74,7 +74,8 @@ function Navbar({ isOpen, setIsOpen }) {
     }
     setSearching(true);
     const songs = await searchSongs(value);
-    setResults(songs);
+    setResults(songs.slice(0, 5)); // giới hạn kq
+    // setResults(songs);
     setSearching(false);
   };
 

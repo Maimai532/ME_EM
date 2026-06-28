@@ -58,7 +58,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
               className="song-card__play-btn"
               onClick={handlePlay}
             >
-              <Play size={18} fill="black" color="black" />
+              <Play size={16} fill="white" color="white" />
             </button>
           )}
         </div>
@@ -88,7 +88,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
           />
           {hovered && (
             <div className="song-card__overlay">
-              <Play size={14} fill="white" color="white" />
+              <Play size={16} fill="white" color="white" />
             </div>
           )}
         </div>

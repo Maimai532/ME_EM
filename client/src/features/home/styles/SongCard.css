@@ -1,4 +1,4 @@
-/* SongCard.jsx — layout modifiers: --scroll | --grid | --list */
+/* SongCard.jsx */
 
 .song-card{
   cursor: pointer;
@@ -67,9 +67,6 @@
   transform: translate(-50%, -50%);
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.85);
-  border: none;
-  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
