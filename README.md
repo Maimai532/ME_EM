@@ -1,7 +1,7 @@
 # ME_EM
 
 ## Tech Stack
-- Frontend: React + Vite, Tailwind CSS, React Router DOM, Axios, Lucide React
+- Frontend: React + Vite, React Router DOM, Axios, Lucide React
 - Backend: Node.js, Express.js, MongoDB (Mongoose), JWT, Multer
 
 ## Project Structure
@@ -49,6 +49,7 @@ client/
     │
     ├── features/
     │   ├── admin/
+    │   ├── artist/
     │   ├── auth/
     │   ├── home/
     │   ├── library/

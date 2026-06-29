@@ -101,8 +101,8 @@
 }
 
 .user-avatar-btn {
-  /* width: 35px;
-  height: 35px; */
+  width: 35px;
+  height: 35px;
   border-radius: 9999px;
   border: 1px solid #68c6ed;
   background: none;
@@ -114,7 +114,7 @@
 
 .user-avatar-img {
   width: 100%;
-  height: 100%;
+  height:100%;
   object-fit: cover;
 }
 
