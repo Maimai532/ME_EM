@@ -107,6 +107,35 @@ async function getMatchedArtists(query, limit = 4) {
   }
 }
 
+async function getTopArtistMatch(query) {
+  try {
+    const res = await artistService.getAll();
+    const artists = res.data || [];
+    const q = query.toLowerCase();
+
+    let best = null;
+    let bestScore = 0;
+
+    for (const artist of artists) {
+      const name = (artist.name || "").toLowerCase();
+      let score = 0;
+      if (name === q) score = 1;
+      else if (name.startsWith(q)) score = 0.92;
+      else if (name.includes(q)) score = 0.8;
+      else score = similarity(name, q) * 0.6;
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = artist;
+      }
+    }
+
+    return bestScore >= 0.45 ? { artist: best, score: bestScore } : null;
+  } catch {
+    return null;
+  }
+}
+
 async function getTopResult(query) {
   try {
     const all = await getAllSongs();
@@ -200,7 +229,7 @@ function Search() {
   const { playSong } = usePlayer();
   const [loading, setLoading] = useState(false);
   const [artists, setArtists] = useState([]);
-  const [topResults, setTopResults] = useState([]);
+  const [topResultType, setTopResultType] = useState("song");
   const [relatedSongs, setRelatedSongs] = useState([]);
   const [topResult, setTopResult] = useState(null);
 
@@ -217,8 +246,6 @@ function Search() {
     if (!q) return;
 
     setArtists([]);
-    // setTopResults([]);
-    // setRelatedSongs([]);
     setSuggestions([]);
     setSuggestionSource(null);
     setTopResult(null);
@@ -227,29 +254,47 @@ function Search() {
     const fetchAll = async () => {
       setLoading(true);
 
-      const [topResult, matchedArtists] = await Promise.all([
+      const [topSong, matchedArtists, topArtistMatch] = await Promise.all([
         getTopResult(q),
         getMatchedArtists(q),
+        getTopArtistMatch(q),
       ]);
 
-      setTopResult(topResult);
+      const songScore = topSong ? scoreSong(topSong, q.toLowerCase()) : 0;
+      const artistScore = topArtistMatch?.score || 0;
+
+      // Artist thắng khi điểm artist cao hơn (buffer nhỏ tránh nhảy lung tung)
+      const artistWins = artistScore > 0 && artistScore + 0.05 >= songScore;
+
+      // Dùng biến local cho top result, KHÔNG đọc lại từ state (state chưa kịp update)
+      let finalTopResult = artistWins ? topArtistMatch.artist : topSong;
+      let finalTopResultType = artistWins ? "artist" : "song";
+
       setArtists(matchedArtists);
       setLoading(false);
 
-      const related = await getRelatedSongs(q, topResult);
-      if (!topResult && related.length === 0) {
+      // Related songs chỉ tính dựa theo song (artist object không có .artist/.genre)
+      const songForRelated =
+        finalTopResultType === "song" ? finalTopResult : null;
+      let related = await getRelatedSongs(q, songForRelated);
+
+      if (!finalTopResult && related.length === 0) {
         const all = await getAllSongs();
         const shuffled = all.sort(() => Math.random() - 0.5);
-        setTopResult(shuffled[0] || null); // 1 bài random làm top result
-        setRelatedSongs(shuffled.slice(1, 9)); // 8 bài tiếp làm related
-      } else {
-        setTopResult(topResult);
-        setRelatedSongs(related);
+        finalTopResult = shuffled[0] || null; // 1 bài random làm top result
+        finalTopResultType = "song";
+        related = shuffled.slice(1, 9); // 8 bài tiếp làm related
       }
+
+      setTopResult(finalTopResult);
+      setTopResultType(finalTopResultType);
+      setRelatedSongs(related);
 
       setLoadingSuggestions(true);
       const allExcluded = new Set([
-        ...(topResult ? [topResult._id] : []),
+        ...(finalTopResultType === "song" && finalTopResult
+          ? [finalTopResult._id]
+          : []),
         ...related.map((s) => s._id),
       ]);
 
@@ -301,26 +346,42 @@ function Search() {
               <h2 className="search-page__label">Kết quả gần nhất</h2>
               <div
                 className="search-top-card"
-                onClick={() =>
-                  playSong(
-                    topResult,
-                    relatedSongs.length
-                      ? [topResult, ...relatedSongs]
-                      : [topResult],
-                  )
-                }
+                onClick={() => {
+                  if (topResultType === "artist") {
+                    navigate(`/artist/${topResult._id}`);
+                  } else {
+                    playSong(
+                      topResult,
+                      relatedSongs.length
+                        ? [topResult, ...relatedSongs]
+                        : [topResult],
+                    );
+                  }
+                }}
               >
                 <div className="search-top-card__img-wrap">
                   <img
-                    src={topResult.imageUrl || "/placeholder.jpg"}
-                    alt={topResult.title}
+                    src={
+                      topResultType === "artist"
+                        ? topResult.avatar || "/default-artist.png"
+                        : topResult.imageUrl || "/placeholder.jpg"
+                    }
+                    alt={topResult.title || topResult.name}
                   />
-                  <div className="search-top-card__play-overlay">
-                    <Play size={20} fill="white" color="white" />
-                  </div>
+                  {topResultType === "song" && (
+                    <div className="search-top-card__play-overlay">
+                      <Play size={20} fill="white" color="white" />
+                    </div>
+                  )}
                 </div>
-                <p className="search-top-card__title">{topResult.title}</p>
-                <p className="search-top-card__sub">{topResult.artist}</p>
+                <p className="search-top-card__title">
+                  {topResultType === "artist"
+                    ? topResult.name
+                    : topResult.title}
+                </p>
+                <p className="search-top-card__sub">
+                  {topResultType === "artist" ? "Nghệ sĩ" : topResult.artist}
+                </p>
               </div>
             </section>
           )}

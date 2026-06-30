@@ -1,14 +1,5 @@
 import mongoose from "mongoose";
 
-const albumSchema = new mongoose.Schema({
-  title:       { type: String, required: true, trim: true },
-  coverImage:  { type: String, default: "" },  // giữ lại để fallback / rollback
-  coverKey:    { type: String, default: null }, 
-  releaseYear: { type: Number, default: null },
-  description: { type: String, default: "" },
-  songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
-});
-
 const artistSchema = new mongoose.Schema(
   {
     name: {
@@ -17,11 +8,11 @@ const artistSchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
-    avatar:    { type: String, default: "" },   // giữ lại để fallback / rollback
+    avatar:    { type: String, default: "" },   
     avatarKey: { type: String, default: null },
     country:     { type: String, default: "" },
     description: { type: String, default: "" },
-    albums: [albumSchema],
+    albums: [{ type: mongoose.Schema.Types.ObjectId, ref: "Album" }],
     songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
   },
   { timestamps: true }
