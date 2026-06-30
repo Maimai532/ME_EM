@@ -1,5 +1,5 @@
- .search-page {
-}
+ /* .search-page {
+} */
 /* ── Dropdown search ── */
 .search-item img {
   width: 42px;
@@ -77,8 +77,8 @@
   margin-bottom: 10px;
   /* align-items: start; */
 }
-.search-page__section {
-}
+/* .search-page__section {
+} */
 .search-page__top-result,
 .search-page__related {
   border-radius: 12px;
