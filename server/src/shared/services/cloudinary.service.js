@@ -1,42 +1,52 @@
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import "dotenv/config";
 
-// Kết nối với Cloudinary bằng thông tin trong .env
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Dùng 1 middleware duy nhất cho multipart/form-data để tránh đọc stream 2 lần.
-const songMediaStorage = new CloudinaryStorage({
-  cloudinary,
-  params: (req, file) => {
-    if (file.fieldname === "audio") {
-      return {
-        folder: "me_em/audio",
-        resource_type: "video", // audio trên Cloudinary phải dùng resource_type=video
-      };
-    }
+export const isCloudinaryUrl = (url = "") =>
+  url.includes("res.cloudinary.com") &&
+  url.includes(process.env.CLOUDINARY_CLOUD_NAME);
 
-    return {
-      folder: "me_em/images",
+export const deleteFromCloudinary = async (publicId) => {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (e) {
+    console.warn("Không xoá được ảnh Cloudinary:", e.message);
+  }
+};
+
+export const ensureCloudinaryUrl = async (url, folder) => {
+  if (!url) return null;
+  if (isCloudinaryUrl(url)) return null;
+
+  try {
+    const result = await cloudinary.uploader.upload(url, {
+      folder,
       resource_type: "image",
-    };
-  },
-});
+    });
+    return { url: result.secure_url, publicId: result.public_id };
+  } catch (err) {
+    console.warn("Upload Cloudinary thất bại, giữ link gốc:", err.message);
+    return { url, publicId: null };
+  }
+};
 
-export const uploadSongMedia = multer({ storage: songMediaStorage });
-
-export default cloudinary;
-
+// ─── Multer middleware upload avatar user thẳng lên Cloudinary ───
 const avatarStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "me_em/avatars",
+    folder: "users",
     resource_type: "image",
   },
 });
 
 export const uploadAvatar = multer({ storage: avatarStorage });
+
+export default cloudinary;

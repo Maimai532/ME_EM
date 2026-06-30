@@ -16,6 +16,7 @@ const albumSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    coverPublicId: { type: String, default: null },
     releaseYear: {
       type: Number,
       default: null,
@@ -31,7 +32,7 @@ const albumSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Album = mongoose.model("Album", albumSchema);

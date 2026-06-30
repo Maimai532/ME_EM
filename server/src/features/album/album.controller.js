@@ -1,7 +1,10 @@
 import Album from "../../shared/models/album.model.js";
 import Artist from "../../shared/models/artist.model.js";
+import {
+  ensureCloudinaryUrl,
+  deleteFromCloudinary,
+} from "../../shared/services/cloudinary.service.js";
 
-// GET /api/albums/:id
 export const getAlbumById = async (req, res, next) => {
   try {
     const album = await Album.findById(req.params.id)
@@ -15,7 +18,6 @@ export const getAlbumById = async (req, res, next) => {
   }
 };
 
-// GET /api/albums  (admin hoặc search/gợi ý)
 export const getAllAlbums = async (req, res, next) => {
   try {
     const albums = await Album.find()
@@ -27,16 +29,30 @@ export const getAllAlbums = async (req, res, next) => {
   }
 };
 
-// POST /api/albums  (admin)
 export const createAlbum = async (req, res, next) => {
   try {
-    const { title, artistId, coverImage, releaseYear, description, songs } = req.body;
+    const { title, artistId, releaseYear, description, songs } = req.body;
+    let coverImage = req.body.coverImage || "";
+    let coverPublicId = null;
+
+    if (coverImage) {
+      const result = await ensureCloudinaryUrl(coverImage, "albums");
+      if (result) {
+        coverImage = result.url;
+        coverPublicId = result.publicId;
+      }
+    }
 
     const album = await Album.create({
-      title, artistId, coverImage, releaseYear, description, songs: songs ?? [],
+      title,
+      artistId,
+      coverImage,
+      coverPublicId,
+      releaseYear,
+      description,
+      songs: songs ?? [],
     });
 
-    // Gắn album vào artist
     await Artist.findByIdAndUpdate(artistId, {
       $addToSet: { albums: album._id },
     });
@@ -47,27 +63,41 @@ export const createAlbum = async (req, res, next) => {
   }
 };
 
-// PATCH /api/albums/:id  (admin)
 export const updateAlbum = async (req, res, next) => {
   try {
-    const album = await Album.findByIdAndUpdate(req.params.id, req.body, {
+    const album = await Album.findById(req.params.id);
+    if (!album)
+      return res.status(404).json({ message: "Album không tồn tại" });
+
+    const updateData = { ...req.body };
+
+    if (req.body.coverImage) {
+      const result = await ensureCloudinaryUrl(req.body.coverImage, "albums");
+      if (result) {
+        if (album.coverPublicId)
+          await deleteFromCloudinary(album.coverPublicId);
+        updateData.coverImage = result.url;
+        updateData.coverPublicId = result.publicId;
+      }
+    }
+
+    const updated = await Album.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });
-    if (!album) return res.status(404).json({ message: "Album không tồn tại" });
-    res.json(album);
+    res.json(updated);
   } catch (err) {
     next(err);
   }
 };
 
-// DELETE /api/albums/:id  (admin)
 export const deleteAlbum = async (req, res, next) => {
   try {
     const album = await Album.findByIdAndDelete(req.params.id);
     if (!album) return res.status(404).json({ message: "Album không tồn tại" });
 
-    // Gỡ khỏi artist
+    if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
+
     await Artist.findByIdAndUpdate(album.artistId, {
       $pull: { albums: album._id },
     });

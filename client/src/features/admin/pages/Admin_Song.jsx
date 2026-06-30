@@ -168,23 +168,19 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   async function handleSubmit() {
     setLoading(true);
     try {
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) fd.append(k, v);
+      });
+      if (audioFile) fd.append("audio", audioFile);
+      if (imageFile) fd.append("image", imageFile);
 
-      if (audioFile || imageFile) {
-        const fd = new FormData();
-        Object.entries(form).forEach(([k, v]) => {
-          if (v !== undefined && v !== null) fd.append(k, v);
-        });
-        if (audioFile) fd.append("audio", audioFile);
-        if (imageFile) fd.append("image", imageFile);
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        if (isEdit)
-          await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
-        else await axios.post(`${API_URL}/songs`, fd, config);
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      if (isEdit) {
+        await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
       } else {
-        if (isEdit)
-          await axios.put(`${API_URL}/songs/${safeSong._id}`, form, authHeader);
-        else await axios.post(`${API_URL}/songs`, form, authHeader);
+        await axios.post(`${API_URL}/songs`, fd, config);
       }
 
       showToast(isEdit ? "Đã lưu!" : "Đã tạo!", "success");

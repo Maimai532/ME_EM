@@ -8,14 +8,15 @@ const artistSchema = new mongoose.Schema(
       trim: true,
       unique: true,
     },
-    avatar:    { type: String, default: "" },   
+    avatar: { type: String, default: "" },
     avatarKey: { type: String, default: null },
-    country:     { type: String, default: "" },
+    avatarPublicId: { type: String, default: null },
+    country: { type: String, default: "" },
     description: { type: String, default: "" },
     albums: [{ type: mongoose.Schema.Types.ObjectId, ref: "Album" }],
     songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Artist", artistSchema);
