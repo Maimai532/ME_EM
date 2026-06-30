@@ -15,7 +15,7 @@ const emptyForm = {
   audioUrl: "",
   audioKey: "",
   imageUrl: "",
-  sourceType: "b2key",
+  sourceType: "upload",
 };
 
 function normalizeGenre(g) {
@@ -44,15 +44,25 @@ function splitArtists(artistStr) {
 }
 
 function normalizeSongForm(input = {}) {
+  // Chỉ suy ra sourceType khi DB không có giá trị hợp lệ
+  const validTypes = ["upload", "url", "b2key"];
+  let sourceType = validTypes.includes(input.sourceType)
+    ? input.sourceType
+    : input.audioKey?.trim()
+      ? "b2key"
+      : input.audioUrl?.trim()
+        ? "url"
+        : "upload";
+
   return {
     title: input.title ?? "",
     artist: input.artist ?? "",
     album: input.album ?? "",
     genre: input.genre ?? "",
-    audioUrl: input.sourceType === "url" ? (input.audioUrl ?? "") : "",
-    audioKey: input.sourceType === "b2key" ? (input.audioKey ?? "") : "",
+    audioUrl: input.audioUrl ?? "", // giữ nguyên, không lọc theo sourceType
+    audioKey: input.audioKey ?? "", // giữ nguyên, không lọc theo sourceType
     imageUrl: input.imageUrl ?? "",
-    sourceType: input.sourceType ?? "b2key",
+    sourceType,
     _id: input._id,
   };
 }
@@ -122,15 +132,19 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   const isEdit = !!safeSong._id;
   const { showToast } = useToast();
 
+  const [showAudioMenu, setShowAudioMenu] = useState(false);
+  const [audioMode, setAudioMode] = useState(null); // null | "url" | "b2key"
+
   const [form, setForm] = useState(safeSong);
   const [audioFile, setAudioFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(safeSong.imageUrl || "");
   const [loading, setLoading] = useState(false);
-  const [isDirty, setIsDirty] = useState(!isEdit); // new song = always dirty
+  const [isDirty, setIsDirty] = useState(!isEdit);
 
   useEffect(() => {
     const s = normalizeSongForm({ ...emptyForm, ...(song || {}) });
+    console.log("Song detail:", s);
     setForm(s);
     setAudioFile(null);
     setImageFile(null);
@@ -292,34 +306,94 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
           />
         </div>
       </div>
-
       <label className="song-admin__label">Audio</label>
-      <div className="song-admin__radio-group">
-        {["b2key", "url", "upload"].map((v) => (
-          <label key={v}>
-            <input
-              type="radio"
-              name="sourceType"
-              value={v}
-              checked={form.sourceType === v}
-              onChange={handleChange}
-            />
-            {v === "b2key" ? "B2 Key" : v === "url" ? "URL" : "Upload"}
-          </label>
-        ))}
-      </div>
 
-      {form.sourceType === "b2key" && (
-        <input
-          className="song-admin__input"
-          name="audioKey"
-          value={form.audioKey}
-          onChange={handleChange}
-          placeholder="new_song/abc123-song.mp3"
-          style={{ marginTop: 6 }}
-        />
+      {isEdit &&
+      !audioFile &&
+      !audioMode &&
+      (song?.audioUrl?.trim() || song?.audioKey?.trim()) ? (
+        <div className="audio-field__existing">
+          <i className="ti ti-music" aria-hidden="true" />
+          <span className="audio-field__existing-name">
+            {song.audioKey?.trim() || song.audioUrl?.trim()}
+          </span>
+          <button
+            type="button"
+            className="audio-field__replace-btn"
+            onClick={() => setShowAudioMenu((p) => !p)}
+          >
+            Thay thế {showAudioMenu ? "▴" : "▾"}
+          </button>
+        </div>
+      ) : null}
+
+      {/* Dropdown chọn cách thay thế */}
+      {showAudioMenu && (
+        <div className="audio-field__menu">
+          <label className="audio-field__menu-item">
+            <input
+              type="file"
+              accept="audio/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                if (file) {
+                  setAudioFile(file);
+                  setShowAudioMenu(false);
+                  setIsDirty(true);
+                }
+              }}
+            />
+            <i className="ti ti-upload" aria-hidden="true" />
+            <span>Upload file từ máy</span>
+            <small>mp3, flac, wav...</small>
+          </label>
+          <button
+            type="button"
+            className="audio-field__menu-item"
+            onClick={() => {
+              setAudioMode("url");
+              setShowAudioMenu(false);
+            }}
+          >
+            <i className="ti ti-link" aria-hidden="true" />
+            <span>Nhập URL</span>
+            <small>https://...</small>
+          </button>
+          <button
+            type="button"
+            className="audio-field__menu-item"
+            onClick={() => {
+              setAudioMode("b2key");
+              setShowAudioMenu(false);
+            }}
+          >
+            <i className="ti ti-cloud" aria-hidden="true" />
+            <span>Nhập B2 Key</span>
+            <small>songs/abc.mp3</small>
+          </button>
+        </div>
       )}
-      {form.sourceType === "url" && (
+
+      {/* Đã chọn file mới */}
+      {audioFile && (
+        <div className="audio-field__picked">
+          <i className="ti ti-file-music" aria-hidden="true" />
+          <span className="audio-field__picked-name">
+            {audioFile.name} · {(audioFile.size / 1024 / 1024).toFixed(1)} MB
+          </span>
+          <button
+            type="button"
+            className="audio-field__picked-remove"
+            onClick={() => setAudioFile(null)}
+          >
+            Xoá
+          </button>
+        </div>
+      )}
+
+      {/* Input URL */}
+      {audioMode === "url" && (
         <input
           className="song-admin__input"
           name="audioUrl"
@@ -329,47 +403,37 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
           style={{ marginTop: 6 }}
         />
       )}
-      {form.sourceType === "upload" && (
-        <>
-          <label className="song-admin__file-picker">
-            <input
-              type="file"
-              accept="audio/*"
-              hidden
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
+
+      {/* Input B2 Key */}
+      {audioMode === "b2key" && (
+        <input
+          className="song-admin__input"
+          name="audioKey"
+          value={form.audioKey}
+          onChange={handleChange}
+          placeholder="songs/abc123.mp3"
+          style={{ marginTop: 6 }}
+        />
+      )}
+
+      {/* Thêm mới / bài chưa có audio */}
+      {!isEdit && !audioFile && (
+        <label className="audio-field__empty">
+          <input
+            type="file"
+            accept="audio/*"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              if (file) {
                 setAudioFile(file);
-                if (file) {
-                  setForm((p) => ({
-                    ...p,
-                    sourceType: "upload",
-                    audioUrl: "",
-                    audioKey: "",
-                  }));
-                  setIsDirty(true);
-                }
-              }}
-            />
-            {audioFile ? "✓ Đã chọn tệp audio" : "Chưa chọn tệp audio"}
-          </label>
-          {audioFile && (
-            <button
-              type="button"
-              style={{
-                fontSize: 11,
-                color: "#dc2626",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left",
-                padding: "2px 0",
-              }}
-              onClick={() => setAudioFile(null)}
-            >
-              Xoá audio
-            </button>
-          )}
-        </>
+                setIsDirty(true);
+              }
+            }}
+          />
+          <i className="ti ti-upload" aria-hidden="true" />
+          <span>Chọn file audio để upload</span>
+        </label>
       )}
 
       <label className="song-admin__label">Ảnh bìa (URL)</label>
@@ -432,7 +496,7 @@ function Admin_Song() {
   const { token } = useAuth();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeSong, setActiveSong] = useState(null); // song shown in detail form
+  const [activeSong, setActiveSong] = useState(null);
   const [selected, setSelected] = useState([]);
   const [confirm, setConfirm] = useState(null);
   const { showToast } = useToast();
@@ -639,7 +703,7 @@ function Admin_Song() {
                 { value: "oldest", label: "Cũ nhất" },
                 { value: "name_asc", label: "A → Z" },
                 { value: "name_desc", label: "Z → A" },
-                { value: "plays_desc", label: "Lượt nghe" },
+                // { value: "plays_desc", label: "Lượt nghe" },
               ]}
             />
 
@@ -738,11 +802,8 @@ function Admin_Song() {
                   <table className="song-admin__table">
                     <colgroup>
                       <col className="song-admin__col-select" />
-                      <col className="song-admin__col-image" />
                       <col className="song-admin__col-name" />
                       <col className="song-admin__col-artist" />
-                      <col className="song-admin__col-genre" />
-                      <col className="song-admin__col-listen" />
                     </colgroup>
                     <thead>
                       <tr>
@@ -753,11 +814,8 @@ function Admin_Song() {
                             onChange={toggleSelectAll}
                           />
                         </th>
-                        <th className="song-admin__th">Ảnh</th>
                         <th className="song-admin__th">Tên</th>
                         <th className="song-admin__th">Nghệ sĩ</th>
-                        <th className="song-admin__th">Thể loại</th>
-                        <th className="song-admin__th">Nghe</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -786,15 +844,6 @@ function Admin_Song() {
                                 onChange={() => toggleSelect(song._id)}
                               />
                             </td>
-                            <td className="song-admin__td">
-                              <img
-                                className="song-admin__thumb"
-                                src={
-                                  song.imageUrl || "https://picsum.photos/48"
-                                }
-                                alt={song.title}
-                              />
-                            </td>
                             <td className="song-admin__td">{song.title}</td>
                             <td className="song-admin__td">
                               {splitArtists(song.artist).length > 0
@@ -808,21 +857,7 @@ function Admin_Song() {
                                   ))
                                 : "—"}
                             </td>
-                            <td className="song-admin__td">
-                              {splitGenres(song.genre).length > 0
-                                ? splitGenres(song.genre).map((g) => (
-                                    <span
-                                      key={g}
-                                      className="song-admin__genre-badge"
-                                    >
-                                      {g}
-                                    </span>
-                                  ))
-                                : "—"}
-                            </td>
-                            <td className="song-admin__td td-listen">
-                              {song.plays}
-                            </td>
+ 
                           </tr>
                         ))
                       ) : (

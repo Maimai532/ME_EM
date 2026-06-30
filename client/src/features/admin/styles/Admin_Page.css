@@ -6,9 +6,6 @@
   flex-direction: column;
   gap: 0;
   height: 100%;
-  /* background-image: url("../public/web.jpg");
-  background-size:cover;
-  background-position: center; */
 }
 
 /* ── Header chung: title bên trái, actions bên phải ── */
@@ -36,5 +33,5 @@
 
 /* ── Body: chứa nội dung từng trang ── */
 .admin-page__body {
-  /* không thêm padding thêm — mỗi trang tự quyết */
+
 }

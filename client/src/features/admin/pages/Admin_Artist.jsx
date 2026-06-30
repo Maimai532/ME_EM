@@ -1,9 +1,19 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { artistService } from "../../../shared/services/artist.service";
 import { songService } from "../../home/services/songService";
 import { useToast } from "../../../shared/hooks/useToast";
+import { useAuth } from "../../auth/context/AuthContext";
 import ConfirmModal from "../components/ConfirmModal";
+import AdminPage from "./Admin_Page";
 import "../styles/Admin_Artist.css";
+
+function splitArtists(artistStr) {
+  if (!artistStr) return [];
+  return artistStr
+    .split(/,|\/| và /)
+    .map((a) => a.trim())
+    .filter(Boolean);
+}
 
 function ArtistForm({ artist, onSaved, onCancel }) {
   const isEdit = !!artist;
@@ -13,7 +23,7 @@ function ArtistForm({ artist, onSaved, onCancel }) {
     description: artist?.description || "",
     avatarUrl: artist?.avatar || "",
   });
-  const [avatarMode, setAvatarMode] = useState("url"); // "url" | "file"
+  const [avatarMode, setAvatarMode] = useState("url");
   const [avatarFile, setAvatarFile] = useState(null);
   const [preview, setPreview] = useState(artist?.avatar || "");
   const [loading, setLoading] = useState(false);
@@ -83,12 +93,12 @@ function ArtistForm({ artist, onSaved, onCancel }) {
     <div className="artist-form">
       {autoLinked !== null && (
         <div className="alert alert--success">
-          Đã auto liên kết {autoLinked} bài hát có sẵn vào nghệ sĩ này!
+          Đã liên kết {autoLinked} bài hát có sẵn vào nghệ sĩ này!
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="artist-form__body">
-        <div className="form-group-avtar ">
+        <div className="form-group-avtar">
           <div className="avatar-mode-toggle">
             <label>Avatar</label>
             <div className="mode">
@@ -99,7 +109,6 @@ function ArtistForm({ artist, onSaved, onCancel }) {
               >
                 URL
               </button>
-
               <button
                 type="button"
                 className={avatarMode === "file" ? "active" : ""}
@@ -313,7 +322,6 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
           </div>
         </div>
 
-        {/* Footer nằm TRONG form — submit hoạt động đúng */}
         <div className="modal__footer">
           <button type="button" onClick={onClose}>
             Hủy
@@ -328,7 +336,7 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
 }
 
 function AddSongModal({ artistId, albumId, onClose, onSaved }) {
-  const [tab, setTab] = useState("existing"); // "existing" | "new"
+  const [tab, setTab] = useState("existing");
   const [allSongs, setAllSongs] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedSongIds, setSelectedSongIds] = useState(new Set());
@@ -486,15 +494,9 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                   <div>
                     <strong>{song.title}</strong>
                     <span>
-                      {song.artist
-                        ?.split(/,| và /)
-                        .map((a) => a.trim())
-                        .filter(Boolean)
-                        .map((a) => (
-                          <span key={a} className="song-admin__artist-badge">
-                            {a}
-                          </span>
-                        ))}
+                      {splitArtists(song.artist).map((a) => (
+                        <span key={a}>{a}</span>
+                      ))}
                     </span>
                   </div>
                   {selectedSongIds.has(song._id) && <span>✓</span>}
@@ -575,19 +577,22 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
   );
 }
 
-function ArtistDetail({ artistId, onBack, onEdit }) {
+function ArtistDetailPanel({ artistId, onChanged, onClose }) {
   const [artist, setArtist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState("view");
+  const [expandedAlbumId, setExpandedAlbumId] = useState(null);
   const [showAddSong, setShowAddSong] = useState(false);
   const [showAddAlbum, setShowAddAlbum] = useState(false);
   const [targetAlbumId, setTargetAlbumId] = useState(null);
-  const [expandedAlbumId, setExpandedAlbumId] = useState(null);
   const [albumContextMenu, setAlbumContextMenu] = useState(null);
   const [songContextMenu, setSongContextMenu] = useState(null);
-  const { showToast } = useToast();
   const [confirm, setConfirm] = useState(null);
+  const { showToast } = useToast();
 
-  const fetchArtist = async () => {
+  const fetchArtist = useCallback(async () => {
+    if (!artistId) return;
+    setLoading(true);
     try {
       const res = await artistService.getById(artistId);
       setArtist(res.data);
@@ -596,11 +601,13 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [artistId]);
 
   useEffect(() => {
+    setMode("view");
+    setExpandedAlbumId(null);
     fetchArtist();
-  }, [artistId]);
+  }, [artistId, fetchArtist]);
 
   useEffect(() => {
     const close = () => {
@@ -619,6 +626,7 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
         try {
           await artistService.removeSong(artistId, songId);
           fetchArtist();
+          onChanged?.();
         } catch {
           showToast("Lỗi khi gỡ bài hát", "error");
         }
@@ -634,6 +642,7 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
         try {
           await artistService.deleteAlbum(artistId, albumId);
           fetchArtist();
+          onChanged?.();
         } catch {
           showToast("Lỗi khi xóa album", "error");
         }
@@ -655,105 +664,184 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
     setSongContextMenu({ x: e.clientX, y: e.clientY, songId });
   };
 
-  if (loading) return <p>Đang tải...</p>;
-  if (!artist) return <p>Không tìm thấy nghệ sĩ.</p>;
+  if (!artistId) {
+    return (
+      <div className="artist-admin__detail-empty">
+        <div className="artist-admin__detail-empty-icon">♪</div>
+        <span>Chọn nghệ sĩ để xem chi tiết</span>
+        <span style={{ fontSize: 11, marginTop: 2 }}>
+          hoặc nhấn New Artist để thêm mới
+        </span>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <p className="artist-admin__loading">Đang tải...</p>;
+  }
+
+  if (!artist) return null;
+
+  if (mode === "edit") {
+    return (
+      <div className="artist-admin__detail-form">
+        <div className="artist-admin__detail-title">Sửa nghệ sĩ</div>
+        <ArtistForm
+          artist={artist}
+          onSaved={() => {
+            fetchArtist();
+            setMode("view");
+            onChanged?.();
+          }}
+          onCancel={() => setMode("view")}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="artist-detail">
-      <div className="artist-detail__header">
-        <button onClick={onBack}>← Back</button>
-        <button onClick={onEdit}>Edit</button>
-      </div>
-
-      <div className="artist-detail_info">
-        <div className="artist-detail__name">
-          <img src={artist.avatar || "/default-artist.png"} alt={artist.name} />
-          <div>
-            <h2>{artist.name}</h2>
-            <p>{artist.country}</p>
-            <p>{artist.description}</p>
-          </div>
-        </div>
-
-        <div className="artist-detail__song">
-          <div className="artist-detail__song-header">
-            <h3>Song ({artist.songs.length})</h3>
+    <div className="artist-admin__detail-form">
+      <div className="artist-admin__detail-title artist-admin__detail-title--row">
+        <span>Chi tiết nghệ sĩ</span>
+        <div className="artist-admin__detail-title-actions">
+          <button
+            type="button"
+            className="artist-admin__btn-edit"
+            onClick={() => setMode("edit")}
+          >
+            Sửa
+          </button>
+          {onClose && (
             <button
-              onClick={() => {
-                setTargetAlbumId(null);
-                setShowAddSong(true);
-              }}
+              type="button"
+              className="artist-admin__btn-close"
+              onClick={onClose}
             >
-              Thêm bài
+              ✕
             </button>
-          </div>
-          <ul className="song-list">
-            {artist.songs.map((song) => (
-              <li
-                key={song._id}
-                className="song-item"
-                onContextMenu={(e) => handleSongContextMenu(e, song._id)}
-              >
-                <img src={song.imageUrl} alt={song.title} />
-                <span>{song.title}</span>
-              </li>
-            ))}
-          </ul>
+          )}
         </div>
       </div>
 
-      <section className="artist-detail__section">
-        <div className="album-header">
-          <h3>Albums ({artist.albums.length})</h3>
-          <button onClick={() => setShowAddAlbum(true)}>Thêm album</button>
+      <div className="artist-admin__info-row">
+        <img
+          src={artist.avatar || "/default-artist.png"}
+          alt={artist.name}
+          className="artist-admin__info-avatar"
+        />
+        <div className="artist-admin__info-text">
+          <h3>{artist.name}</h3>
+          <span className="artist-admin__info-country">
+            {artist.country || "Không rõ quốc gia"}
+          </span>
+          {artist.description && (
+            <p className="artist-admin__info-desc">{artist.description}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="artist-admin__detail-section">
+        <div className="artist-admin__detail-section-header">
+          <span>Bài hát ({artist.songs?.length || 0})</span>
+          <button
+            type="button"
+            className="artist-admin__btn-add-small"
+            onClick={() => {
+              setTargetAlbumId(null);
+              setShowAddSong(true);
+            }}
+          >
+            + Thêm
+          </button>
+        </div>
+        <ul className="artist-admin__song-list">
+          {(artist.songs || []).map((song) => (
+            <li
+              key={song._id}
+              className="artist-admin__song-list-item"
+              onContextMenu={(e) => handleSongContextMenu(e, song._id)}
+            >
+              {song.title}
+            </li>
+          ))}
+          {(!artist.songs || artist.songs.length === 0) && (
+            <li className="artist-admin__song-list-empty">Chưa có bài hát</li>
+          )}
+        </ul>
+      </div>
+
+      <div className="artist-admin__detail-section">
+        <div className="artist-admin__detail-section-header">
+          <span>Album ({artist.albums?.length || 0})</span>
+          <button
+            type="button"
+            className="artist-admin__btn-add-small"
+            onClick={() => setShowAddAlbum(true)}
+          >
+            + Thêm
+          </button>
         </div>
 
-        {artist.albums.map((album) => (
-          <div key={album._id} className="album-card">
-            <div
-              className="album-card__header"
-              onClick={() =>
-                setExpandedAlbumId(
-                  expandedAlbumId === album._id ? null : album._id,
-                )
-              }
-              onContextMenu={(e) => handleAlbumContextMenu(e, album._id)}
-              style={{ cursor: "pointer" }}
-            >
-              {album.coverImage && (
-                <img src={album.coverImage} alt={album.title} />
-              )}
-              <div>
-                <h4>{album.title}</h4>
-                <span>{album.releaseYear || "Chưa rõ năm"}</span>
-                <span> · {album.songs.length} bài</span>
+        <div className="artist-admin__album-grid">
+          {(artist.albums || []).map((album) => {
+            const isOpen = expandedAlbumId === album._id;
+            return (
+              <div
+                key={album._id}
+                className={`artist-admin__album-card ${
+                  isOpen ? "artist-admin__album-card--open" : ""
+                }`}
+              >
+                <div
+                  className="artist-admin__album-card-header"
+                  onClick={() => setExpandedAlbumId(isOpen ? null : album._id)}
+                  onContextMenu={(e) => handleAlbumContextMenu(e, album._id)}
+                >
+                  <img
+                    src={album.coverImage || "/default-cover.png"}
+                    alt={album.title}
+                    className="artist-admin__album-cover"
+                  />
+                  <div className="artist-admin__album-info">
+                    <strong>{album.title}</strong>
+                    <span>
+                      {album.releaseYear || "Chưa rõ năm"} ·{" "}
+                      {album.songs?.length || 0} bài
+                    </span>
+                  </div>
+                  <span className="artist-admin__album-arrow">
+                    {isOpen ? "▲" : "▼"}
+                  </span>
+                </div>
+
+                {isOpen && (
+                  <ul className="artist-admin__album-song-list">
+                    {(album.songs || []).map((song) => (
+                      <li
+                        key={song._id}
+                        onContextMenu={(e) =>
+                          handleSongContextMenu(e, song._id)
+                        }
+                      >
+                        {song.title}
+                      </li>
+                    ))}
+                    {(!album.songs || album.songs.length === 0) && (
+                      <li className="artist-admin__song-list-empty">
+                        Chưa có bài hát
+                      </li>
+                    )}
+                  </ul>
+                )}
               </div>
-              <span style={{ marginLeft: "auto", fontSize: 12 }}>
-                {expandedAlbumId === album._id ? "▲" : "▼"}
-              </span>
-            </div>
+            );
+          })}
+          {(!artist.albums || artist.albums.length === 0) && (
+            <div className="artist-admin__song-list-empty">Chưa có album</div>
+          )}
+        </div>
+      </div>
 
-            {expandedAlbumId === album._id && (
-              <ul className="album-list">
-                {album.songs.map((song) => (
-                  <li
-                    key={song._id}
-                    className="album-item"
-                    onContextMenu={(e) => handleSongContextMenu(e, song._id)}
-                    style={{ cursor: "context-menu" }}
-                  >
-                    <img src={song.imageUrl} alt={song.title} />
-                    <span>{song.title}</span>
-                  </li>
-                ))}
-                {album.songs.length === 0 && <li>Chưa có bài hát</li>}
-              </ul>
-            )}
-          </div>
-        ))}
-      </section>
-
-      {/* Context menu — Album */}
       {albumContextMenu && (
         <div
           className="context-menu"
@@ -781,7 +869,6 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
         </div>
       )}
 
-      {/* Context menu — Song */}
       {songContextMenu && (
         <div
           className="context-menu"
@@ -811,6 +898,7 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
           onSaved={() => {
             setShowAddSong(false);
             fetchArtist();
+            onChanged?.();
           }}
         />
       )}
@@ -822,9 +910,11 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
           onSaved={() => {
             setShowAddAlbum(false);
             fetchArtist();
+            onChanged?.();
           }}
         />
       )}
+
       {confirm && (
         <ConfirmModal
           message={confirm.message}
@@ -836,50 +926,18 @@ function ArtistDetail({ artistId, onBack, onEdit }) {
   );
 }
 
-const ArtistCard = memo(function ArtistCard({
-  artist,
-  onView,
-  onEdit,
-  onDelete,
-}) {
-  return (
-    <div className="artist-item" onClick={onView} style={{ cursor: "pointer" }}>
-      <img
-        src={artist.avatar || "/default-artist.png"}
-        alt={artist.name}
-        className="artist-item__avatar"
-        loading="lazy"
-      />
-      <div className="artist-item__info">
-        <h3>{artist.name}</h3>
-        <span>{artist.country || "Không rõ"}</span>
-        <span>
-          {artist.songs?.length || 0} bài · {artist.albums?.length || 0} album
-        </span>
-      </div>
-      <div
-        className="artist-item__actions"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button onClick={onEdit}>Sửa</button>
-        <button className="btn--danger" onClick={onDelete}>
-          Xóa
-        </button>
-      </div>
-    </div>
-  );
-});
-
 export default function Admin_Artist() {
+  const { token } = useAuth();
   const [artists, setArtists] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState("list");
-  const [selected, setSelected] = useState(null);
+  const [activeArtistId, setActiveArtistId] = useState(null);
+  const [creatingNew, setCreatingNew] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showForm, setShowForm] = useState(false);
   const [confirm, setConfirm] = useState(null);
-  const { showToast } = useToast();
   const [selectedIds, setSelectedIds] = useState([]);
+  const [page, setPage] = useState(1);
+  const { showToast } = useToast();
+  const tableRef = useRef(null);
 
   const fetchArtists = useCallback(async () => {
     try {
@@ -903,6 +961,19 @@ export default function Admin_Artist() {
     fetchArtists();
   }, [fetchArtists]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  function handleSaved() {
+    const scrollTop = tableRef.current?.scrollTop ?? 0;
+    fetchArtists(() => {
+      requestAnimationFrame(() => {
+        if (tableRef.current) tableRef.current.scrollTop = scrollTop;
+      });
+    });
+  }
+
   const filteredArtists = artists.filter((artist) => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return true;
@@ -911,17 +982,37 @@ export default function Admin_Artist() {
       artist.country?.toLowerCase().includes(q)
     );
   });
-  const visibleArtistIds = filteredArtists.map((a) => a._id);
+
+  const PAGE_SIZE = 30;
+  const totalPages = Math.ceil(filteredArtists.length / PAGE_SIZE);
+  const pagedArtists = filteredArtists.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
+
+  const visibleArtistIds = pagedArtists.map((a) => a._id);
   const allVisibleSelected =
     visibleArtistIds.length > 0 &&
     visibleArtistIds.every((id) => selectedIds.includes(id));
 
   function toggleSelectAll() {
-    setSelectedIds(allVisibleSelected ? [] : visibleArtistIds);
+    setSelectedIds((prev) =>
+      allVisibleSelected
+        ? prev.filter((id) => !visibleArtistIds.includes(id))
+        : [...new Set([...prev, ...visibleArtistIds])],
+    );
   }
+
+  function toggleSelect(id) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
+  }
+
   const handleDeleteSelected = () => {
+    const count = selectedIds.length;
     setConfirm({
-      message: `Xóa ${selectedIds.length} nghệ sĩ?`,
+      message: `Xóa ${count} nghệ sĩ?`,
       onConfirm: async () => {
         setConfirm(null);
         try {
@@ -929,8 +1020,9 @@ export default function Admin_Artist() {
           setArtists((prev) =>
             prev.filter((a) => !selectedIds.includes(a._id)),
           );
+          if (selectedIds.includes(activeArtistId)) setActiveArtistId(null);
           setSelectedIds([]);
-          showToast(`Đã xóa ${selectedIds.length} nghệ sĩ`, "success");
+          showToast(`Đã xóa ${count} nghệ sĩ`, "success");
         } catch {
           showToast("Xóa thất bại", "error");
         }
@@ -946,6 +1038,7 @@ export default function Admin_Artist() {
         try {
           await artistService.delete(id);
           setArtists((prev) => prev.filter((a) => a._id !== id));
+          if (activeArtistId === id) setActiveArtistId(null);
           showToast("Xoá thành công", "success");
         } catch {
           showToast("Xoá thất bại", "error");
@@ -954,253 +1047,200 @@ export default function Admin_Artist() {
     });
   };
 
-  const handleSaved = () => {
-    setShowForm(false);
-    setSelected(null);
-    fetchArtists();
-  };
-
-  const openCreate = () => {
-    setSelected(null);
-    setShowForm(true);
-  };
-  const openEdit = (artist) => {
-    setSelected(artist);
-    setShowForm(true);
-  };
-  function toggleSelect(id) {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
+  function handleNewArtist() {
+    setActiveArtistId(null);
+    setCreatingNew(true);
   }
-  const allSelected =
-    filteredArtists.length > 0 &&
-    filteredArtists.every((a) => selectedIds.includes(a._id));
 
-  if (view === "detail") {
-    return (
-      <>
-        <ArtistDetail
-          artistId={selected._id}
-          onBack={() => {
-            setView("list");
-            setSelected(null);
-          }}
-          onEdit={() => openEdit(selected)}
-        />
-
-        {showForm && (
-          <div
-            className="modal-overlay"
-            onClick={() => {
-              setShowForm(false);
-            }}
-          >
-            <div
-              className="modal modal--large"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal__header">
-                <h3>Sửa nghệ sĩ</h3>
-                <button onClick={() => setShowForm(false)}>✕</button>
-              </div>
-              <div className="modal__body">
-                <ArtistForm
-                  artist={selected}
-                  onSaved={() => {
-                    setShowForm(false);
-                    fetchArtists();
-                  }}
-                  onCancel={() => setShowForm(false)}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
+  const headerActions = (
+    <>
+      {selectedIds.length > 0 && (
+        <button
+          type="button"
+          className="artist-admin-btn artist-admin-btn--danger"
+          onClick={handleDeleteSelected}
+        >
+          Delete ({selectedIds.length})
+        </button>
+      )}
+      <button
+        type="button"
+        className="artist-admin-btn"
+        onClick={handleNewArtist}
+      >
+        New Artist
+      </button>
+    </>
+  );
 
   return (
-    <div className="artist-management">
-      <div className="artist-management__header">
-        <h2>Quản lý nghệ sĩ</h2>
-        <div className="artist-management__header-actions">
-          {selectedIds.length > 0 && (
-            <button
-              className="artist-management-btn artist-management-btn--danger"
-              onClick={handleDeleteSelected}
-            >
-              Delete ({selectedIds.length})
-            </button>
-          )}
-          <button className="artist-management-btn" onClick={openCreate}>
-            New Artist
-          </button>
-        </div>
-      </div>
+    <AdminPage title="Quản lý nghệ sĩ" actions={headerActions}>
+      <div className="artist-admin__layout">
+        {/* ── Left panel ── */}
+        <div className="artist-admin__left">
+          <div className="artist-admin-meta">
+            Artists <span>{artists.length}</span>
+          </div>
 
-      <div className="artist-admin-meta">
-        Artists <span>{artists.length}</span>
-      </div>
-
-      <div className="artist-admin__filter-bar">
-        <div style={{ position: "relative", flex: 1 }}>
-          <input
-            type="text"
-            placeholder="Tìm kiếm tên / quốc gia..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setSelectedIds([]);
-            }}
-            className="artist-admin__search-input"
-          />
-          {searchQuery && (
-            <button
-              className="artist-search-clear"
-              onClick={() => setSearchQuery("")}
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      </div>
-
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : (
-        <div className="artist-admin__table-wrapper">
-          <table className="artist-admin__table">
-            <colgroup>
-              <col className="artist-admin__col-select" />
-              <col className="artist-admin__col-image" />
-              <col className="artist-admin__col-name" />
-              <col className="artist-admin__col-country" />
-              <col className="artist-admin__col-stat" />
-              <col className="artist-admin__col-actions" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className="artist-admin__th">
-                  <input
-                    type="checkbox"
-                    checked={allVisibleSelected}
-                    onChange={toggleSelectAll}
-                  />
-                </th>
-                <th className="artist-admin__th">Ảnh</th>
-                <th className="artist-admin__th">Tên</th>
-                <th className="artist-admin__th">Quốc gia</th>
-                <th className="artist-admin__th">Thống kê</th>
-                <th className="artist-admin__th">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredArtists.length > 0 ? (
-                filteredArtists.map((artist) => (
-                  <tr
-                    key={artist._id}
-                    className={`artist-admin__row ${selectedIds.includes(artist._id) ? "artist-admin__row--selected" : ""}`}
-                    onClick={() => {
-                      setSelected(artist);
-                      setView("detail");
-                    }}
-                  >
-                    <td
-                      className="artist-admin__td"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(artist._id)}
-                        onChange={() => toggleSelect(artist._id)}
-                      />
-                    </td>
-                    <td className="artist-admin__td">
-                      <img
-                        src={artist.avatar || "/default-artist.png"}
-                        alt={artist.name}
-                        className="artist-admin__thumb"
-                      />
-                    </td>
-                    <td className="artist-admin__td artist-admin__td--name">
-                      {artist.name}
-                    </td>
-                    <td className="artist-admin__td">
-                      {artist.country || "—"}
-                    </td>
-                    <td className="artist-admin__td">
-                      <span className="artist-admin__badge">
-                        {artist.songs?.length || 0} bài
-                      </span>
-                      <span className="artist-admin__badge">
-                        {artist.albums?.length || 0} album
-                      </span>
-                    </td>
-                    <td
-                      className="artist-admin__td"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="artist-admin__actions">
-                        <button
-                          className="artist-admin__btn-edit"
-                          onClick={() => openEdit(artist)}
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          className="artist-admin__btn-del btn--danger"
-                          onClick={() => handleDelete(artist._id)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="artist-admin__empty">
-                    {searchQuery
-                      ? `Không có Artists "${searchQuery}".`
-                      : "Chưa có nghệ sĩ."}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {showForm && (
-        <div
-          className="modal-overlay"
-          onClick={() => {
-            setShowForm(false);
-            setSelected(null);
-          }}
-        >
-          <div
-            className="modal modal--large"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal__header">
-              <h3>{selected ? "Sửa nghệ sĩ" : "Thêm nghệ sĩ mới"}</h3>
-            </div>
-            <div className="modal__body">
-              <ArtistForm
-                artist={selected}
-                onSaved={handleSaved}
-                onCancel={() => {
-                  setShowForm(false);
-                  setSelected(null);
+          <div className="artist-admin__filter-bar">
+            <div style={{ position: "relative", flex: 1 }}>
+              <input
+                type="text"
+                placeholder="Tìm kiếm tên / quốc gia..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSelectedIds([]);
                 }}
+                className="artist-admin__search-input"
               />
+              {searchQuery && (
+                <button
+                  className="artist-search-clear"
+                  onClick={() => setSearchQuery("")}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
+
+          {creatingNew ? (
+            <div className="artist-admin__detail-form">
+              <div className="artist-admin__detail-title">Thêm nghệ sĩ</div>
+              <ArtistForm
+                artist={null}
+                onSaved={() => {
+                  setCreatingNew(false);
+                  handleSaved();
+                }}
+                onCancel={() => setCreatingNew(false)}
+              />
+            </div>
+          ) : (
+            <ArtistDetailPanel
+              artistId={activeArtistId}
+              onChanged={handleSaved}
+              onClose={() => setActiveArtistId(null)}
+            />
+          )}
         </div>
-      )}
+
+        {/* ── Right panel ── */}
+        <div className="artist-admin__right">
+          {loading ? (
+            <p className="artist-admin__loading">Đang tải...</p>
+          ) : (
+            <>
+              <div className="artist-admin__table-shell">
+                <div className="artist-admin__table-wrapper" ref={tableRef}>
+                  <table className="artist-admin__table">
+                    <colgroup>
+                      <col className="artist-admin__col-select" />
+                      <col className="artist-admin__col-name" />
+                      <col className="artist-admin__col-stat" />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th className="artist-admin__th">
+                          <input
+                            type="checkbox"
+                            checked={allVisibleSelected}
+                            onChange={toggleSelectAll}
+                          />
+                        </th>
+                        <th className="artist-admin__th">Tên</th>
+                        <th className="artist-admin__th">Thống kê</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pagedArtists.length > 0 ? (
+                        pagedArtists.map((artist) => (
+                          <tr
+                            key={artist._id}
+                            className={[
+                              "artist-admin__row",
+                              selectedIds.includes(artist._id)
+                                ? "artist-admin__row--selected"
+                                : "",
+                              activeArtistId === artist._id
+                                ? "artist-admin__row--active"
+                                : "",
+                            ].join(" ")}
+                            onClick={() => {
+                              setCreatingNew(false);
+                              setActiveArtistId(artist._id);
+                            }}
+                          >
+                            <td
+                              className="artist-admin__td"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(artist._id)}
+                                onChange={() => toggleSelect(artist._id)}
+                              />
+                            </td>
+                            <td className="artist-admin__td artist-admin__td--name">
+                              {artist.name}
+                            </td>
+                            <td className="artist-admin__td">
+                              <span className="artist-admin__badge">
+                                {artist.songs?.length || 0} bài
+                              </span>
+                              <span className="artist-admin__badge">
+                                {artist.albums?.length || 0} album
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3" className="artist-admin__empty">
+                            {searchQuery
+                              ? `Không có Artists "${searchQuery}".`
+                              : "Chưa có nghệ sĩ."}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pagination">
+                  <button disabled={page === 1} onClick={() => setPage(1)}>
+                    ««
+                  </button>
+                  <button
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    ‹
+                  </button>
+                  <span className="pagination__info">
+                    Trang {page} / {totalPages}
+                  </span>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    ›
+                  </button>
+                  <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(totalPages)}
+                  >
+                    »»
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       {confirm && (
         <ConfirmModal
@@ -1209,6 +1249,6 @@ export default function Admin_Artist() {
           onCancel={() => setConfirm(null)}
         />
       )}
-    </div>
+    </AdminPage>
   );
 }

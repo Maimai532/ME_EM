@@ -3,6 +3,8 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
+  /* left: 20xp;
+  top: 20px; */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -13,32 +15,38 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 18px;
+  padding: 12px;
   border-radius: 8px;
   color: white;
   font-size: 14px;
   font-weight: 500;
-  min-width: 220px;
+  min-width: 150px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-
+    backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(12px);
   /* Animation trượt vào */
-  animation: slideIn 0.2s ease;
+  animation: slideIn 0.5s ease;
 }
 
 .toast--success {
-  background: #068131;
+  background: rgba(11, 111, 33, 0.75);
+  border: 1px solid rgb(11, 111, 33);
+
 }
 
 .toast--error {
-  background: #b20909;
+  background: rgba(145, 13, 13, 0.75);
+  border: 1px solid rgb(111, 11, 11);
 }
 
 .toast--info {
-  background: #035fb4;
+    background: rgba(11, 61, 111, 0.75);
+  border: 1px solid rgb(11, 61, 111);
 }
 
 .toast--warning {
-  background: #e29d14;
+  background: rgba(157, 132, 5, 0.75);
+  border: 1px solid rgb(157, 132, 5);
 }
 
 .toast-icon {
