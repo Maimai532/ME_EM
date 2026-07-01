@@ -37,6 +37,18 @@ export const ensureCloudinaryUrl = async (url, folder) => {
     return { url, publicId: null };
   }
 };
+export const uploadBufferToCloudinary = (buffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (err, result) => {
+        if (err) return reject(err);
+        resolve({ url: result.secure_url, publicId: result.public_id });
+      },
+    );
+    stream.end(buffer);
+  });
+};
 
 // ─── Multer middleware upload avatar user thẳng lên Cloudinary ───
 const avatarStorage = new CloudinaryStorage({

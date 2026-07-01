@@ -8,6 +8,7 @@ import {
 import {
   ensureCloudinaryUrl,
   deleteFromCloudinary,
+  uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
 
 export const getAllSongs = async (req, res) => {
@@ -18,10 +19,8 @@ export const getAllSongs = async (req, res) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const imageUrl = song.imageKey
-          ? await getPresignedUrl(song.imageKey, 3600)
-          : song.imageUrl;
-        return { ...song.toObject(), streamUrl, imageUrl };
+        const coverUrl = song.imageUrl || null;
+        return { ...song.toObject(), streamUrl, coverUrl };
       }),
     );
     res.json({ success: true, data });
@@ -34,14 +33,17 @@ export const getSongById = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy bài hát" });
     const streamUrl = song.audioKey
       ? await getPresignedUrl(song.audioKey, 3600)
       : song.audioUrl;
-    const imageUrl = song.imageKey
-      ? await getPresignedUrl(song.imageKey, 3600)
-      : song.imageUrl;
-    res.json({ success: true, data: { ...song.toObject(), streamUrl, imageUrl } });
+    const coverUrl = song.imageUrl || null;
+    res.json({
+      success: true,
+      data: { ...song.toObject(), streamUrl, coverUrl },
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -51,32 +53,42 @@ export const createSong = async (req, res) => {
   try {
     const { title, artist, album, genre, duration } = req.body;
     if (!title || !artist)
-      return res.status(400).json({ success: false, message: "Thiếu title hoặc artist" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Thiếu title hoặc artist" });
 
     const audioFile = req.files?.audio?.[0];
     const imageFile = req.files?.image?.[0];
     const manualAudioKey = req.body.audioKey?.trim() || null;
 
     if (!audioFile && !req.body.audioUrl && !manualAudioKey)
-      return res.status(400).json({ success: false, message: "Cần có audio (file, URL, hoặc B2 key)" });
+      return res.status(400).json({
+        success: false,
+        message: "Cần có audio (file, URL, hoặc B2 key)",
+      });
 
     let audioUrl = req.body.audioUrl || null;
     let imageUrl = req.body.imageUrl || null;
     let audioKey = manualAudioKey;
-    let imageKey = null;
     let imagePublicId = null;
     const sourceType = audioFile ? "upload" : manualAudioKey ? "b2key" : "url";
 
     if (audioFile) {
-      audioKey = await uploadToB2(audioFile.buffer, audioFile.originalname, audioFile.mimetype, "audio");
+      audioKey = await uploadToB2(
+        audioFile.buffer,
+        audioFile.originalname,
+        audioFile.mimetype,
+        "audio",
+      );
       audioUrl = null;
     } else if (manualAudioKey) {
       audioUrl = null;
     }
 
     if (imageFile) {
-      imageKey = await uploadToB2(imageFile.buffer, imageFile.originalname, imageFile.mimetype, "images");
-      imageUrl = null;
+      const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
+      imageUrl = result.url;
+      imagePublicId = result.publicId;
     } else if (imageUrl) {
       const result = await ensureCloudinaryUrl(imageUrl, "songs");
       if (result) {
@@ -86,11 +98,22 @@ export const createSong = async (req, res) => {
     }
 
     const song = await Song.create({
-      title, artist, album, genre, duration,
-      audioUrl, imageUrl, audioKey, imageKey, imagePublicId, sourceType,
+      title,
+      artist,
+      album,
+      genre,
+      duration,
+      audioUrl,
+      imageUrl,
+      audioKey,
+      imagePublicId,
+      sourceType,
     });
 
-    const artistNames = artist.split(/,| và /).map((a) => a.trim()).filter(Boolean);
+    const artistNames = artist
+      .split(/,| và /)
+      .map((a) => a.trim())
+      .filter(Boolean);
     for (const artistName of artistNames) {
       const foundArtist = await Artist.findOne({
         name: { $regex: new RegExp(`^${artistName}$`, "i") },
@@ -107,7 +130,15 @@ export const createSong = async (req, res) => {
       }
     }
 
-    res.status(201).json({ success: true, data: song });
+    const streamUrl = song.audioKey
+      ? await getPresignedUrl(song.audioKey, 3600)
+      : song.audioUrl;
+    const coverUrl = song.imageUrl || null;
+
+    res.status(201).json({
+      success: true,
+      data: { ...song.toObject(), streamUrl, coverUrl },
+    });
   } catch (err) {
     console.error("createSong error:", err);
     res.status(400).json({ success: false, message: err.message });
@@ -118,13 +149,22 @@ export const updateSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy bài hát" });
 
     const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.__v;
 
     if (req.files?.audio?.[0]) {
       const audioFile = req.files.audio[0];
-      const audioKey = await uploadToB2(audioFile.buffer, audioFile.originalname, audioFile.mimetype, "audio");
+      const audioKey = await uploadToB2(
+        audioFile.buffer,
+        audioFile.originalname,
+        audioFile.mimetype,
+        "audio",
+      );
       updateData.audioKey = audioKey;
       updateData.audioUrl = null;
     } else if (req.body.audioUrl) {
@@ -133,11 +173,10 @@ export const updateSong = async (req, res) => {
 
     if (req.files?.image?.[0]) {
       const imageFile = req.files.image[0];
-      const imageKey = await uploadToB2(imageFile.buffer, imageFile.originalname, imageFile.mimetype, "images");
       if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
-      updateData.imageKey = imageKey;
-      updateData.imageUrl = null;
-      updateData.imagePublicId = null;
+      const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
+      updateData.imageUrl = result.url;
+      updateData.imagePublicId = result.publicId;
     } else if (req.body.imageUrl) {
       const result = await ensureCloudinaryUrl(req.body.imageUrl, "songs");
       if (result) {
@@ -145,11 +184,21 @@ export const updateSong = async (req, res) => {
         updateData.imageUrl = result.url;
         updateData.imagePublicId = result.publicId;
       }
-      updateData.imageKey = null;
     }
 
-    const updated = await Song.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    res.json({ success: true, data: updated });
+    const updated = await Song.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+
+    const streamUrl = updated.audioKey
+      ? await getPresignedUrl(updated.audioKey, 3600)
+      : updated.audioUrl;
+    const coverUrl = updated.imageUrl || null;
+
+    res.json({
+      success: true,
+      data: { ...updated.toObject(), streamUrl, coverUrl },
+    });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -159,7 +208,9 @@ export const deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy bài hát" });
     if (song.audioKey) await deleteFromB2(song.audioKey);
     if (song.imageKey) await deleteFromB2(song.imageKey);
     if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
@@ -172,7 +223,11 @@ export const deleteSong = async (req, res) => {
 
 export const incrementPlay = async (req, res) => {
   try {
-    const song = await Song.findByIdAndUpdate(req.params.id, { $inc: { plays: 1 } }, { new: true });
+    const song = await Song.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { plays: 1 } },
+      { new: true },
+    );
     res.json({ success: true, data: song });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -193,9 +248,11 @@ export const searchSongs = async (req, res) => {
 
     const data = await Promise.all(
       songs.map(async (song) => {
-        const streamUrl = song.audioKey ? await getPresignedUrl(song.audioKey, 3600) : song.audioUrl;
-        const imageUrl = song.imageKey ? await getPresignedUrl(song.imageKey, 3600) : song.imageUrl;
-        return { ...song.toObject(), streamUrl, imageUrl };
+        const streamUrl = song.audioKey
+          ? await getPresignedUrl(song.audioKey, 3600)
+          : song.audioUrl;
+        const coverUrl = song.imageUrl || null;
+        return { ...song.toObject(), streamUrl, coverUrl };
       }),
     );
 
@@ -209,7 +266,8 @@ export const streamSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song) return res.status(404).json({ message: "Song not found" });
-    if (!song.audioKey) return res.status(400).json({ message: "Song has no audioKey" });
+    if (!song.audioKey)
+      return res.status(400).json({ message: "Song has no audioKey" });
     const url = await getPresignedUrl(song.audioKey);
     res.json({ url });
   } catch (err) {

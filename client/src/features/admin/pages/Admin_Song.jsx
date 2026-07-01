@@ -44,7 +44,6 @@ function splitArtists(artistStr) {
 }
 
 function normalizeSongForm(input = {}) {
-  // Chỉ suy ra sourceType khi DB không có giá trị hợp lệ
   const validTypes = ["upload", "url", "b2key"];
   let sourceType = validTypes.includes(input.sourceType)
     ? input.sourceType
@@ -59,9 +58,10 @@ function normalizeSongForm(input = {}) {
     artist: input.artist ?? "",
     album: input.album ?? "",
     genre: input.genre ?? "",
-    audioUrl: input.audioUrl ?? "", // giữ nguyên, không lọc theo sourceType
-    audioKey: input.audioKey ?? "", // giữ nguyên, không lọc theo sourceType
+    audioUrl: input.audioUrl ?? "",
+    audioKey: input.audioKey ?? "",
     imageUrl: input.imageUrl ?? "",
+    coverUrl: input.coverUrl ?? input.imageUrl ?? "",
     sourceType,
     _id: input._id,
   };
@@ -138,9 +138,9 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   const [form, setForm] = useState(safeSong);
   const [audioFile, setAudioFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(safeSong.imageUrl || "");
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(!isEdit);
+  const [imagePreview, setImagePreview] = useState(safeSong.coverUrl || "");
 
   useEffect(() => {
     const s = normalizeSongForm({ ...emptyForm, ...(song || {}) });
@@ -148,19 +148,19 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     setForm(s);
     setAudioFile(null);
     setImageFile(null);
-    setImagePreview(s.imageUrl || "");
+    setImagePreview(s.coverUrl || "");
     setIsDirty(!s._id);
   }, [song?._id, song]);
 
   useEffect(() => {
     if (!imageFile) {
-      setImagePreview(form.imageUrl || "");
+      setImagePreview(form.coverUrl || "");
       return undefined;
     }
     const url = URL.createObjectURL(imageFile);
     setImagePreview(url);
     return () => URL.revokeObjectURL(url);
-  }, [imageFile, form.imageUrl]);
+  }, [imageFile, form.coverUrl]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -184,6 +184,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
+        if (k === "coverUrl" || k === "_id") return; 
         if (v !== undefined && v !== null) fd.append(k, v);
       });
       if (audioFile) fd.append("audio", audioFile);
@@ -191,14 +192,15 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
+      let res;
       if (isEdit) {
-        await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
+        res = await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
       } else {
-        await axios.post(`${API_URL}/songs`, fd, config);
+        res = await axios.post(`${API_URL}/songs`, fd, config);
       }
 
       showToast(isEdit ? "Đã lưu!" : "Đã tạo!", "success");
-      onSaved();
+      onSaved(res.data.data);
     } catch {
       showToast("Có lỗi!", "error");
     } finally {
@@ -239,7 +241,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
                 onClick={() => {
                   setImageFile(null);
                   setImagePreview("");
-                  setForm((prev) => ({ ...prev, imageUrl: "" }));
+                  setForm((prev) => ({ ...prev, imageUrl: "", coverUrl: "" }));
                 }}
               >
                 ×
@@ -255,7 +257,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
                   const file = e.target.files?.[0] || null;
                   setImageFile(file);
                   if (file) {
-                    setForm((p) => ({ ...p, imageUrl: "" }));
+                    setForm((p) => ({ ...p, imageUrl: "", coverUrl: "" }));
                     setIsDirty(true);
                   }
                 }}
@@ -454,7 +456,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
             const file = e.target.files?.[0] || null;
             setImageFile(file);
             if (file) {
-              setForm((p) => ({ ...p, imageUrl: "" }));
+              setForm((p) => ({ ...p, imageUrl: "", coverUrl: "" }));
               setIsDirty(true);
             }
           }}
@@ -530,12 +532,13 @@ function Admin_Song() {
     setPage(1);
   }, [search, genreFilter, sortBy, missingFilter]);
 
-  function handleSaved() {
-    const scrollTop = tableRef.current?.scrollTop ?? 0;
-    fetchSongs(() => {
-      requestAnimationFrame(() => {
-        if (tableRef.current) tableRef.current.scrollTop = scrollTop;
-      });
+  function handleSaved(savedSong) {
+    if (!savedSong?._id) return;
+    setSongs((prev) => {
+      const exists = prev.some((s) => s._id === savedSong._id);
+      return exists
+        ? prev.map((s) => (s._id === savedSong._id ? savedSong : s))
+        : [savedSong, ...prev];
     });
   }
 
@@ -564,7 +567,10 @@ function Admin_Song() {
       !missingFilter ||
       (missingFilter === "title" && !song.title?.trim()) ||
       (missingFilter === "genre" && !song.genre?.trim()) ||
-      (missingFilter === "image" && !song.imageUrl?.trim()) ||
+      (missingFilter === "image" &&
+        !song.coverUrl?.trim() &&
+        !song.imageKey?.trim() &&
+        !song.imageUrl?.trim()) ||
       (missingFilter === "audio" &&
         !song.audioUrl?.trim() &&
         !song.audioKey?.trim());
@@ -782,9 +788,9 @@ function Admin_Song() {
             key={activeSong?._id ?? "new-or-empty"}
             song={activeSong}
             token={token}
-            onSaved={() => {
-              handleSaved();
-              if (!activeSong?._id) setActiveSong(null);
+            onSaved={(savedSong) => {
+              handleSaved(savedSong);
+              setActiveSong(null);
             }}
             onClose={() => setActiveSong(null)}
             onDelete={handleDeleteSingle}
@@ -857,7 +863,6 @@ function Admin_Song() {
                                   ))
                                 : "—"}
                             </td>
- 
                           </tr>
                         ))
                       ) : (
