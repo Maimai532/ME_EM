@@ -29,7 +29,8 @@ Backend:
 * MongoDB + Mongoose
 * JWT Authentication
 * Multer
-* Cloudinary (upload audio/image)
+* Cloudinary (upload image)
+* B2 Backblaze (upload audio)
 
 Deploy:
 * Frontend: Vercel

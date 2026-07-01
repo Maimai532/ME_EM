@@ -10,6 +10,7 @@ import {
 import {
   ensureCloudinaryUrl,
   deleteFromCloudinary,
+  uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
 
 const resolveUrl = async (key, fallbackUrl) => {
@@ -41,9 +42,18 @@ export const getArtistById = async (req, res) => {
     if (!artist)
       return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
+    // Resolve album cover URLs (same pattern as artist avatar)
+    const albumsWithUrls = await Promise.all(
+      artist.albums.map(async (album) => ({
+        ...album.toObject(),
+        coverImage: await resolveUrl(album.coverKey, album.coverImage),
+      })),
+    );
+
     res.json({
       ...artist.toObject(),
       avatar: await resolveUrl(artist.avatarKey, artist.avatar),
+      albums: albumsWithUrls,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -189,13 +199,10 @@ export const addAlbum = async (req, res) => {
     let coverPublicId = null;
 
     if (req.file) {
-      coverKey = await uploadToB2(
-        req.file.buffer,
-        req.file.originalname,
-        req.file.mimetype,
-        "albums",
-      );
-      coverImage = "";
+      const result = await uploadBufferToCloudinary(req.file.buffer, "albums");
+
+      coverImage = result.url;
+      coverPublicId = result.publicId;
     } else if (coverImage) {
       const result = await ensureCloudinaryUrl(coverImage, "albums");
       if (result) {
@@ -213,7 +220,8 @@ export const addAlbum = async (req, res) => {
       coverKey,
       coverPublicId,
     });
-
+    console.log("req.file:", req.file);
+    console.log("req.body:", req.body);
     artist.albums.push(album._id);
     await artist.save();
 
@@ -234,7 +242,6 @@ export const deleteAlbum = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy album" });
 
     try {
-      if (album.coverKey) await deleteFromB2(album.coverKey);
       if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
     } catch (e) {
       console.warn("Không xoá được cover:", e.message);
@@ -295,11 +302,21 @@ export const createSongForArtist = async (req, res) => {
 
     if (req.files?.audio?.[0]) {
       const f = req.files.audio[0];
-      audioKey = await uploadToB2(f.buffer, f.originalname, f.mimetype, "audio");
+      audioKey = await uploadToB2(
+        f.buffer,
+        f.originalname,
+        f.mimetype,
+        "audio",
+      );
     }
     if (req.files?.image?.[0]) {
       const f = req.files.image[0];
-      imageKey = await uploadToB2(f.buffer, f.originalname, f.mimetype, "images");
+      imageKey = await uploadToB2(
+        f.buffer,
+        f.originalname,
+        f.mimetype,
+        "images",
+      );
     } else if (imageUrl) {
       const result = await ensureCloudinaryUrl(imageUrl, "songs");
       if (result) {

@@ -30,6 +30,17 @@ function ArtistForm({ artist, onSaved, onCancel }) {
   const [autoLinked, setAutoLinked] = useState(null);
   const { showToast } = useToast();
 
+  useEffect(() => {
+    setForm({
+      name: artist?.name || "",
+      country: artist?.country || "",
+      description: artist?.description || "",
+      avatarUrl: artist?.avatar || "",
+    });
+    setPreview(artist?.avatar || "");
+    setAvatarFile(null);
+    setAvatarMode("url");
+  }, [artist]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -41,11 +52,14 @@ function ArtistForm({ artist, onSaved, onCancel }) {
     if (!file) return;
     setAvatarFile(file);
     setPreview(URL.createObjectURL(file));
+    console.log("File đã chọn:", file.name, file.size);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (loading) return;
+
     if (!form.name.trim()) return alert("Tên nghệ sĩ không được trống");
     setLoading(true);
     try {
@@ -58,6 +72,11 @@ function ArtistForm({ artist, onSaved, onCancel }) {
         formData.append("avatar", avatarFile);
       } else if (avatarMode === "url" && form.avatarUrl) {
         formData.append("avatarUrl", form.avatarUrl);
+      }
+      console.log("avatarMode:", avatarMode);
+      console.log("avatarFile:", avatarFile);
+      for (let [key, val] of formData.entries()) {
+        console.log(key, val);
       }
 
       if (isEdit) {
@@ -256,7 +275,7 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
             <label>Năm phát hành</label>
             <input
               type="number"
-              value={form.releaseYear}
+              value={form.releaseYear ?? ""}
               onChange={(e) =>
                 setForm({ ...form, releaseYear: e.target.value })
               }

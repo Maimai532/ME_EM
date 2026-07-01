@@ -18,6 +18,11 @@ const songSchema = new mongoose.Schema(
       ref: "Artist",
       default: null,
     },
+    albumId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Album",
+      default: null,
+    },
     // URLs (Cloudinary cũ — giữ lại để rollback)
     audioUrl: { type: String, default: "" },
     imageUrl: { type: String, default: "" },

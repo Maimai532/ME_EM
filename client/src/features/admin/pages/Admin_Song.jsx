@@ -11,6 +11,7 @@ const emptyForm = {
   title: "",
   artist: "",
   album: "",
+  albumId: "",
   genre: "",
   audioUrl: "",
   audioKey: "",
@@ -57,6 +58,7 @@ function normalizeSongForm(input = {}) {
     title: input.title ?? "",
     artist: input.artist ?? "",
     album: input.album ?? "",
+    albumId: input.albumId ?? "",
     genre: input.genre ?? "",
     audioUrl: input.audioUrl ?? "",
     audioKey: input.audioKey ?? "",
@@ -132,50 +134,147 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   const isEdit = !!safeSong._id;
   const { showToast } = useToast();
 
-  const [showAudioMenu, setShowAudioMenu] = useState(false);
-  const [audioMode, setAudioMode] = useState(null); // null | "url" | "b2key"
-
-  const [form, setForm] = useState(safeSong);
+  // ── Audio state ──
+  const [audioMethod, setAudioMethod] = useState("upload");
   const [audioFile, setAudioFile] = useState(null);
+
+  // ── Image state ──
+  const [imageMethod, setImageMethod] = useState("upload");
   const [imageFile, setImageFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isDirty, setIsDirty] = useState(!isEdit);
   const [imagePreview, setImagePreview] = useState(safeSong.coverUrl || "");
 
+  // ── Album picker state ──
+  const [albums, setAlbums] = useState([]);
+  const [albumSearch, setAlbumSearch] = useState("");
+  const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
+  const albumRef = useRef(null);
+
+  // ── Form state ──
+  const [form, setForm] = useState(safeSong);
+  const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(!isEdit);
+
+  // fetch albums once
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/albums`)
+      .then((res) => setAlbums(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {});
+  }, []);
+
+  // close album dropdown on outside click
+  useEffect(() => {
+    function handle(e) {
+      if (albumRef.current && !albumRef.current.contains(e.target))
+        setShowAlbumDropdown(false);
+    }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, []);
+
+  // reset form when song changes
   useEffect(() => {
     const s = normalizeSongForm({ ...emptyForm, ...(song || {}) });
-    console.log("Song detail:", s);
     setForm(s);
     setAudioFile(null);
     setImageFile(null);
     setImagePreview(s.coverUrl || "");
     setIsDirty(!s._id);
+
+    if (s._id && (s.audioUrl || s.audioKey)) {
+      setAudioMethod(s.audioUrl ? "url" : "b2key");
+    } else {
+      setAudioMethod("upload");
+    }
+
+    if (s._id && (s.coverUrl || s.imageUrl || s.albumId)) {
+      if (s.albumId) {
+        setImageMethod("album");
+      } else if (s.imageUrl || s.coverUrl) {
+        setImageMethod("url");
+      } else {
+        setImageMethod("upload");
+      }
+    } else {
+      setImageMethod("upload");
+    }
+
+    setAlbumSearch("");
+    setShowAlbumDropdown(false);
   }, [song?._id, song]);
 
   useEffect(() => {
-    if (!imageFile) {
-      setImagePreview(form.coverUrl || "");
-      return undefined;
+    if (!safeSong.albumId || albums.length === 0) return;
+    const found = albums.find((a) => a._id === safeSong.albumId);
+    if (found) {
+      setAlbumSearch(found.title);
+      setImageMethod("album");
     }
-    const url = URL.createObjectURL(imageFile);
-    setImagePreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [imageFile, form.coverUrl]);
+  }, [safeSong.albumId, albums]);
+
+  useEffect(() => {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setImagePreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    if (imageMethod === "album" && form.albumId) {
+      const found = albums.find((a) => a._id === form.albumId);
+      setImagePreview(found?.coverImage || "");
+      return;
+    }
+    if (imageMethod === "url") {
+      setImagePreview(form.imageUrl || form.coverUrl || "");
+      return;
+    }
+    setImagePreview(form.coverUrl || "");
+  }, [
+    imageFile,
+    imageMethod,
+    form.albumId,
+    form.imageUrl,
+    form.coverUrl,
+    albums,
+  ]);
+
+  function clearImage() {
+    setImageFile(null);
+    setImagePreview("");
+    setImageMethod("upload");
+    setAlbumSearch("");
+    setShowAlbumDropdown(false);
+    setForm((p) => ({ ...p, imageUrl: "", coverUrl: "", albumId: "" }));
+    setIsDirty(true);
+  }
 
   function handleChange(e) {
     const { name, value } = e.target;
-    if (name === "sourceType") {
-      setAudioFile(null);
-      setForm((prev) => ({
-        ...prev,
-        sourceType: value,
-        audioUrl: value !== "url" ? "" : prev.audioUrl,
-        audioKey: value !== "b2key" ? "" : prev.audioKey,
-      }));
-      setIsDirty(true);
-      return;
-    }
     setForm((prev) => ({ ...prev, [name]: value ?? "" }));
+    setIsDirty(true);
+  }
+
+  function handleAudioMethodChange(method) {
+    setAudioMethod(method);
+    setAudioFile(null);
+    setForm((prev) => ({
+      ...prev,
+      sourceType: method,
+      audioUrl: method === "url" ? prev.audioUrl : "",
+      audioKey: method === "b2key" ? prev.audioKey : "",
+    }));
+    setIsDirty(true);
+  }
+
+  function handleImageMethodChange(method) {
+    setImageMethod(method);
+    setImageFile(null);
+    if (method !== "album") {
+      setForm((prev) => ({ ...prev, albumId: "" }));
+      setAlbumSearch("");
+    }
+    if (method !== "url") {
+      setForm((prev) => ({ ...prev, imageUrl: "" }));
+    }
     setIsDirty(true);
   }
 
@@ -184,14 +283,13 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (k === "coverUrl" || k === "_id") return; 
+        if (k === "coverUrl" || k === "_id") return;
         if (v !== undefined && v !== null) fd.append(k, v);
       });
       if (audioFile) fd.append("audio", audioFile);
       if (imageFile) fd.append("image", imageFile);
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
-
       let res;
       if (isEdit) {
         res = await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
@@ -220,10 +318,37 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     );
   }
 
+  const imageExistingLabel = () => {
+    if (imageMethod === "album" && form.albumId) {
+      const found = albums.find((a) => a._id === form.albumId);
+      return found ? `Ảnh album: ${found.title}` : "Ảnh album";
+    }
+    if (form.imageUrl) return `URL: ${form.imageUrl}`;
+    if (form.coverUrl) return `URL: ${form.coverUrl}`;
+    return null;
+  };
+
+  const hasExistingAudio =
+    isEdit && (form.audioUrl || form.audioKey) && !audioFile;
+  const hasExistingImage =
+    isEdit && (form.coverUrl || form.imageUrl || form.albumId) && !imageFile;
+
+  const audioOptions = [
+    { value: "upload", label: "Upload" },
+    { value: "url", label: "URL" },
+    { value: "b2key", label: "B2 Key" },
+  ];
+
+  const imageOptions = [
+    { value: "upload", label: "Upload" },
+    { value: "url", label: "URL" },
+    { value: "album", label: "Cover album" },
+  ];
+
   return (
     <div className="song-admin__detail-form">
       <div className="song-admin__detail-title">
-        {isEdit ? "Chi tiết bài hát" : "Thêm bài hát"}
+        {isEdit ? "Chi tiết" : "Thêm bài hát"}
       </div>
 
       <div className="song-admin__detail-top">
@@ -238,11 +363,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
               <button
                 type="button"
                 className="song-admin__preview-remove"
-                onClick={() => {
-                  setImageFile(null);
-                  setImagePreview("");
-                  setForm((prev) => ({ ...prev, imageUrl: "", coverUrl: "" }));
-                }}
+                onClick={clearImage}
               >
                 ×
               </button>
@@ -255,9 +376,16 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
                 hidden
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
-                  setImageFile(file);
                   if (file) {
-                    setForm((p) => ({ ...p, imageUrl: "", coverUrl: "" }));
+                    setImageFile(file);
+                    setImageMethod("upload");
+                    setForm((p) => ({
+                      ...p,
+                      imageUrl: "",
+                      coverUrl: "",
+                      albumId: "",
+                    }));
+                    setAlbumSearch("");
                     setIsDirty(true);
                   }
                 }}
@@ -308,162 +436,251 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
           />
         </div>
       </div>
-      <label className="song-admin__label">Audio</label>
 
-      {isEdit &&
-      !audioFile &&
-      !audioMode &&
-      (song?.audioUrl?.trim() || song?.audioKey?.trim()) ? (
-        <div className="audio-field__existing">
-          <i className="ti ti-music" aria-hidden="true" />
-          <span className="audio-field__existing-name">
-            {song.audioKey?.trim() || song.audioUrl?.trim()}
-          </span>
-          <button
-            type="button"
-            className="audio-field__replace-btn"
-            onClick={() => setShowAudioMenu((p) => !p)}
-          >
-            Thay thế {showAudioMenu ? "▴" : "▾"}
-          </button>
-        </div>
-      ) : null}
-
-      {/* Dropdown chọn cách thay thế */}
-      {showAudioMenu && (
-        <div className="audio-field__menu">
-          <label className="audio-field__menu-item">
-            <input
-              type="file"
-              accept="audio/*"
-              hidden
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                if (file) {
-                  setAudioFile(file);
-                  setShowAudioMenu(false);
-                  setIsDirty(true);
-                }
-              }}
-            />
-            <i className="ti ti-upload" aria-hidden="true" />
-            <span>Upload file từ máy</span>
-            <small>mp3, flac, wav...</small>
-          </label>
-          <button
-            type="button"
-            className="audio-field__menu-item"
-            onClick={() => {
-              setAudioMode("url");
-              setShowAudioMenu(false);
-            }}
-          >
-            <i className="ti ti-link" aria-hidden="true" />
-            <span>Nhập URL</span>
-            <small>https://...</small>
-          </button>
-          <button
-            type="button"
-            className="audio-field__menu-item"
-            onClick={() => {
-              setAudioMode("b2key");
-              setShowAudioMenu(false);
-            }}
-          >
-            <i className="ti ti-cloud" aria-hidden="true" />
-            <span>Nhập B2 Key</span>
-            <small>songs/abc.mp3</small>
-          </button>
-        </div>
-      )}
-
-      {/* Đã chọn file mới */}
-      {audioFile && (
-        <div className="audio-field__picked">
-          <i className="ti ti-file-music" aria-hidden="true" />
-          <span className="audio-field__picked-name">
-            {audioFile.name} · {(audioFile.size / 1024 / 1024).toFixed(1)} MB
-          </span>
-          <button
-            type="button"
-            className="audio-field__picked-remove"
-            onClick={() => setAudioFile(null)}
-          >
-            Xoá
-          </button>
-        </div>
-      )}
-
-      {/* Input URL */}
-      {audioMode === "url" && (
-        <input
-          className="song-admin__input"
-          name="audioUrl"
-          value={form.audioUrl}
-          onChange={handleChange}
-          placeholder="https://..."
-          style={{ marginTop: 6 }}
-        />
-      )}
-
-      {/* Input B2 Key */}
-      {audioMode === "b2key" && (
-        <input
-          className="song-admin__input"
-          name="audioKey"
-          value={form.audioKey}
-          onChange={handleChange}
-          placeholder="songs/abc123.mp3"
-          style={{ marginTop: 6 }}
-        />
-      )}
-
-      {/* Thêm mới / bài chưa có audio */}
-      {!isEdit && !audioFile && (
-        <label className="audio-field__empty">
-          <input
-            type="file"
-            accept="audio/*"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              if (file) {
-                setAudioFile(file);
-                setIsDirty(true);
-              }
-            }}
-          />
-          <i className="ti ti-upload" aria-hidden="true" />
-          <span>Chọn file audio để upload</span>
-        </label>
-      )}
-
-      <label className="song-admin__label">Ảnh bìa (URL)</label>
-      <input
-        className="song-admin__input"
-        name="imageUrl"
-        value={form.imageUrl}
-        onChange={handleChange}
-        placeholder="https://..."
-      />
-
-      <label className="song-admin__file-picker" style={{ marginTop: 6 }}>
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            setImageFile(file);
-            if (file) {
-              setForm((p) => ({ ...p, imageUrl: "", coverUrl: "" }));
-              setIsDirty(true);
-            }
-          }}
-        />
-        {imageFile ? "✓ Đã chọn ảnh" : "Chọn ảnh từ máy"}
+      <label className="song-admin__label">
+        Audio <span>*</span>
       </label>
 
+      <div className="song-admin__media-row">
+        <CustomSelect
+          value={audioMethod}
+          onChange={handleAudioMethodChange}
+          options={audioOptions}
+        />
+
+        <div className="song-admin__media-content">
+          {audioMethod === "upload" && (
+            <label className="song-admin__upload-area">
+              <input
+                type="file"
+                accept="audio/*"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file) {
+                    setAudioFile(file);
+                    setForm((p) => ({ ...p, audioUrl: "", audioKey: "" }));
+                    setIsDirty(true);
+                  }
+                }}
+              />
+              {hasExistingAudio || audioFile ? (
+                <>
+                  <i className="ti ti-file-music" aria-hidden="true" />
+                  <span className="file-name">
+                    {audioFile
+                      ? audioFile.name
+                      : form.audioKey?.trim() || form.audioUrl?.trim()}
+                  </span>
+                  <span className="song-admin__change-hint">Nhấn để đổi</span>
+                  {audioFile && (
+                    <button
+                      type="button"
+                      className="song-admin__file-remove"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setAudioFile(null);
+                      }}
+                    >
+                      Xoá
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <i className="ti ti-upload" aria-hidden="true" />
+                  <span>Nhấn để chọn file audio</span>
+                </>
+              )}
+            </label>
+          )}
+
+          {audioMethod === "url" && (
+            <input
+              className="song-admin__input"
+              name="audioUrl"
+              value={form.audioUrl}
+              onChange={handleChange}
+              placeholder="Nhấn để nhập URL audio"
+              style={{ marginTop: 0 }}
+            />
+          )}
+
+          {audioMethod === "b2key" && (
+            <input
+              className="song-admin__input"
+              name="audioKey"
+              value={form.audioKey}
+              onChange={handleChange}
+              placeholder="Nhấn để nhập B2 Key"
+              style={{ marginTop: 0 }}
+            />
+          )}
+        </div>
+      </div>
+
+      <label className="song-admin__label" style={{ marginTop: "12px" }}>
+        Ảnh bìa
+      </label>
+
+      <div className="song-admin__media-row">
+        <CustomSelect
+          value={imageMethod}
+          onChange={handleImageMethodChange}
+          options={imageOptions}
+        />
+
+        <div className="song-admin__media-content">
+          {imageMethod === "upload" && (
+            <label className="song-admin__upload-area">
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file) {
+                    setImageFile(file);
+                    setForm((p) => ({
+                      ...p,
+                      imageUrl: "",
+                      coverUrl: "",
+                      albumId: "",
+                    }));
+                    setAlbumSearch("");
+                    setIsDirty(true);
+                  }
+                }}
+              />
+              {hasExistingImage || imageFile ? (
+                <>
+                  <i className="ti ti-file-image" aria-hidden="true" />
+                  <span className="file-name">
+                    {imageFile
+                      ? imageFile.name
+                      : imageExistingLabel() || "Đã có ảnh"}
+                  </span>
+                  <span className="song-admin__change-hint">Nhấn để đổi</span>
+                  {imageFile && (
+                    <button
+                      type="button"
+                      className="song-admin__file-remove"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        clearImage();
+                      }}
+                    >
+                      Xoá
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <i className="ti ti-upload" aria-hidden="true" />
+                  <span>Nhấn để chọn ảnh bìa</span>
+                </>
+              )}
+            </label>
+          )}
+
+          {imageMethod === "url" && (
+            <input
+              className="song-admin__input"
+              name="imageUrl"
+              value={form.imageUrl}
+              onChange={(e) => {
+                handleChange(e);
+                setImagePreview(e.target.value);
+              }}
+              placeholder="Nhập URL"
+              style={{ marginTop: 0 }}
+            />
+          )}
+
+          {imageMethod === "album" && (
+            <div style={{ position: "relative" }} ref={albumRef}>
+              <input
+                className="song-admin__input"
+                placeholder="Nhập album..."
+                value={albumSearch}
+                onChange={(e) => {
+                  setAlbumSearch(e.target.value);
+                  setShowAlbumDropdown(true);
+                }}
+                onFocus={() => setShowAlbumDropdown(true)}
+                style={{ margin: 0 }}
+              />
+              {form.albumId && (
+                <div
+                  className="song-admin__album-selected"
+               
+                >
+                  <span>
+                    {albums.find((a) => a._id === form.albumId)?.title
+                      ? `Dùng ảnh: ${albums.find((a) => a._id === form.albumId).title}`
+                      : "Đã chọn album"}
+                  </span>
+                  <span className="song-admin__change-hint">
+                    Nhấn ô trên để đổi
+                  </span>
+                </div>
+              )}
+              {showAlbumDropdown && (
+                <ul className="song-admin__album-dropdown">
+                  {albums
+                    .filter(
+                      (a) =>
+                        !albumSearch.trim() ||
+                        a.title
+                          ?.toLowerCase()
+                          .includes(albumSearch.toLowerCase()),
+                    )
+                    .map((a) => (
+                      <li
+                        key={a._id}
+                        className="song-admin__album-option"
+                        style={{
+                          background:
+                            form.albumId === a._id ? "#eff6ff" : undefined,
+                        }}
+                        onMouseDown={() => {
+                          setForm((p) => ({ ...p, albumId: a._id }));
+                          setAlbumSearch(a.title);
+                          setShowAlbumDropdown(false);
+                          setIsDirty(true);
+                        }}
+                      >
+                        {a.coverImage && (
+                          <img
+                            src={a.coverImage}
+                            alt=""
+                            className="song-admin__album-option-cover"
+                          />
+                        )}
+                        {a.title}
+                      </li>
+                    ))}
+                  {albums.filter(
+                    (a) =>
+                      !albumSearch.trim() ||
+                      a.title
+                        ?.toLowerCase()
+                        .includes(albumSearch.toLowerCase()),
+                  ).length === 0 && (
+                    <li className="song-admin__album-option song-admin__album-option--empty">
+                      Không tìm thấy album
+                    </li>
+                  )}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ══════════════ FOOTER ══════════════ */}
       <div className="song-admin__form-footer">
         {isEdit && (
           <button
@@ -527,7 +744,6 @@ function Admin_Song() {
   useEffect(() => {
     fetchSongs();
   }, []);
-
   useEffect(() => {
     setPage(1);
   }, [search, genreFilter, sortBy, missingFilter]);
@@ -587,8 +803,6 @@ function Admin_Song() {
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       case "oldest":
         return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-      case "plays_desc":
-        return (b.plays || 0) - (a.plays || 0);
       default:
         return 0;
     }
@@ -600,7 +814,6 @@ function Admin_Song() {
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
-
   const visibleSongIds = pagedSongs.map((s) => s._id);
   const allVisibleSelected =
     visibleSongIds.length > 0 &&
@@ -683,7 +896,6 @@ function Admin_Song() {
   return (
     <AdminPage title="Quản lý bài hát" actions={headerActions}>
       <div className="song-admin__layout">
-        {/* ── Left panel ── */}
         <div className="song-admin__left">
           <div className="song-admin__meta">
             Songs <span>{songs.length}</span>
@@ -700,7 +912,6 @@ function Admin_Song() {
               }}
               className="song-admin__search-input"
             />
-
             <CustomSelect
               value={sortBy}
               onChange={setSortBy}
@@ -709,10 +920,8 @@ function Admin_Song() {
                 { value: "oldest", label: "Cũ nhất" },
                 { value: "name_asc", label: "A → Z" },
                 { value: "name_desc", label: "Z → A" },
-                // { value: "plays_desc", label: "Lượt nghe" },
               ]}
             />
-
             <CustomSelect
               value={missingFilter}
               onChange={(v) => {
@@ -783,7 +992,6 @@ function Admin_Song() {
             </div>
           </div>
 
-          {/* Inline detail / edit form */}
           <DetailForm
             key={activeSong?._id ?? "new-or-empty"}
             song={activeSong}
@@ -797,7 +1005,6 @@ function Admin_Song() {
           />
         </div>
 
-        {/* ── Right panel ── */}
         <div className="song-admin__right">
           {loading ? (
             <p className="song-admin__loading">Đang tải...</p>

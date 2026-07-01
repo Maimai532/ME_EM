@@ -9,29 +9,54 @@ export const artistService = {
   getAll: () => axios.get(`${API}/artists`),
   getById: (id) => axios.get(`${API}/artists/${id}`),
 
-  create: (formData) =>
-    axios.post(`${API}/artists`, formData, { headers: authHeader() }),
-
-  update: (id, formData) =>
-    axios.put(`${API}/artists/${id}`, formData, { headers: authHeader() }),
-
   delete: (id) =>
     axios.delete(`${API}/artists/${id}`, { headers: authHeader() }),
 
   // Album
   addAlbum: (artistId, formData) =>
-    axios.post(`${API}/artists/${artistId}/albums`, formData, { headers: authHeader() }),
+    axios.post(`${API}/artists/${artistId}/albums`, formData, {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data", // ép đúng type
+      },
+    }),
+
+  create: (formData) =>
+    axios.post(`${API}/artists`, formData, {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
+  update: (id, formData) =>
+    axios.put(`${API}/artists/${id}`, formData, {
+      headers: {
+        ...authHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    }),
 
   deleteAlbum: (artistId, albumId) =>
-    axios.delete(`${API}/artists/${artistId}/albums/${albumId}`, { headers: authHeader() }),
+    axios.delete(`${API}/artists/${artistId}/albums/${albumId}`, {
+      headers: authHeader(),
+    }),
 
   // Songs
   addExistingSong: (artistId, songId, albumId) =>
-    axios.post(`${API}/artists/${artistId}/songs`, { songId, albumId }, { headers: authHeader() }),
+    axios.post(
+      `${API}/artists/${artistId}/songs`,
+      { songId, albumId },
+      { headers: authHeader() },
+    ),
 
   createNewSong: (artistId, data) =>
-    axios.post(`${API}/artists/${artistId}/songs/new`, data, { headers: authHeader() }),
+    axios.post(`${API}/artists/${artistId}/songs/new`, data, {
+      headers: authHeader(),
+    }),
 
   removeSong: (artistId, songId) =>
-    axios.delete(`${API}/artists/${artistId}/songs/${songId}`, { headers: authHeader() }),
+    axios.delete(`${API}/artists/${artistId}/songs/${songId}`, {
+      headers: authHeader(),
+    }),
 };

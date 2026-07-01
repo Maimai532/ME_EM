@@ -1,5 +1,6 @@
 import Song from "../../shared/models/Song.js";
 import Artist from "../../shared/models/artist.model.js";
+import Album from "../../shared/models/album.model.js";
 import {
   uploadToB2,
   getPresignedUrl,
@@ -11,6 +12,13 @@ import {
   uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
 
+async function resolveAlbumCover(song) {
+  if (song.imageUrl) return song.imageUrl;
+  if (!song.albumId) return null;
+  const album = await Album.findById(song.albumId).select("coverImage").lean();
+  return album?.coverImage || null;
+}
+
 export const getAllSongs = async (req, res) => {
   try {
     const songs = await Song.find().sort({ createdAt: -1 });
@@ -19,7 +27,7 @@ export const getAllSongs = async (req, res) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = song.imageUrl || null;
+        const coverUrl = await resolveAlbumCover(song);
         return { ...song.toObject(), streamUrl, coverUrl };
       }),
     );
@@ -39,7 +47,7 @@ export const getSongById = async (req, res) => {
     const streamUrl = song.audioKey
       ? await getPresignedUrl(song.audioKey, 3600)
       : song.audioUrl;
-    const coverUrl = song.imageUrl || null;
+    const coverUrl = await resolveAlbumCover(song);
     res.json({
       success: true,
       data: { ...song.toObject(), streamUrl, coverUrl },
@@ -130,10 +138,24 @@ export const createSong = async (req, res) => {
       }
     }
 
+    // Auto-match albumId theo tên album (nếu chưa có albumId từ request)
+    if (album && !req.body.albumId) {
+      const foundAlbum = await Album.findOne({
+        title: { $regex: new RegExp(`^${album.trim()}$`, "i") },
+      });
+      if (foundAlbum) {
+        song.albumId = foundAlbum._id;
+        await song.save();
+      }
+    } else if (req.body.albumId) {
+      song.albumId = req.body.albumId;
+      await song.save();
+    }
+
     const streamUrl = song.audioKey
       ? await getPresignedUrl(song.audioKey, 3600)
       : song.audioUrl;
-    const coverUrl = song.imageUrl || null;
+    const coverUrl = await resolveAlbumCover(song);
 
     res.status(201).json({
       success: true,
@@ -156,6 +178,11 @@ export const updateSong = async (req, res) => {
     const updateData = { ...req.body };
     delete updateData._id;
     delete updateData.__v;
+
+    // Nếu client gửi albumId thì gán, gửi chuỗi rỗng thì clear
+    if (req.body.albumId !== undefined) {
+      updateData.albumId = req.body.albumId || null;
+    }
 
     if (req.files?.audio?.[0]) {
       const audioFile = req.files.audio[0];
@@ -193,7 +220,7 @@ export const updateSong = async (req, res) => {
     const streamUrl = updated.audioKey
       ? await getPresignedUrl(updated.audioKey, 3600)
       : updated.audioUrl;
-    const coverUrl = updated.imageUrl || null;
+    const coverUrl = await resolveAlbumCover(updated);
 
     res.json({
       success: true,
@@ -251,7 +278,7 @@ export const searchSongs = async (req, res) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = song.imageUrl || null;
+        const coverUrl = await resolveAlbumCover(song);
         return { ...song.toObject(), streamUrl, coverUrl };
       }),
     );
