@@ -48,7 +48,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
       >
         <div className="song-card__cover-wrap">
           <img
-            src={song.imageUrl || "/placeholder.jpg"}
+            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
             alt={song.title}
             className="song-card__img"
           />
@@ -82,7 +82,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
       >
         <div className="song-card__cover-wrap">
           <img
-            src={song.imageUrl || "/placeholder.jpg"}
+            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
             alt={song.title}
             className="song-card__img"
           />
@@ -110,7 +110,7 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
       >
         <div className="song-card__cover-wrap">
           <img
-            src={song.imageUrl || "/placeholder.jpg"}
+            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
             alt={song.title}
             className="song-card__img"
           />

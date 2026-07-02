@@ -1,5 +1,6 @@
 //sectionController.js
 import Section from "../../shared/models/Section.js";
+import { resolveAlbumCover } from "../song/song.controller.js"; 
 
 // Lấy tất cả sections
 export const getAllSections = async (req, res) => {
@@ -7,11 +8,23 @@ export const getAllSections = async (req, res) => {
     const sections = await Section.find({ isVisible: true }).sort({ order: 1 });
 
     const populated = await Promise.all(
-      sections.map((section) => {
+      sections.map(async (section) => {
         if (section.type === "artist") {
           return section.populate("artists");
         }
-        return section.populate("songs");
+        await section.populate("songs");
+
+        // Tính coverUrl cho từng song (fallback về ảnh album nếu song không có ảnh riêng)
+        const songsWithCover = await Promise.all(
+          section.songs.map(async (song) => {
+            const coverUrl = await resolveAlbumCover(song);
+            return { ...song.toObject(), coverUrl };
+          }),
+        );
+
+        const sectionObj = section.toObject();
+        sectionObj.songs = songsWithCover;
+        return sectionObj;
       })
     );
 
@@ -121,3 +134,5 @@ export const removeArtistFromSection = async (req, res) => {
     res.status(400).json({ success: false, message: err.message })
   }
 }
+
+

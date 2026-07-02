@@ -134,27 +134,24 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
   const isEdit = !!safeSong._id;
   const { showToast } = useToast();
 
-  // ── Audio state ──
   const [audioMethod, setAudioMethod] = useState("upload");
   const [audioFile, setAudioFile] = useState(null);
 
-  // ── Image state ──
   const [imageMethod, setImageMethod] = useState("upload");
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(safeSong.coverUrl || "");
+  const [removeImage, setRemoveImage] = useState(false);
 
-  // ── Album picker state ──
   const [albums, setAlbums] = useState([]);
   const [albumSearch, setAlbumSearch] = useState("");
   const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
   const albumRef = useRef(null);
 
-  // ── Form state ──
   const [form, setForm] = useState(safeSong);
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(!isEdit);
+  
 
-  // fetch albums once
   useEffect(() => {
     axios
       .get(`${API_URL}/albums`)
@@ -162,7 +159,6 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
       .catch(() => {});
   }, []);
 
-  // close album dropdown on outside click
   useEffect(() => {
     function handle(e) {
       if (albumRef.current && !albumRef.current.contains(e.target))
@@ -172,7 +168,6 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     return () => document.removeEventListener("mousedown", handle);
   }, []);
 
-  // reset form when song changes
   useEffect(() => {
     const s = normalizeSongForm({ ...emptyForm, ...(song || {}) });
     setForm(s);
@@ -244,6 +239,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
     setAlbumSearch("");
     setShowAlbumDropdown(false);
     setForm((p) => ({ ...p, imageUrl: "", coverUrl: "", albumId: "" }));
+    setRemoveImage(true);
     setIsDirty(true);
   }
 
@@ -288,6 +284,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
       });
       if (audioFile) fd.append("audio", audioFile);
       if (imageFile) fd.append("image", imageFile);
+      if (removeImage && !imageFile) fd.append("removeImage", "true");
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
       let res;
@@ -297,7 +294,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
         res = await axios.post(`${API_URL}/songs`, fd, config);
       }
 
-      showToast(isEdit ? "Đã lưu!" : "Đã tạo!", "success");
+      showToast(isEdit ? "Đã lưu thay đổi!" : "Đã tạo!", "success");
       onSaved(res.data.data);
     } catch {
       showToast("Có lỗi!", "error");
@@ -613,10 +610,7 @@ function DetailForm({ song, token, onSaved, onClose, onDelete }) {
                 style={{ margin: 0 }}
               />
               {form.albumId && (
-                <div
-                  className="song-admin__album-selected"
-               
-                >
+                <div className="song-admin__album-selected">
                   <span>
                     {albums.find((a) => a._id === form.albumId)?.title
                       ? `Dùng ảnh: ${albums.find((a) => a._id === form.albumId).title}`
@@ -1015,6 +1009,7 @@ function Admin_Song() {
                   <table className="song-admin__table">
                     <colgroup>
                       <col className="song-admin__col-select" />
+                      <col className="song-admin__col-img" />
                       <col className="song-admin__col-name" />
                       <col className="song-admin__col-artist" />
                     </colgroup>
@@ -1027,8 +1022,9 @@ function Admin_Song() {
                             onChange={toggleSelectAll}
                           />
                         </th>
-                        <th className="song-admin__th">Tên</th>
-                        <th className="song-admin__th">Nghệ sĩ</th>
+                        <th className="song-admin__th">IMG</th>
+                        <th className="song-admin__th">Name</th>
+                        <th className="song-admin__th">Artists</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1056,6 +1052,19 @@ function Admin_Song() {
                                 onClick={(e) => e.stopPropagation()}
                                 onChange={() => toggleSelect(song._id)}
                               />
+                            </td>
+                            <td className="song-admin__td">
+                              {song.coverUrl ? (
+                                <img
+                                  src={song.coverUrl}
+                                  alt={song.title}
+                                  className="song-admin__cover"
+                                />
+                              ) : (
+                                <div className="song-admin__cover song-admin__cover--empty">
+                                  🖼️
+                                </div>
+                              )}
                             </td>
                             <td className="song-admin__td">{song.title}</td>
                             <td className="song-admin__td">

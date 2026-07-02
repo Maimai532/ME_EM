@@ -12,7 +12,7 @@ import {
   uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
 
-async function resolveAlbumCover(song) {
+export async function resolveAlbumCover(song) {
   if (song.imageUrl) return song.imageUrl;
   if (!song.albumId) return null;
   const album = await Album.findById(song.albumId).select("coverImage").lean();
@@ -167,6 +167,30 @@ export const createSong = async (req, res) => {
   }
 };
 
+async function isImageShared(publicId, excludeSongId) {
+  if (!publicId) return false;
+  const usedByOtherSong = await Song.exists({
+    _id: { $ne: excludeSongId },
+    imagePublicId: publicId,
+  });
+  if (usedByOtherSong) return true;
+
+  const usedByAlbum = await Album.exists({ coverPublicId: publicId });
+  if (usedByAlbum) return true;
+
+  return false;
+}
+
+async function safeDeleteImage(publicId, excludeSongId) {
+  if (!publicId) return;
+  const shared = await isImageShared(publicId, excludeSongId);
+  if (shared) {
+    console.log(`Bỏ qua xoá ảnh ${publicId} vì đang được dùng chung`);
+    return;
+  }
+  await deleteFromCloudinary(publicId);
+}
+
 export const updateSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
@@ -179,7 +203,6 @@ export const updateSong = async (req, res) => {
     delete updateData._id;
     delete updateData.__v;
 
-    // Nếu client gửi albumId thì gán, gửi chuỗi rỗng thì clear
     if (req.body.albumId !== undefined) {
       updateData.albumId = req.body.albumId || null;
     }
@@ -198,18 +221,28 @@ export const updateSong = async (req, res) => {
       updateData.audioKey = null;
     }
 
-    if (req.files?.image?.[0]) {
+    if (req.body.removeImage === "true" && !req.files?.image?.[0]) {
+      await safeDeleteImage(song.imagePublicId, song._id);
+      updateData.imageUrl = "";
+      updateData.imagePublicId = null;
+    }
+    else if (req.files?.image?.[0]) {
       const imageFile = req.files.image[0];
-      if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
+      await safeDeleteImage(song.imagePublicId, song._id);
       const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
       updateData.imageUrl = result.url;
       updateData.imagePublicId = result.publicId;
-    } else if (req.body.imageUrl) {
+    }
+    else if (req.body.imageUrl) {
       const result = await ensureCloudinaryUrl(req.body.imageUrl, "songs");
       if (result) {
-        if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
+        await safeDeleteImage(song.imagePublicId, song._id);
         updateData.imageUrl = result.url;
         updateData.imagePublicId = result.publicId;
+      } else {
+        await safeDeleteImage(song.imagePublicId, song._id);
+        updateData.imageUrl = req.body.imageUrl;
+        updateData.imagePublicId = null;
       }
     }
 
@@ -301,3 +334,5 @@ export const streamSong = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+

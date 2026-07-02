@@ -220,8 +220,8 @@ export const addAlbum = async (req, res) => {
       coverKey,
       coverPublicId,
     });
-    console.log("req.file:", req.file);
-    console.log("req.body:", req.body);
+    // console.log("req.file:", req.file);
+    // console.log("req.body:", req.body);
     artist.albums.push(album._id);
     await artist.save();
 

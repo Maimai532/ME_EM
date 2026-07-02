@@ -632,8 +632,9 @@
 }
 
 .song-admin__col-select { width: 10%; }
+.song-admin__col-name   { width: 10%; }
 .song-admin__col-name   { width: 50%; }
-.song-admin__col-artist { width: 40%; }
+.song-admin__col-artist { width: 30%; }
 
 .song-admin__th {
   text-align: left;
@@ -661,6 +662,24 @@
 .song-admin__row {
   cursor: pointer;
   transition: background-color 0.1s;
+}
+
+
+
+.song-admin__cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+.song-admin__cover--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2b2b2b;
+  color: #888;
 }
 
 .song-admin__row:hover {
