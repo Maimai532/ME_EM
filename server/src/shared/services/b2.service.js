@@ -1,5 +1,10 @@
 // b2.service.js
-import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import multer from "multer";
 
@@ -26,7 +31,7 @@ export const uploadToB2 = async (fileBuffer, fileName, mimeType, folder) => {
       Key: key,
       Body: fileBuffer,
       ContentType: mimeType,
-    })
+    }),
   );
   return key;
 };
@@ -40,12 +45,17 @@ export const getPresignedUrl = async (key, expiresIn = 3600) => {
 };
 
 export const deleteFromB2 = async (key) => {
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-    })
-  );
+  if (!key) return;
+  try {
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+      }),
+    );
+  } catch (e) {
+    console.warn("Không xoá được file B2:", e.message);
+  }
 };
 
 export const uploadSongMedia = multer({

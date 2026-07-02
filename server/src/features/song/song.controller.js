@@ -207,6 +207,8 @@ export const updateSong = async (req, res) => {
       updateData.albumId = req.body.albumId || null;
     }
 
+    const oldAudioKey = song.audioKey; 
+
     if (req.files?.audio?.[0]) {
       const audioFile = req.files.audio[0];
       const audioKey = await uploadToB2(
@@ -219,21 +221,25 @@ export const updateSong = async (req, res) => {
       updateData.audioUrl = null;
     } else if (req.body.audioUrl) {
       updateData.audioKey = null;
+    } else if (
+      req.body.audioKey !== undefined &&
+      req.body.audioKey !== oldAudioKey
+    ) {
+      updateData.audioKey = req.body.audioKey || null;
+      updateData.audioUrl = null;
     }
 
     if (req.body.removeImage === "true" && !req.files?.image?.[0]) {
       await safeDeleteImage(song.imagePublicId, song._id);
       updateData.imageUrl = "";
       updateData.imagePublicId = null;
-    }
-    else if (req.files?.image?.[0]) {
+    } else if (req.files?.image?.[0]) {
       const imageFile = req.files.image[0];
       await safeDeleteImage(song.imagePublicId, song._id);
       const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
       updateData.imageUrl = result.url;
       updateData.imagePublicId = result.publicId;
-    }
-    else if (req.body.imageUrl) {
+    } else if (req.body.imageUrl) {
       const result = await ensureCloudinaryUrl(req.body.imageUrl, "songs");
       if (result) {
         await safeDeleteImage(song.imagePublicId, song._id);
@@ -249,6 +255,10 @@ export const updateSong = async (req, res) => {
     const updated = await Song.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
     });
+
+    if (oldAudioKey && oldAudioKey !== updated.audioKey) {
+      await safeDeleteAudio(oldAudioKey, updated._id);
+    }
 
     const streamUrl = updated.audioKey
       ? await getPresignedUrl(updated.audioKey, 3600)
@@ -272,7 +282,7 @@ export const deleteSong = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Không tìm thấy bài hát" });
     if (song.audioKey) await deleteFromB2(song.audioKey);
-    if (song.imageKey) await deleteFromB2(song.imageKey);
+    // if (song.imageKey) await deleteFromB2(song.imageKey);
     if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
     await song.deleteOne();
     res.json({ success: true, message: "Đã xoá bài hát" });
@@ -334,5 +344,24 @@ export const streamSong = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+async function isAudioShared(audioKey, excludeSongId) {
+  if (!audioKey) return false;
+  const usedByOtherSong = await Song.exists({
+    _id: { $ne: excludeSongId },
+    audioKey,
+  });
+  return !!usedByOtherSong;
+}
+
+async function safeDeleteAudio(audioKey, excludeSongId) {
+  if (!audioKey) return;
+  const shared = await isAudioShared(audioKey, excludeSongId);
+  if (shared) {
+    console.log(`Bỏ qua xoá audio ${audioKey} vì đang được song khác dùng`);
+    return;
+  }
+  await deleteFromB2(audioKey);
+}
 
 

@@ -29,7 +29,7 @@ const songSchema = new mongoose.Schema(
 
     // Keys B2 (mới)
     audioKey: { type: String, default: null },
-    imageKey: { type: String, default: null },
+    // imageKey: { type: String, default: null },
     imagePublicId: { type: String, default: null },
   },
   { timestamps: true },
