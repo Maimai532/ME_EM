@@ -34,9 +34,9 @@ function SuggestionSection({ query, suggestions, sourceType, onSuggestionClick, 
             onClick={() => onSuggestionClick(song)}
           >
             <div className="suggestion-card__img-wrap">
-              {song.imageUrl ? (
+              {song.coverUrl ||song.imageUrl ? (
                 <img
-                  src={song.imageUrl}
+                  src={song.coverUrl || song.imageUrl}
                   alt={song.title}
                   className="suggestion-card__img"
                 />

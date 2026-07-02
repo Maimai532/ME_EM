@@ -99,7 +99,7 @@ export default function Playlist() {
                   </div>
 
                   <img
-                    src={song.imageUrl || "/placeholder.jpg"}
+                    src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                     alt={song.title}
                     className="song-row__thumb"
                   />
@@ -143,7 +143,7 @@ export default function Playlist() {
             {suggestions.map((song) => (
               <div key={song._id} className="suggestion-row">
                 <img
-                  src={song.imageUrl || "/placeholder.jpg"}
+                  src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                   alt={song.title}
                   className="suggestion-row__thumb"
                 />

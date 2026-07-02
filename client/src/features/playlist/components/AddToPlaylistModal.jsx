@@ -40,7 +40,7 @@ export default function AddToPlaylistModal({ song, onClose }) {
 
         {/* Song info */}
         <div className="atp-song">
-          <img src={song.imageUrl || "/placeholder.jpg"} alt={song.title} />
+          <img src={song.coverUrl || song.imageUrl || "/placeholder.jpg"} alt={song.title} />
           <div>
             <p className="atp-song__title">{song.title}</p>
             <p className="atp-song__artist">{song.artist}</p>

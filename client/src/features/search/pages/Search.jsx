@@ -205,7 +205,7 @@ function SongItem({ song, queue, playSong }) {
     <div className="search-page__item" onClick={() => playSong(song, queue)}>
       <div className="search-page__img-wrap">
         <img
-          src={song.imageUrl || "/placeholder.jpg"}
+          src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
           alt={song.title}
           className="search-page__img"
         />
@@ -364,7 +364,7 @@ function Search() {
                     src={
                       topResultType === "artist"
                         ? topResult.avatar || "/default-artist.png"
-                        : topResult.imageUrl || "/placeholder.jpg"
+                        : topResult.coverUrl || topResult.imageUrl || "/placeholder.jpg"
                     }
                     alt={topResult.title || topResult.name}
                   />

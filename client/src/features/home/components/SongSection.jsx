@@ -13,13 +13,16 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
     <section className="song-section">
       <div className="song-section__header">
         <h2 className="song-section__title">{title}</h2>
-        <button type="button" className="song-section__play-btn" onClick={onPlay}>
-          Phát
+        <button
+          type="button"
+          className="song-section__play-btn"
+          onClick={onPlay}
+        >
+          Phát ▶︎
         </button>
       </div>
 
-    
-        <div className={`song-section__grid song-section__grid--${layout}`}>
+      <div className={`song-section__grid song-section__grid--${layout}`}>
         {songs.map((song) => (
           <SongCard
             key={song._id}
@@ -29,9 +32,9 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
             songList={songs}
           />
         ))}
-        </div>
+      </div>
 
-        {/* <ScrollContainer className={`song-section__grid song-section__grid--${layout}`}>
+      {/* <ScrollContainer className={`song-section__grid song-section__grid--${layout}`}>
         {songs.map((song) => (
           <SongCard
             key={song._id}
@@ -42,7 +45,6 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
           />
         ))}
         </ScrollContainer> */}
-
     </section>
   );
 }

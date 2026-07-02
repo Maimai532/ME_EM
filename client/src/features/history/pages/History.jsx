@@ -117,7 +117,7 @@ export default function HistoryPage() {
                   >
                     <div className="history-page__img-wrap">
                       <img
-                        src={song.imageUrl || "/placeholder.jpg"}
+                        src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                         alt={song.title}
                         className="history-page__img"
                       />

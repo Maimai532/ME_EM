@@ -49,13 +49,13 @@ export default function PlayerBar() {
 
   return (
     <>
-      {/* <button
+      <button
         className={`player-bar__toggle ${!isPlayerVisible ? "player-bar__toggle--hidden" : ""}`}
         onClick={() => setIsPlayerVisible((v) => !v)}
         title={isPlayerVisible ? "Ẩn player" : "Hiện player"}
       >
         {isPlayerVisible ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-      </button> */}
+      </button>
       <div
         className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""} ${isMusicPlayerVisible ? "player-bar--player-open" : ""}`}
         onClick={() => setIsMusicPlayerVisible((v) => !v)}
@@ -78,16 +78,16 @@ export default function PlayerBar() {
               rgba(255,255,255,0.15) ${(currentTime / (duration || 1)) * 100}%)`,
             }}
           />
-          <div className="player-bar__times">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
-          </div>
         </div>
 
         <div className="player-bar__content">
           <div className="player-bar__song" style={{ cursor: "pointer" }}>
             <img
-              src={currentSong.imageUrl || "/placeholder.jpg"}
+              src={
+                currentSong.coverUrl ||
+                currentSong.imageUrl ||
+                "/placeholder.jpg"
+              }
               alt={currentSong.title}
               className="player-bar__thumb"
             />
@@ -134,6 +134,11 @@ export default function PlayerBar() {
             className="player-bar__right"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="player-bar__times">
+              <span>{formatTime(currentTime)}</span>
+              <span>/</span>
+              <span>{formatTime(duration)}</span>
+            </div>
             <button
               className="player-btn"
               onClick={(e) => {

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Music2 } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Music2, ArrowLeft } from "lucide-react";
 import { usePlayer } from "../../player/context/PlayerContext";
 import useArtistDetail from "../hooks/useArtist";
 import "../styles/Artist.css";
@@ -9,6 +9,7 @@ export default function Artist() {
   const { id } = useParams();
   const { artist, loading, error } = useArtistDetail(id);
   const { playSong } = usePlayer();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (artist) document.title = `${artist.name} — Me_Em`;
@@ -34,6 +35,10 @@ export default function Artist() {
 
   return (
     <div className="artist">
+      <button className="playlist__back" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        Back
+      </button>
       <div className="artist__header">
         <div className="artist__avatar-wrap">
           {artist.avatar ? (
@@ -48,7 +53,7 @@ export default function Artist() {
             </div>
           )}
         </div>
-        <div class="artist__overlay"></div>
+        <div className="artist__overlay"></div>
         <div className="artist__meta">
           <h1 className="artist__name">{artist.name}</h1>
 

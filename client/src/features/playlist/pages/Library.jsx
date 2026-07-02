@@ -68,11 +68,11 @@ export default function Library() {
             onClick={() => navigate(`/playlist/${pl._id}`)}
           >
             <div className="library__card-cover">
-              {pl.songs?.[0]?.imageUrl ? (
+              {pl.songs?.[0]?.coverUrl || pl.songs?.[0]?.imageUrl ? (
                 <div className="library__stack">
                   <img
                     className="library__stack-img"
-                    src={pl.songs[0].imageUrl}
+                    src={pl.songs[0].coverUrl || pl.songs[0].imageUrl}
                     alt={pl.name}
                   />
                 </div>

@@ -507,7 +507,7 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                   onClick={() => toggleSong(song._id)}
                 >
                   <img
-                    src={song.imageUrl || "/default-cover.png"}
+                    src={song.coverUrl || song.imageUrl || "/default-cover.png"}
                     alt={song.title}
                   />
                   <div>

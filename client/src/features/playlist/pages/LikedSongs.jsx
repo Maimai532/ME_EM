@@ -48,7 +48,7 @@ export default function LikedSongs() {
               </span>
 
               <img
-                src={song.imageUrl || "/placeholder.jpg"}
+                src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                 alt={song.title}
                 className="liked__image"
               />

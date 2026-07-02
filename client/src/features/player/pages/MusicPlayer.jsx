@@ -24,36 +24,31 @@ function darkenColor(hex) {
 }
 export default function MusicPlayer() {
   const navigate = useNavigate();
-
   const { currentSong, playSong, queue, fallbackList } = usePlayer();
-
   const [bgColor, setBgColor] = useState("#000000");
+  const [activeTab, setActiveTab] = useState("queue");
 
   useEffect(() => {
-    if (!currentSong?.imageUrl) return;
+    const cover = currentSong?.coverUrl || currentSong?.imageUrl;
+    if (!cover) return;
 
     const img = new Image();
-
     img.crossOrigin = "anonymous";
-
-    img.src = currentSong.imageUrl;
+    img.src = cover;
 
     img.onload = async () => {
       try {
         const palette = await Vibrant.from(img).getPalette();
-
         const vibrant = palette.Vibrant;
 
         if (!vibrant || vibrant.population < 20) {
           const avg = await fac.getColorAsync(img);
-
           setBgColor(avg.hex);
         } else {
           setBgColor(darkenColor(vibrant.hex));
         }
       } catch {
         const avg = await fac.getColorAsync(img);
-
         setBgColor(avg.hex);
       }
     };
@@ -69,17 +64,19 @@ export default function MusicPlayer() {
   const dedupedQueue = [
     ...new Map(displayQueue.map((s) => [s._id, s])).values(),
   ];
+  const tabs = [
+    { key: "queue", label: "Tiếp theo" },
+    { key: "lyrics", label: "Lyrics" },
+    { key: "related", label: "Bài hát của..." },
+  ];
 
   return (
-    <div className="player-body">
-      <div
-        className="player-left"
-        style={{
-          "--bg": bgColor,
-        }}
-      >
+    <div className="player-body" style={{ "--bg": bgColor }}>
+      <div className="player-left">
         <img
-          src={currentSong.imageUrl || "/placeholder.jpg"}
+          src={
+            currentSong.coverUrl || currentSong.imageUrl || "/placeholder.jpg"
+          }
           alt={currentSong.title}
           className="player-cover"
           crossOrigin="anonymous"
@@ -87,36 +84,68 @@ export default function MusicPlayer() {
       </div>
 
       <div className="player-right">
-        <h2 className="queue-title">Tiếp theo</h2>
-
-        <div className="queue-list">
-          {dedupedQueue.map((s) => (
-            <div
-              key={s._id}
-              className={`queue-item ${
-                s._id === currentSong._id ? "queue-item--active" : ""
+        <div className="queue-tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              className={`queue-tab ${
+                activeTab === tab.key ? "queue-tab--active" : ""
               }`}
-              onClick={() => playSong(s, dedupedQueue)}
+              onClick={() => setActiveTab(tab.key)}
             >
-              <img
-                src={s.imageUrl || "/placeholder.jpg"}
-                alt={s.title}
-                className="queue-thumb"
-              />
-
-              <div className="queue-info">
-                <p
-                  className={`queue-item-title ${
-                    s._id === currentSong._id ? "queue-item-title--active" : ""
-                  }`}
-                >
-                  {s.title}
-                </p>
-
-                <p className="queue-item-artist">{s.artist}</p>
-              </div>
-            </div>
+              {tab.label}
+            </button>
           ))}
+        </div>
+
+        <div className="queue-panel">
+          {activeTab === "queue" && (
+            <div className="queue-list">
+              {dedupedQueue.map((s) => (
+                <div
+                  key={s._id}
+                  className={`queue-item ${
+                    s._id === currentSong._id ? "queue-item--active" : ""
+                  }`}
+                  onClick={() => playSong(s, dedupedQueue)}
+                >
+                  <img
+                    src={s.coverUrl || s.imageUrl || "/placeholder.jpg"}
+                    alt={s.title}
+                    className="queue-thumb"
+                  />
+                  <div className="queue-info">
+                    <p
+                      className={`queue-item-title ${
+                        s._id === currentSong._id
+                          ? "queue-item-title--active"
+                          : ""
+                      }`}
+                    >
+                      {s.title}
+                    </p>
+                    <p className="queue-item-artist">{s.artist}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "lyrics" && (
+            <div className="lyrics-panel">
+              <p style={{ opacity: 0.5, padding: "10px 8px" }}>
+                Lyrics
+              </p>
+            </div>
+          )}
+
+          {activeTab === "related" && (
+            <div className="related-panel">
+              <p style={{ opacity: 0.5, padding: "10px 8px" }}>
+                Bài hát liên quan 
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

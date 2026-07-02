@@ -202,7 +202,7 @@ function Navbar({ isOpen, setIsOpen }) {
                     }}
                   >
                     <img
-                      src={song.imageUrl || "/placeholder.jpg"}
+                      src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                       alt={song.title}
                       className="search-dropdown__result-img"
                     />
