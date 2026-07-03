@@ -8,12 +8,14 @@ import Sidebar from "../components/Sidebar";
 import PlayerBar from "../../features/player/components/PlayerBar";
 import MusicPlayer from "../../features/player/pages/MusicPlayer";
 import "../styles/MainLayout.css";
+import useKeyboardShortcuts from "../hooks/useKeyboardShortcuts";
 
 function MainLayout() {
   const [isOpen, setIsOpen] = useState(true);
   const { isLoggedIn, logout } = useAuth();
   const { isPlayerVisible, isMusicPlayerVisible, setIsMusicPlayerVisible } = usePlayer();
   const location = useLocation();
+  useKeyboardShortcuts();
 
   // Ẩn MusicPlayer khi đổi route
   useEffect(() => {

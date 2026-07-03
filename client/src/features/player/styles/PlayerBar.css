@@ -137,11 +137,12 @@ a.player-bar__song {
 .player-bar__controls {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   gap: 50px;
   padding: 0 10px;
   pointer-events: all;
   justify-self: center;
+  /* background-color: #19475ca6; */
 }
 
 .player-btn {
@@ -170,11 +171,40 @@ a.player-bar__song {
   background: white;
   color: #1a1a2e;
   border-radius: 50%;
+  position: relative;
 }
 
 .player-btn--play:hover {
   transform: scale(1.05);
   color: #0f5486;
+}
+
+.player-btn--loading::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    transparent 5%,
+    rgba(104, 198, 237, 0.15) 65%,
+    rgba(104, 198, 237, 0.6) 82%,
+    #68c6ed 100%
+  );
+  /* khoét rỗng phần giữa, chỉ giữ lại viền mỏng ~3px */
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+
+  animation: spin-tail 0.9s linear infinite;
+  pointer-events: none;
+  /* filter: drop-shadow(0 0 4px rgba(104, 198, 237, 0.6)); */
+}
+
+@keyframes spin-tail {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Volume */

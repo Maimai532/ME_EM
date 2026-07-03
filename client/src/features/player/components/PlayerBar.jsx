@@ -44,7 +44,7 @@ export default function PlayerBar() {
   const { likedSongs, toggleLike } = useAuth();
   const isLiked = likedSongs.some((s) => s._id === currentSong?._id);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
-  const { isMusicPlayerVisible } = usePlayer();
+  const { isMusicPlayerVisible, isBuffering } = usePlayer();
   if (!currentSong) return null;
 
   return (
@@ -98,7 +98,6 @@ export default function PlayerBar() {
           </div>
 
           {/* Controls*/}
-
           <div
             className="player-bar__controls"
             onClick={(e) => e.stopPropagation()}
@@ -113,7 +112,9 @@ export default function PlayerBar() {
               <SkipBack size={20} />
             </button>
             <button
-              className="player-btn player-btn--play"
+              className={`player-btn player-btn--play ${
+                isBuffering ? "player-btn--loading" : ""
+              }`}
               onClick={togglePlay}
             >
               {isPlaying ? <Pause size={22} /> : <Play size={22} />}

@@ -21,6 +21,7 @@ export function PlayerProvider({ children }) {
   const [volume, setVolume] = useState(0.8);
   const lastVolumeRef = useRef(0.8);
 
+  const [isBuffering, setIsBuffering] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [isPlayerVisible, setIsPlayerVisible] = useState(true);
@@ -37,7 +38,6 @@ export function PlayerProvider({ children }) {
   const fallbackIndexRef = useRef(0);
   const playNextRef = useRef(null);
   const [fallbackList, setFallbackListState] = useState([]);
-
   const setFallbackList = useCallback((list) => {
     fallbackListRef.current = list;
   }, []);
@@ -54,10 +54,10 @@ export function PlayerProvider({ children }) {
       skipHistory = false,
       skipFallbackUpdate = false,
       isFallbackPlay = false,
+      autoShow = true, // true = do user bấm chọn bài, false = hệ thống tự next/prev
     ) => {
       if (!song) return;
 
-      // Update fallback list — chỉ reset index khi user chủ động chọn
       if (songList.length > 0 && !skipFallbackUpdate) {
         fallbackListRef.current = songList;
         if (!isFallbackPlay) {
@@ -65,7 +65,6 @@ export function PlayerProvider({ children }) {
         }
       }
 
-      // Push history trừ khi đang đi prev
       if (
         !skipHistory &&
         currentSongRef.current &&
@@ -74,11 +73,9 @@ export function PlayerProvider({ children }) {
         historyRef.current = [...historyRef.current, currentSongRef.current];
       }
 
-      // Reset audio trước khi load bài mới
       audio.pause();
       audio.src = "";
 
-      // Fetch fresh presigned URL
       let src;
       try {
         const fresh = await getSongById(song._id);
@@ -90,11 +87,10 @@ export function PlayerProvider({ children }) {
 
       if (!src) {
         console.warn("Không có URL để play:", song.title);
-        playNext(); // ← tự động skip bài lỗi thay vì dừng lại
+        setIsMusicPlayerVisible(true); // gặp lỗi -> hiện player để user biết
+        playNext();
         return;
       }
-
-      if (!src) return console.warn("Không có URL để play:", song.title);
 
       const remaining = songList.filter((s) => s._id !== song._id);
       updateQueue(remaining);
@@ -113,7 +109,10 @@ export function PlayerProvider({ children }) {
       currentSongRef.current = song;
       setIsPlaying(true);
       setCurrentTime(0);
-      setIsMusicPlayerVisible(true);
+
+      if (autoShow) {
+        setIsMusicPlayerVisible(true);
+      }
 
       try {
         addToHistory(song._id);
@@ -147,7 +146,7 @@ export function PlayerProvider({ children }) {
           const remaining = newList.filter((s) => s._id !== firstSong._id);
 
           updateQueue(remaining);
-          playSong(firstSong, newList, false, true, true);
+          playSong(firstSong, newList, false, true, true, false);
         })
         .catch(console.error);
       return;
@@ -170,14 +169,12 @@ export function PlayerProvider({ children }) {
     }
 
     updateQueue(remaining);
-    playSong(nextSong, [nextSong, ...remaining], false, true);
+    playSong(nextSong, [nextSong, ...remaining], false, true, false, false);
   }, [playSong, updateQueue]);
 
   playNextRef.current = playNext;
 
   const playPrev = useCallback(() => {
-    // Spotify behavior:
-    // đang nghe > 3s => restart bài hiện tại
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
       setCurrentTime(0);
@@ -185,28 +182,20 @@ export function PlayerProvider({ children }) {
     }
 
     const history = historyRef.current;
-
-    // Không có lịch sử => restart bài
     if (history.length === 0) {
       audio.currentTime = 0;
       setCurrentTime(0);
       return;
     }
-
     const prevSong = history[history.length - 1];
-
-    // Xóa khỏi history trước
     historyRef.current = history.slice(0, -1);
 
-    // Trường hợp lỗi:
-    // history chứa chính bài hiện tại
     if (prevSong?._id === currentSongRef.current?._id) {
       audio.currentTime = 0;
       setCurrentTime(0);
       return;
     }
 
-    // Đưa bài hiện tại lên đầu queue
     if (currentSongRef.current) {
       const newQueue = [
         currentSongRef.current,
@@ -216,8 +205,7 @@ export function PlayerProvider({ children }) {
       updateQueue(newQueue);
     }
 
-    // Phát bài trước đó
-    playSong(prevSong, [], true, true);
+    playSong(prevSong, [], true, true, false, false);
   }, [playSong, updateQueue]);
 
   const togglePlay = useCallback(() => {
@@ -258,28 +246,21 @@ export function PlayerProvider({ children }) {
 
   const changeVolume = useCallback((val) => {
     volumeRef.current = val;
-
-    // update volume gần nhất khi > 0
     if (val > 0) {
       lastVolumeRef.current = val;
     }
-
     audio.volume = val;
     setVolume(val);
   }, []);
 
   const toggleMute = useCallback(() => {
     if (volumeRef.current > 0) {
-      // nhớ volume hiện tại rồi mute
       lastVolumeRef.current = volumeRef.current;
-
       volumeRef.current = 0;
       audio.volume = 0;
       setVolume(0);
     } else {
-      // khôi phục volume gần nhất
-      const restored = lastVolumeRef.current || 0.8;
-
+      const restored = lastVolumeRef.current || 0.8; // khôi phục volume gần nhất
       volumeRef.current = restored;
       audio.volume = restored;
       setVolume(restored);
@@ -309,16 +290,26 @@ export function PlayerProvider({ children }) {
     };
     audio.addEventListener("ended", handleEnded);
     return () => audio.removeEventListener("ended", handleEnded);
-  }, []); // deps rỗng — chỉ add 1 lần
+  }, []);
 
   useEffect(() => {
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
+    const handleWaiting = () => setIsBuffering(true);
+    const handlePlaying = () => setIsBuffering(false);
+    const handleCanPlay = () => setIsBuffering(false);
+
     audio.addEventListener("play", handlePlay);
     audio.addEventListener("pause", handlePause);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("canplay", handleCanPlay);
     return () => {
       audio.removeEventListener("play", handlePlay);
       audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("canplay", handleCanPlay);
     };
   }, []);
 
@@ -350,6 +341,7 @@ export function PlayerProvider({ children }) {
         setFallbackList,
         fallbackList,
         toggleMute,
+        isBuffering
       }}
     >
       {children}
