@@ -1,14 +1,18 @@
 // SongSection.jsx
-
 import SongCard from "./SongCard";
 import "../styles/SongSection.css";
+import { usePlayer } from "../../player/context/PlayerContext";
 import ScrollContainer from "react-indiana-drag-scroll";
 import "react-indiana-drag-scroll/dist/style.css";
+import { Play } from "lucide-react";
 
-// layout = "scroll" : hàng ngang cuộn
-// layout = "grid"   : lưới nhiều cột
-// layout = "list"   : danh sách dọc
 function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
+  const { playSong } = usePlayer();
+  function handlePlayAll(e) {
+    e?.stopPropagation();
+    if (!songs.length) return;
+    playSong(songs[0], songs);
+  }
   return (
     <section className="song-section">
       <div className="song-section__header">
@@ -16,9 +20,10 @@ function SongSection({ title, songs = [], onPlay, layout = "scroll" }) {
         <button
           type="button"
           className="song-section__play-btn"
-          onClick={onPlay}
+          onClick={handlePlayAll}
+          disabled={!songs.length}
         >
-          Phát ▶︎
+          <Play size={16} />
         </button>
       </div>
 

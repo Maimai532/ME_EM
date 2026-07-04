@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   Heart,
+  Music,
 } from "lucide-react";
 import { usePlayer } from "../context/PlayerContext";
 import { formatTime } from "../../../shared/utils/formatTime";
@@ -82,7 +83,7 @@ export default function PlayerBar() {
 
         <div className="player-bar__content">
           <div className="player-bar__song" style={{ cursor: "pointer" }}>
-            <img
+            {/* <img
               src={
                 currentSong.coverUrl ||
                 currentSong.imageUrl ||
@@ -90,7 +91,20 @@ export default function PlayerBar() {
               }
               alt={currentSong.title}
               className="player-bar__thumb"
-            />
+            /> */}
+
+            {currentSong.coverUrl || currentSong.imageUrl ? (
+              <img
+                src={currentSong.coverUrl || currentSong.imageUrl}
+                alt={currentSong.title}
+                className="player-bar__thumb"
+              />
+            ) : (
+              <div className="player-bar__thumb player-bar__thumb--placeholder">
+                <Music size={20} />
+              </div>
+            )}
+
             <div className="player-bar__info">
               <p className="player-bar__title">{currentSong.title}</p>
               <span className="player-bar__artist">{currentSong.artist}</span>

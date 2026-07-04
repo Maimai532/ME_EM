@@ -1,6 +1,6 @@
 import { useHistory } from "../hooks/useHistory";
 import { usePlayer } from "../../player/context/PlayerContext";
-import { Play, Trash2 } from "lucide-react";
+import { Play, Trash2, Music } from "lucide-react";
 import "../styles/History.css";
 
 const FILTERS = [
@@ -91,14 +91,11 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* Trạng thái loading / rỗng */}
       {loading && <p className="history-page__loading">Đang tải...</p>}
-
       {!loading && histories.length === 0 && (
-        <p className="history-page__empty">Không có lịch sử nào.</p>
+        <p className="history-page__empty">Chưa có lịch sử</p>
       )}
 
-      {/* Danh sách nhóm theo ngày */}
       {!loading && (
         <div className="history-page__list">
           {groups.map((group) => (
@@ -113,14 +110,20 @@ export default function HistoryPage() {
                   <div
                     key={h._id}
                     className="history-page__item"
-                    onClick={() => playSong(song, songs)}
+                    onClick={() => playSong(song, [])}
                   >
                     <div className="history-page__img-wrap">
-                      <img
-                        src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-                        alt={song.title}
-                        className="history-page__img"
-                      />
+                      {song.coverUrl || song.imageUrl ? (
+                        <img
+                          src={song.coverUrl || song.imageUrl}
+                          alt={song.title}
+                          className="history-page__img"
+                        />
+                      ) : (
+                        <div className="history-page__img history-page__img--placeholder">
+                          <Music size={20} />
+                        </div>
+                      )}
                       <div className="history-page__play-overlay">
                         <Play size={16} fill="white" color="white" />
                       </div>

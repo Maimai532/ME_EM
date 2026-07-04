@@ -1,16 +1,6 @@
 import History from "../../shared/models/history.model.js";
-
-export const addHistory = async (req, res) => {
-  try {
-    const { songId } = req.body;
-    const userId = req.user.id; // ← khớp với decoded.id trong middleware
-
-    const entry = await History.create({ userId, songId });
-    res.status(201).json(entry);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+import { resolveAlbumCover } from "../song/song.controller.js"; 
+import { getPresignedUrl } from "../../shared/services/b2.service.js";
 
 export const getHistory = async (req, res) => {
   try {
@@ -35,11 +25,40 @@ export const getHistory = async (req, res) => {
       .populate("songId")
       .sort({ listenedAt: -1 });
 
-    res.json(histories);
+    const data = await Promise.all(
+      histories.map(async (h) => {
+        const obj = h.toObject();
+        if (obj.songId) {
+          const song = h.songId; 
+
+          obj.songId.coverUrl = await resolveAlbumCover(song);
+
+          obj.songId.streamUrl = song.audioKey
+            ? await getPresignedUrl(song.audioKey, 3600)
+            : song.audioUrl;
+        }
+        return obj;
+      })
+    );
+
+    res.json(data);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const addHistory = async (req, res) => {
+  try {
+    const { songId } = req.body;
+    const userId = req.user.id; // ← khớp với decoded.id trong middleware
+
+    const entry = await History.create({ userId, songId });
+    res.status(201).json(entry);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 export const deleteHistory = async (req, res) => {
   try {

@@ -6,6 +6,7 @@ import "../styles/Admin_Songs.css";
 import { API_URL } from "../../../shared/constants/api";
 import { useState, useEffect, useRef } from "react";
 import ConfirmModal from "../components/ConfirmModal";
+import { Music, Image } from "lucide-react";
 
 const emptyForm = {
   title: "",
@@ -402,7 +403,7 @@ function DetailForm({
                   }}
                   disabled={isBusy}
                 />
-                <span className="song-admin__preview-placeholder-icon">🖼️</span>
+                <span className="song-admin__preview-placeholder-icon"><Image size={28} /></span>
                 <span>Chọn ảnh</span>
               </label>
             )}
@@ -1095,7 +1096,8 @@ function Admin_Song() {
                                 />
                               ) : (
                                 <div className="song-admin__cover song-admin__cover--empty">
-                                  🖼️
+                                  {/* <Repeat size={18} /> */}
+                                  <Music size={18} />
                                 </div>
                               )}
                             </td>

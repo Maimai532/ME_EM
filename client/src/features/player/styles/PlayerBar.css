@@ -105,6 +105,13 @@ a.player-bar__song {
   object-fit: cover;
   flex-shrink: 0;
 }
+.player-bar__thumb--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
 
 .player-bar__info {
   display: flex;

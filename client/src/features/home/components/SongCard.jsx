@@ -1,4 +1,4 @@
-import { Play, Heart, ListPlus } from "lucide-react";
+import { Play, Heart, ListPlus, Music } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/SongCard.css";
@@ -47,11 +47,17 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
         onClick={handlePlay}
       >
         <div className="song-card__cover-wrap">
-          <img
-            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
-            alt={song.title}
-            className="song-card__img"
-          />
+          {song.coverUrl || song.imageUrl ? (
+            <img
+              src={song.coverUrl || song.imageUrl}
+              alt={song.title}
+              className="song-card__img"
+            />
+          ) : (
+            <div className="song-card__img song-card__img--placeholder">
+              <Music size={36} />
+            </div>
+          )}
           {hovered && (
             <button
               type="button"
@@ -81,11 +87,17 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
         onClick={handlePlay}
       >
         <div className="song-card__cover-wrap">
-          <img
-            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
-            alt={song.title}
-            className="song-card__img"
-          />
+          {song.coverUrl || song.imageUrl ? (
+            <img
+              src={song.coverUrl || song.imageUrl}
+              alt={song.title}
+              className="song-card__img"
+            />
+          ) : (
+            <div className="song-card__img song-card__img--placeholder">
+              <Music size={36} />
+            </div>
+          )}
           {hovered && (
             <div className="song-card__overlay">
               <Play size={16} fill="white" color="white" />
@@ -109,11 +121,17 @@ function SongCard({ song, songList = [], layout = "scroll" }) {
         onClick={handlePlay}
       >
         <div className="song-card__cover-wrap">
-          <img
-            src={song.coverUrl ||song.imageUrl || "/placeholder.jpg"}
-            alt={song.title}
-            className="song-card__img"
-          />
+          {song.coverUrl || song.imageUrl ? (
+            <img
+              src={song.coverUrl || song.imageUrl}
+              alt={song.title}
+              className="song-card__img"
+            />
+          ) : (
+            <div className="song-card__img song-card__img--placeholder">
+              <Music size={36} />
+            </div>
+          )}
           {hovered && (
             <div className="song-card__overlay">
               <Play size={12} fill="white" color="white" />

@@ -54,7 +54,7 @@ export function PlayerProvider({ children }) {
       skipHistory = false,
       skipFallbackUpdate = false,
       isFallbackPlay = false,
-      autoShow = true, // true = do user bấm chọn bài, false = hệ thống tự next/prev
+      autoShow = true, // true = user select, false = auto next
     ) => {
       if (!song) return;
 
@@ -77,9 +77,14 @@ export function PlayerProvider({ children }) {
       audio.src = "";
 
       let src;
+      let songData = song;
+
       try {
         const fresh = await getSongById(song._id);
+        console.log("SONG (gốc, từ random list):", song);
+        console.log("FRESH (từ getSongById):", fresh);
         src = fresh.streamUrl || fresh.audioUrl;
+        songData = { ...song, ...fresh, streamUrl: src };
       } catch (err) {
         console.error("Không fetch được URL mới:", err);
         src = song.streamUrl || song.audioUrl;
@@ -87,7 +92,7 @@ export function PlayerProvider({ children }) {
 
       if (!src) {
         console.warn("Không có URL để play:", song.title);
-        setIsMusicPlayerVisible(true); // gặp lỗi -> hiện player để user biết
+        setIsMusicPlayerVisible(true);
         playNext();
         return;
       }
@@ -104,9 +109,8 @@ export function PlayerProvider({ children }) {
           setIsPlaying(false);
         }
       });
-
-      setCurrentSong(song);
-      currentSongRef.current = song;
+      setCurrentSong(songData);
+      currentSongRef.current = songData;
       setIsPlaying(true);
       setCurrentTime(0);
 
@@ -341,7 +345,7 @@ export function PlayerProvider({ children }) {
         setFallbackList,
         fallbackList,
         toggleMute,
-        isBuffering
+        isBuffering,
       }}
     >
       {children}

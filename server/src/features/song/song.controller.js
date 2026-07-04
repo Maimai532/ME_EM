@@ -345,6 +345,28 @@ export const streamSong = async (req, res) => {
   }
 };
 
+export const getRandomSongs = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+
+    const songs = await Song.aggregate([{ $sample: { size: limit } }]);
+
+    const data = await Promise.all(
+      songs.map(async (song) => {
+        const streamUrl = song.audioKey
+          ? await getPresignedUrl(song.audioKey, 3600)
+          : song.audioUrl;
+        const coverUrl = await resolveAlbumCover(song);
+        return { ...song, streamUrl, coverUrl };
+      }),
+    );
+
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 async function isAudioShared(audioKey, excludeSongId) {
   if (!audioKey) return false;
   const usedByOtherSong = await Song.exists({

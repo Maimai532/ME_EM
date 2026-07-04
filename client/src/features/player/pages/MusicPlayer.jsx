@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import { Vibrant } from "node-vibrant/browser";
 import { FastAverageColor } from "fast-average-color";
-
 import "../styles/MusicPlayer.css";
+import { Music } from "lucide-react";
 
 const fac = new FastAverageColor();
 function darkenColor(hex) {
@@ -73,14 +73,18 @@ export default function MusicPlayer() {
   return (
     <div className="player-body" style={{ "--bg": bgColor }}>
       <div className="player-left">
-        <img
-          src={
-            currentSong.coverUrl || currentSong.imageUrl || "/placeholder.jpg"
-          }
-          alt={currentSong.title}
-          className="player-cover"
-          crossOrigin="anonymous"
-        />
+        {currentSong.coverUrl || currentSong.imageUrl ? (
+          <img
+            src={currentSong.coverUrl || currentSong.imageUrl}
+            alt={currentSong.title}
+            className="player-cover"
+            crossOrigin="anonymous"
+          />
+        ) : (
+          <div className="player-cover player-cover--placeholder">
+            <Music size={150} />
+          </div>
+        )}
       </div>
 
       <div className="player-right">
@@ -109,11 +113,18 @@ export default function MusicPlayer() {
                   }`}
                   onClick={() => playSong(s, dedupedQueue)}
                 >
-                  <img
-                    src={s.coverUrl || s.imageUrl || "/placeholder.jpg"}
-                    alt={s.title}
-                    className="queue-thumb"
-                  />
+                  {s.coverUrl || s.imageUrl ? (
+                    <img
+                      src={s.coverUrl || s.imageUrl}
+                      alt={s.title}
+                      className="queue-thumb"
+                    />
+                  ) : (
+                    <div className="queue-thumb queue-thumb--placeholder">
+                      <Music size={20} />
+                    </div>
+                  )}
+
                   <div className="queue-info">
                     <p
                       className={`queue-item-title ${
@@ -133,16 +144,14 @@ export default function MusicPlayer() {
 
           {activeTab === "lyrics" && (
             <div className="lyrics-panel">
-              <p style={{ opacity: 0.5, padding: "10px 8px" }}>
-                Lyrics
-              </p>
+              <p style={{ opacity: 0.5, padding: "10px 8px" }}>Lyrics</p>
             </div>
           )}
 
           {activeTab === "related" && (
             <div className="related-panel">
               <p style={{ opacity: 0.5, padding: "10px 8px" }}>
-                Bài hát liên quan 
+                Bài hát liên quan
               </p>
             </div>
           )}

@@ -6,11 +6,6 @@
   background-color: #0F0F0F;
 }
 
-/* Khi PlayerBar ẩn — không cần padding nữa */
-.main-layout__content--player-hidden {
-  padding-bottom: 0;
-}
-
 .music-player-overlay {
   position: fixed;
   top: 45px;       
