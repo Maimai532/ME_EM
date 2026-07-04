@@ -22,7 +22,6 @@ export default function Playlist() {
         const res = await playlistService.getPlaylistById(id);
         const data = res.data?.data ?? res.data;
         setPlaylist(data);
-
       } finally {
         setLoading(false);
       }
@@ -30,8 +29,7 @@ export default function Playlist() {
     fetchData();
   }, [id]);
 
-  if (loading)
-    return <p style={{ padding: 32, color: "#fff" }}>Đang tải...</p>;
+  if (loading) return <p style={{ padding: 32, color: "#fff" }}>Đang tải...</p>;
   if (!playlist)
     return (
       <p style={{ padding: 32, color: "#fff" }}>Không tìm thấy playlist</p>
@@ -98,11 +96,17 @@ export default function Playlist() {
                     </span>
                   </div>
 
-                  <img
-                    src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-                    alt={song.title}
-                    className="song-row__thumb"
-                  />
+                  {song.coverUrl || song.imageUrl ? (
+                    <img
+                      src={song.coverUrl || song.imageUrl}
+                      alt={song.title}
+                      className="song-row__thumb"
+                    />
+                  ) : (
+                    <div className="song-row__thumb song-row__thumb--placeholder">
+                      <Music size={20} />
+                    </div>
+                  )}
 
                   <div className="song-row__info">
                     <p className="song-row__title">{song.title}</p>
@@ -134,9 +138,7 @@ export default function Playlist() {
       {suggestions.length > 0 && (
         <div className="suggestions">
           <div className="suggestions__header">
-            <h2 className="suggestions__title">
-              Gợi ý ({suggestions.length})
-            </h2>
+            <h2 className="suggestions__title">Gợi ý ({suggestions.length})</h2>
           </div>
 
           <div className="suggestions__list">

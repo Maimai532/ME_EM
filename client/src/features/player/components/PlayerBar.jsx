@@ -12,6 +12,7 @@ import {
   ChevronUp,
   Heart,
   Music,
+  Palette,
 } from "lucide-react";
 import { usePlayer } from "../context/PlayerContext";
 import { formatTime } from "../../../shared/utils/formatTime";
@@ -41,6 +42,8 @@ export default function PlayerBar() {
     setIsPlayerVisible,
     setIsMusicPlayerVisible,
     toggleMute,
+    isColorBgEnabled,
+    toggleColorBg,
   } = usePlayer();
   const { likedSongs, toggleLike } = useAuth();
   const isLiked = likedSongs.some((s) => s._id === currentSong?._id);
@@ -50,13 +53,13 @@ export default function PlayerBar() {
 
   return (
     <>
-      <button
+      {/* <button
         className={`player-bar__toggle ${!isPlayerVisible ? "player-bar__toggle--hidden" : ""}`}
         onClick={() => setIsPlayerVisible((v) => !v)}
         title={isPlayerVisible ? "Ẩn player" : "Hiện player"}
       >
         {isPlayerVisible ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-      </button>
+      </button> */}
       <div
         className={`player-bar ${!isPlayerVisible ? "player-bar--hidden" : ""} ${isMusicPlayerVisible ? "player-bar--player-open" : ""}`}
         onClick={() => setIsMusicPlayerVisible((v) => !v)}
@@ -196,6 +199,18 @@ export default function PlayerBar() {
               title="Thêm vào playlist"
             >
               <ListPlus size={18} />
+            </button>
+            <button
+              className={`player-btn ${isColorBgEnabled ? "active" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleColorBg();
+              }}
+              title={
+                isColorBgEnabled ? "Tắt nền theo nhạc" : "Bật nền theo nhạc"
+              }
+            >
+              <Palette size={18} />
             </button>
             {showPlaylistModal && currentSong && (
               <AddToPlaylistModal

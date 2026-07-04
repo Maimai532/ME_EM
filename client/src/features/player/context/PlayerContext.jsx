@@ -283,6 +283,25 @@ export function PlayerProvider({ children }) {
     updateQueue([]);
   }, [updateQueue]);
 
+  const [isColorBgEnabled, setIsColorBgEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem("player_colorBgEnabled");
+      return saved !== null ? saved === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleColorBg = useCallback(() => {
+    setIsColorBgEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("player_colorBgEnabled", String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     const handleEnded = () => {
       if (isRepeatRef.current) {
@@ -346,6 +365,8 @@ export function PlayerProvider({ children }) {
         fallbackList,
         toggleMute,
         isBuffering,
+        isColorBgEnabled,
+        toggleColorBg,
       }}
     >
       {children}

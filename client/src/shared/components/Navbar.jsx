@@ -155,7 +155,6 @@ function Navbar({ isOpen, setIsOpen }) {
           <div className="search-dropdown">
             {showHistory && (
               <div className="search-dropdown__section">
-                <p className="search-dropdown__label">Lịch sử tìm kiếm</p>
                 {history.map((item) => (
                   <div
                     key={item}
@@ -201,11 +200,11 @@ function Navbar({ isOpen, setIsOpen }) {
                       setShowDropdown(false);
                     }}
                   >
-                    <img
+                    {/* <img
                       src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
                       alt={song.title}
                       className="search-dropdown__result-img"
-                    />
+                    /> */}
                     <div>
                       <p className="search-dropdown__result-title">
                         {song.title}

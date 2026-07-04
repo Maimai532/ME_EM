@@ -1,7 +1,7 @@
 /* Sidebar.jsx */
 
 .sidebar {
-  /* background-color: #ce8585; */
+  background-color: #0F0F0F;
   align-self: flex-start;
   overflow: hidden;
   transform: translateX(0);
@@ -12,10 +12,11 @@
   position: fixed;
   top: 45px;
   left: 0;
-  width: 120px;
-  height: calc(100vh - 60px);
+  width: 80px;
+  z-index: 1000;
+  height: calc(100vh - 45px);
   color: white;
-  padding: 10px;
+  padding: 5px;
 }
 
 /* .sidebar--closed {
@@ -33,13 +34,14 @@
 .sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
 
 }
 
 .sidebar__link {
   /* width: 100%; */
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
   font-size: 14px;
@@ -47,15 +49,22 @@
   color: #eeeeee;
   text-decoration: none;
   border-radius: 5px;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 }
 
 .sidebar__link:hover {
   background-color: rgb(39 39 42);
 }
+.sidebar__link--active {
+  background: rgba(255, 255, 255, 0.1); /* nếu muốn có nền */
+}
+
+.sidebar__link--active .sidebar__icon {
+  /* filter: brightness(0) saturate(100%) invert(63%) sepia(78%) saturate(429%) hue-rotate(84deg);  */
+}
 
 .sidebar__icon {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }

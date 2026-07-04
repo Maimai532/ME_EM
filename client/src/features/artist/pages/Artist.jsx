@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Music2, ArrowLeft } from "lucide-react";
+import { Music2, ArrowLeft, Music } from "lucide-react";
 import { usePlayer } from "../../player/context/PlayerContext";
 import useArtistDetail from "../hooks/useArtist";
 import "../styles/Artist.css";
@@ -35,10 +35,10 @@ export default function Artist() {
 
   return (
     <div className="artist">
-      <button className="playlist__back" onClick={() => navigate(-1)}>
+      {/* <button className="playlist__back" onClick={() => navigate(-1)}>
         <ArrowLeft size={16} />
         Back
-      </button>
+      </button> */}
       <div className="artist__header">
         <div className="artist__avatar-wrap">
           {artist.avatar ? (
@@ -84,11 +84,17 @@ export default function Artist() {
               >
                 <span className="artist__index">{index + 1}</span>
 
-                <img
-                  src={song.imageUrl || "/placeholder.jpg"}
-                  alt={song.title}
-                  className="artist__image"
-                />
+                {song.coverUrl || song.imageUrl ? (
+                  <img
+                    src={song.coverUrl || song.imageUrl}
+                    alt={song.title}
+                    className="artist__image"
+                  />
+                ) : (
+                  <div className="artist__image artist__image--placeholder">
+                    <Music size={20} />
+                  </div>
+                )}
 
                 <div className="artist__info">
                   <p className="artist__song-title">{song.title}</p>
@@ -111,7 +117,7 @@ export default function Artist() {
               </h2>
 
               <div className="artist__albums-grid">
-                {artist.albums.map((album) => (
+                {artist.albums.slice(0, 6).map((album) => (
                   <div key={album._id} className="artist__album-card">
                     <img
                       src={album.coverImage || "/placeholder.jpg"}

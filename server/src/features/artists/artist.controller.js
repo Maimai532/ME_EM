@@ -2,6 +2,7 @@ import "dotenv/config";
 import Artist from "../../shared/models/artist.model.js";
 import Song from "../../shared/models/Song.js";
 import Album from "../../shared/models/album.model.js";
+import { resolveAlbumCover } from "../song/song.controller.js";
 import {
   uploadToB2,
   getPresignedUrl,
@@ -42,7 +43,6 @@ export const getArtistById = async (req, res) => {
     if (!artist)
       return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
 
-    // Resolve album cover URLs (same pattern as artist avatar)
     const albumsWithUrls = await Promise.all(
       artist.albums.map(async (album) => ({
         ...album.toObject(),
@@ -50,10 +50,21 @@ export const getArtistById = async (req, res) => {
       })),
     );
 
+    const songsWithUrls = await Promise.all(
+      artist.songs.map(async (song) => {
+        const streamUrl = song.audioKey
+          ? await getPresignedUrl(song.audioKey, 3600)
+          : song.audioUrl;
+        const coverUrl = await resolveAlbumCover(song);
+        return { ...song.toObject(), streamUrl, coverUrl };
+      }),
+    );
+
     res.json({
       ...artist.toObject(),
       avatar: await resolveUrl(artist.avatarKey, artist.avatar),
       albums: albumsWithUrls,
+      songs: songsWithUrls, 
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

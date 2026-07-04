@@ -24,8 +24,15 @@ function darkenColor(hex) {
 }
 export default function MusicPlayer() {
   const navigate = useNavigate();
-  const { currentSong, playSong, queue, fallbackList } = usePlayer();
-  const [bgColor, setBgColor] = useState("#000000");
+  const {
+    currentSong,
+    playSong,
+    queue,
+    fallbackList,
+    isMusicPlayerVisible,
+    isColorBgEnabled,
+  } = usePlayer();
+  const [computedColor, setComputedColor] = useState("#000000");
   const [activeTab, setActiveTab] = useState("queue");
 
   useEffect(() => {
@@ -43,13 +50,13 @@ export default function MusicPlayer() {
 
         if (!vibrant || vibrant.population < 20) {
           const avg = await fac.getColorAsync(img);
-          setBgColor(avg.hex);
+          setComputedColor(avg.hex);
         } else {
-          setBgColor(darkenColor(vibrant.hex));
+          setComputedColor(darkenColor(vibrant.hex));
         }
       } catch {
         const avg = await fac.getColorAsync(img);
-        setBgColor(avg.hex);
+        setComputedColor(avg.hex);
       }
     };
   }, [currentSong]);
@@ -69,9 +76,13 @@ export default function MusicPlayer() {
     { key: "lyrics", label: "Lyrics" },
     { key: "related", label: "Bài hát của..." },
   ];
+  const bgColor = isColorBgEnabled ? computedColor : "#000000";
 
   return (
-    <div className="player-body" style={{ "--bg": bgColor }}>
+    <div
+      className={`player-body ${!isMusicPlayerVisible ? "player-body--hidden" : ""}`}
+      style={{ "--bg": bgColor }}
+    >
       <div className="player-left">
         {currentSong.coverUrl || currentSong.imageUrl ? (
           <img
