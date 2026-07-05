@@ -170,6 +170,7 @@
   cursor: pointer;
   font-size: 13px;
   color: #374151;
+  /* background-color: #15803d; */
 }
 
 .song-admin__album-option:hover {
@@ -383,6 +384,13 @@
 .song-admin__input:disabled {
   background: #f9fafb;
   color: #9ca3af;
+}
+
+.song-admin__hint-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #888;
 }
 
 /* Media */

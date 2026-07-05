@@ -152,9 +152,7 @@ function DetailForm({
   const [removeImage, setRemoveImage] = useState(false);
 
   const [albums, setAlbums] = useState([]);
-  const [albumSearch, setAlbumSearch] = useState("");
-  const [showAlbumDropdown, setShowAlbumDropdown] = useState(false);
-  const albumRef = useRef(null);
+  const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
 
   const [form, setForm] = useState(safeSong);
   const [loading, setLoading] = useState(false);
@@ -166,15 +164,6 @@ function DetailForm({
       .get(`${API_URL}/albums`)
       .then((res) => setAlbums(Array.isArray(res.data) ? res.data : []))
       .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    function handle(e) {
-      if (albumRef.current && !albumRef.current.contains(e.target))
-        setShowAlbumDropdown(false);
-    }
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
   }, []);
 
   useEffect(() => {
@@ -191,30 +180,12 @@ function DetailForm({
       setAudioMethod("upload");
     }
 
-    if (s._id && (s.coverUrl || s.imageUrl || s.albumId)) {
-      if (s.albumId) {
-        setImageMethod("album");
-      } else if (s.imageUrl || s.coverUrl) {
-        setImageMethod("url");
-      } else {
-        setImageMethod("upload");
-      }
+    if (s._id && (s.imageUrl || s.coverUrl)) {
+      setImageMethod("url");
     } else {
       setImageMethod("upload");
     }
-
-    setAlbumSearch("");
-    setShowAlbumDropdown(false);
   }, [song?._id, song]);
-
-  useEffect(() => {
-    if (!safeSong.albumId || albums.length === 0) return;
-    const found = albums.find((a) => a._id === safeSong.albumId);
-    if (found) {
-      setAlbumSearch(found.title);
-      setImageMethod("album");
-    }
-  }, [safeSong.albumId, albums]);
 
   useEffect(() => {
     if (imageFile) {
@@ -222,32 +193,18 @@ function DetailForm({
       setImagePreview(url);
       return () => URL.revokeObjectURL(url);
     }
-    if (imageMethod === "album" && form.albumId) {
-      const found = albums.find((a) => a._id === form.albumId);
-      setImagePreview(found?.coverImage || "");
-      return;
-    }
     if (imageMethod === "url") {
       setImagePreview(form.imageUrl || form.coverUrl || "");
       return;
     }
     setImagePreview(form.coverUrl || "");
-  }, [
-    imageFile,
-    imageMethod,
-    form.albumId,
-    form.imageUrl,
-    form.coverUrl,
-    albums,
-  ]);
+  }, [imageFile, imageMethod, form.imageUrl, form.coverUrl]);
 
   function clearImage() {
     setImageFile(null);
     setImagePreview("");
     setImageMethod("upload");
-    setAlbumSearch("");
-    setShowAlbumDropdown(false);
-    setForm((p) => ({ ...p, imageUrl: "", coverUrl: "", albumId: "" }));
+    setForm((p) => ({ ...p, imageUrl: "", coverUrl: "" }));
     setRemoveImage(true);
     setIsDirty(true);
   }
@@ -273,10 +230,6 @@ function DetailForm({
   function handleImageMethodChange(method) {
     setImageMethod(method);
     setImageFile(null);
-    if (method !== "album") {
-      setForm((prev) => ({ ...prev, albumId: "" }));
-      setAlbumSearch("");
-    }
     if (method !== "url") {
       setForm((prev) => ({ ...prev, imageUrl: "" }));
     }
@@ -325,10 +278,6 @@ function DetailForm({
   }
 
   const imageExistingLabel = () => {
-    if (imageMethod === "album" && form.albumId) {
-      const found = albums.find((a) => a._id === form.albumId);
-      return found ? `Ảnh album: ${found.title}` : "Ảnh album";
-    }
     if (form.imageUrl) return `URL: ${form.imageUrl}`;
     if (form.coverUrl) return `URL: ${form.coverUrl}`;
     return null;
@@ -337,7 +286,7 @@ function DetailForm({
   const hasExistingAudio =
     isEdit && (form.audioUrl || form.audioKey) && !audioFile;
   const hasExistingImage =
-    isEdit && (form.coverUrl || form.imageUrl || form.albumId) && !imageFile;
+    isEdit && (form.coverUrl || form.imageUrl) && !imageFile;
 
   const audioOptions = [
     { value: "upload", label: "Upload" },
@@ -348,7 +297,7 @@ function DetailForm({
   const imageOptions = [
     { value: "upload", label: "Upload" },
     { value: "url", label: "URL" },
-    { value: "album", label: "Cover album" },
+    // { value: "album", label: "Cover album" },
   ];
 
   return (
@@ -403,12 +352,14 @@ function DetailForm({
                   }}
                   disabled={isBusy}
                 />
-                <span className="song-admin__preview-placeholder-icon"><Image size={28} /></span>
+                <span className="song-admin__preview-placeholder-icon">
+                  <Image size={28} />
+                </span>
                 <span>Chọn ảnh</span>
               </label>
             )}
           </div>
-
+          {/* form */}
           <div className="song-admin__detail-fields-col">
             <label className="song-admin__label">
               Tên bài hát <span>*</span>
@@ -433,13 +384,67 @@ function DetailForm({
             />
 
             <label className="song-admin__label">Album</label>
-            <input
-              className="song-admin__input"
-              name="album"
-              value={form.album}
-              onChange={handleChange}
-              disabled={isBusy}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                className="song-admin__input"
+                name="album"
+                value={form.album}
+                onChange={(e) => {
+                  handleChange(e);
+                  setShowAlbumTextSuggest(true);
+                }}
+                onFocus={() => setShowAlbumTextSuggest(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowAlbumTextSuggest(false), 150)
+                }
+                placeholder="Nhập tên album..."
+                autoComplete="off"
+                disabled={isBusy}
+              />
+              {showAlbumTextSuggest &&
+                form.album.trim() &&
+                albums.filter((a) =>
+                  a.title
+                    ?.toLowerCase()
+                    .includes(form.album.trim().toLowerCase()),
+                ).length > 0 && (
+                  <ul className="song-admin__album-dropdown">
+                    {albums
+                      .filter((a) =>
+                        a.title
+                          ?.toLowerCase()
+                          .includes(form.album.trim().toLowerCase()),
+                      )
+                      .map((a) => (
+                        <li
+                          key={a._id}
+                          className="song-admin__album-option"
+                          onMouseDown={() => {
+                            setForm((p) => ({ ...p, album: a.title }));
+                            setShowAlbumTextSuggest(false);
+                            setIsDirty(true);
+                            // Chọn album xong -> hiện luôn ảnh bìa của album đó
+                            if (!imageFile && imageMethod !== "url") {
+                              setImagePreview(a.coverImage || "");
+                            }
+                          }}
+                        >
+                          {a.coverImage && (
+                            <img
+                              src={a.coverImage}
+                              alt=""
+                              className="song-admin__album-option-cover"
+                            />
+                          )}
+                          {a.title}
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              <span className="song-admin__hint-text">
+                Ảnh bìa sẽ tự động lấy theo album bạn chọn
+              </span>
+            </div>
 
             <label className="song-admin__label">
               Thể loại <span>*</span>
@@ -457,7 +462,6 @@ function DetailForm({
         <label className="song-admin__label">
           Audio <span>*</span>
         </label>
-
         <div className="song-admin__media-row">
           <CustomSelect
             value={audioMethod}
@@ -541,7 +545,6 @@ function DetailForm({
         <label className="song-admin__label" style={{ marginTop: "12px" }}>
           Ảnh bìa
         </label>
-
         <div className="song-admin__media-row">
           <CustomSelect
             value={imageMethod}
@@ -618,82 +621,6 @@ function DetailForm({
                 placeholder="Nhập URL"
                 disabled={isBusy}
               />
-            )}
-
-            {imageMethod === "album" && (
-              <div style={{ position: "relative" }} ref={albumRef}>
-                <input
-                  className="song-admin__input"
-                  placeholder="Nhập album..."
-                  value={albumSearch}
-                  onChange={(e) => {
-                    setAlbumSearch(e.target.value);
-                    setShowAlbumDropdown(true);
-                  }}
-                  onFocus={() => setShowAlbumDropdown(true)}
-                  disabled={isBusy}
-                />
-                {form.albumId && (
-                  <div className="song-admin__album-selected">
-                    <span>
-                      {albums.find((a) => a._id === form.albumId)?.title
-                        ? `Dùng ảnh: ${albums.find((a) => a._id === form.albumId).title}`
-                        : "Đã chọn album"}
-                    </span>
-                    <span className="song-admin__change-hint">
-                      Nhấn ô trên để đổi
-                    </span>
-                  </div>
-                )}
-                {showAlbumDropdown && (
-                  <ul className="song-admin__album-dropdown">
-                    {albums
-                      .filter(
-                        (a) =>
-                          !albumSearch.trim() ||
-                          a.title
-                            ?.toLowerCase()
-                            .includes(albumSearch.toLowerCase()),
-                      )
-                      .map((a) => (
-                        <li
-                          key={a._id}
-                          className="song-admin__album-option"
-                          style={{
-                            background:
-                              form.albumId === a._id ? "#eff6ff" : undefined,
-                          }}
-                          onMouseDown={() => {
-                            setForm((p) => ({ ...p, albumId: a._id }));
-                            setAlbumSearch(a.title);
-                            setShowAlbumDropdown(false);
-                            setIsDirty(true);
-                          }}
-                        >
-                          {a.coverImage && (
-                            <img
-                              src={a.coverImage}
-                              alt=""
-                              className="song-admin__album-option-cover"
-                            />
-                          )}
-                          {a.title}
-                        </li>
-                      ))}
-                    {albums.filter(
-                      (a) =>
-                        !albumSearch.trim() ||
-                        a.title
-                          ?.toLowerCase()
-                          .includes(albumSearch.toLowerCase()),
-                    ).length === 0 && (
-                      <li className="song-admin__album-option song-admin__album-option--empty">
-                        Không tìm thấy album
-                      </li>
-                    )}
-                  </ul>
-                )}
-              </div>
             )}
           </div>
         </div>

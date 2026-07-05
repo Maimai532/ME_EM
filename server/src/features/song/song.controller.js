@@ -14,21 +14,61 @@ import {
 
 export async function resolveAlbumCover(song) {
   if (song.imageUrl) return song.imageUrl;
-  if (!song.albumId) return null;
-  const album = await Album.findById(song.albumId).select("coverImage").lean();
-  return album?.coverImage || null;
+
+  if (song.albumId) {
+    const album = await Album.findById(song.albumId)
+      .select("coverImage")
+      .lean();
+    if (album?.coverImage) return album.coverImage;
+  }
+
+  if (song.album?.trim()) {
+    const query = {
+      title: { $regex: new RegExp(`^${song.album.trim()}$`, "i") },
+    };
+    // Cùng tên album có thể thuộc nhiều nghệ sĩ — lọc artistId để tránh lấy nhầm cover
+    if (song.artistId) query.artistId = song.artistId;
+
+    const album = await Album.findOne(query).select("coverImage").lean();
+    if (album?.coverImage) return album.coverImage;
+  }
+
+  return null;
 }
 
 export const getAllSongs = async (req, res) => {
   try {
-    const songs = await Song.find().sort({ createdAt: -1 });
+    const songs = await Song.find().sort({ createdAt: -1 }).lean();
+
+    // Gom albumId duy nhất — query Album 1 lần thay vì N lần (tránh N+1)
+    const albumIds = [
+      ...new Set(
+        songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
+      ),
+    ];
+    const albums = await Album.find({ _id: { $in: albumIds } })
+      .select("coverImage")
+      .lean();
+    const albumCoverMap = new Map(
+      albums.map((a) => [a._id.toString(), a.coverImage]),
+    );
+
     const data = await Promise.all(
       songs.map(async (song) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = await resolveAlbumCover(song);
-        return { ...song.toObject(), streamUrl, coverUrl };
+
+        let coverUrl = song.imageUrl || null;
+        if (!coverUrl && song.albumId) {
+          coverUrl = albumCoverMap.get(song.albumId.toString()) || null;
+        }
+        // Fallback hiếm gặp: có tên album (string) nhưng chưa gán albumId
+        if (!coverUrl && song.album) {
+          coverUrl = await resolveAlbumCover(song);
+        }
+
+        return { ...song, streamUrl, coverUrl };
       }),
     );
     res.json({ success: true, data });
@@ -314,15 +354,37 @@ export const searchSongs = async (req, res) => {
         { title: { $regex: q, $options: "i" } },
         { artist: { $regex: q, $options: "i" } },
       ],
-    }).limit(20);
+    })
+      .limit(20)
+      .lean();
+
+    const albumIds = [
+      ...new Set(
+        songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
+      ),
+    ];
+    const albums = await Album.find({ _id: { $in: albumIds } })
+      .select("coverImage")
+      .lean();
+    const albumCoverMap = new Map(
+      albums.map((a) => [a._id.toString(), a.coverImage]),
+    );
 
     const data = await Promise.all(
       songs.map(async (song) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = await resolveAlbumCover(song);
-        return { ...song.toObject(), streamUrl, coverUrl };
+
+        let coverUrl = song.imageUrl || null;
+        if (!coverUrl && song.albumId) {
+          coverUrl = albumCoverMap.get(song.albumId.toString()) || null;
+        }
+        if (!coverUrl && song.album) {
+          coverUrl = await resolveAlbumCover(song);
+        }
+
+        return { ...song, streamUrl, coverUrl };
       }),
     );
 
@@ -351,12 +413,32 @@ export const getRandomSongs = async (req, res) => {
 
     const songs = await Song.aggregate([{ $sample: { size: limit } }]);
 
+    const albumIds = [
+      ...new Set(
+        songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
+      ),
+    ];
+    const albums = await Album.find({ _id: { $in: albumIds } })
+      .select("coverImage")
+      .lean();
+    const albumCoverMap = new Map(
+      albums.map((a) => [a._id.toString(), a.coverImage]),
+    );
+
     const data = await Promise.all(
       songs.map(async (song) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = await resolveAlbumCover(song);
+
+        let coverUrl = song.imageUrl || null;
+        if (!coverUrl && song.albumId) {
+          coverUrl = albumCoverMap.get(song.albumId.toString()) || null;
+        }
+        if (!coverUrl && song.album) {
+          coverUrl = await resolveAlbumCover(song);
+        }
+
         return { ...song, streamUrl, coverUrl };
       }),
     );

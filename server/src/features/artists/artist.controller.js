@@ -50,12 +50,33 @@ export const getArtistById = async (req, res) => {
       })),
     );
 
+    // Gom albumId của songs — query Album 1 lần thay vì N lần (tránh N+1)
+    const albumIds = [
+      ...new Set(
+        artist.songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
+      ),
+    ];
+    const songAlbums = await Album.find({ _id: { $in: albumIds } })
+      .select("coverImage")
+      .lean();
+    const songAlbumCoverMap = new Map(
+      songAlbums.map((a) => [a._id.toString(), a.coverImage]),
+    );
+
     const songsWithUrls = await Promise.all(
       artist.songs.map(async (song) => {
         const streamUrl = song.audioKey
           ? await getPresignedUrl(song.audioKey, 3600)
           : song.audioUrl;
-        const coverUrl = await resolveAlbumCover(song);
+
+        let coverUrl = song.imageUrl || null;
+        if (!coverUrl && song.albumId) {
+          coverUrl = songAlbumCoverMap.get(song.albumId.toString()) || null;
+        }
+        if (!coverUrl && song.album) {
+          coverUrl = await resolveAlbumCover(song);
+        }
+
         return { ...song.toObject(), streamUrl, coverUrl };
       }),
     );
