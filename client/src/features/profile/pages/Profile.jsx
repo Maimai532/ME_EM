@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import "../styles/Profile.css";
 import { getMe, updateMe, changePassword } from "../services/userService";
+import AvatarDefault from "../../../shared/components/AvatarDefault";
 
 const COLORS = [
   "#e74c3c", "#e67e22", "#f1c40f", "#2ecc71",
@@ -11,21 +12,21 @@ function getColor(name) {
   return COLORS[name.charCodeAt(0) % COLORS.length];
 }
 
-function AvatarDefault({ name, size = 88 }) {
-  return (
-    <div
-      style={{
-        width: size, height: size, borderRadius: "50%",
-        backgroundColor: getColor(name),
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: size * 0.4, fontWeight: "500", color: "#fff",
-        border: "2.5px solid #2e595f", flexShrink: 0,
-      }}
-    >
-      {name.charAt(0).toUpperCase()}
-    </div>
-  );
-}
+// function AvatarDefault({ name, size = 88 }) {
+//   return (
+//     <div
+//       style={{
+//         width: size, height: size, borderRadius: "50%",
+//         backgroundColor: getColor(name),
+//         display: "flex", alignItems: "center", justifyContent: "center",
+//         fontSize: size * 0.4, fontWeight: "500", color: "#fff",
+//         border: "2.5px solid #2e595f", flexShrink: 0,
+//       }}
+//     >
+//       {name.charAt(0).toUpperCase()}
+//     </div>
+//   );
+// }
 
 function Toast({ message, type }) {
   if (!message) return null;

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { loginRequest, registerRequest } from "../services/authService";
 import api from "../../../shared/services/api";
+import { navigateTo } from "../../../shared/utils/navigation";
 
 const AuthContext = createContext(null);
 
@@ -43,7 +44,8 @@ export function AuthProvider({ children }) {
     setToken(token);
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
-    await fetchLikedSongs(); // ← fetch sau khi login
+    await fetchLikedSongs(); 
+    navigateTo("/", { replace: true });
     return user;
   };
 
@@ -62,6 +64,7 @@ export function AuthProvider({ children }) {
     setLikedSongs([]);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    navigateTo("/", { replace: true });
   };
 
   return (
@@ -69,7 +72,7 @@ export function AuthProvider({ children }) {
       value={{
         user, token, isLoggedIn,
         login, register, logout,
-        likedSongs, toggleLike, fetchLikedSongs, // ← expose ra
+        likedSongs, toggleLike, fetchLikedSongs, 
       }}
     >
       {children}

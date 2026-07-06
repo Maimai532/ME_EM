@@ -3,6 +3,7 @@ import { RequireAuth, RequireAdmin } from "./ProtectedRoute";
 
 import AuthLayout from "../layouts/AuthLayout";
 import MainLayout from "../layouts/MainLayout";
+import NavigationSetter from "../components/NavigationSetter.jsx";
 
 import Login from "../../features/auth/pages/Login";
 import Register from "../../features/auth/pages/Register";
@@ -25,6 +26,7 @@ import Admin_Section from "../../features/admin/pages/Admin_Section";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
+    <NavigationSetter />
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path="/" element={<Navigate to="/home" replace />} />
@@ -34,14 +36,31 @@ const AppRoutes = () => {
 
         <Route element={<MainLayout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/library" element={<Library />} />
-          {/* <Route path="/favorite" element={<Library />} /> */}
-          <Route path="/settings" element={<Profile />} />
+          <Route
+            path="/profile"
+            element={<RequireAuth><Profile /></RequireAuth>}
+          />
+          <Route
+            path="/library"
+            element={<RequireAuth><Library /></RequireAuth>}
+          />
+          <Route
+            path="/settings"
+            element={<RequireAuth><Profile /></RequireAuth>}
+          />
           <Route path="/search" element={<Search />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/playlist/:id" element={<Playlist />} />
-          <Route path="/liked-songs" element={<LikedSongs />} />
+          <Route
+            path="/history"
+            element={<RequireAuth><History /></RequireAuth>}
+          />
+          <Route
+            path="/playlist/:id"
+            element={<RequireAuth><Playlist /></RequireAuth>}
+          />
+          <Route
+            path="/liked-songs"
+            element={<RequireAuth><LikedSongs /></RequireAuth>}
+          />
           <Route path="/artist/:id" element={<Artist />} />
         </Route>
 

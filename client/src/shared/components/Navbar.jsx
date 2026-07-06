@@ -8,6 +8,7 @@ import { usePlayer } from "../../features/player/context/PlayerContext";
 import "./../styles/Navbar.css";
 import { searchSongs } from "../../features/home/services/songService";
 import ConfirmModal from "./ConfirmModal";
+import AvatarDefault from "./AvatarDefault";
 
 const HISTORY_KEY = "search_history";
 const MAX_HISTORY = 3;
@@ -109,6 +110,7 @@ function Navbar({ isOpen, setIsOpen }) {
     stopPlayer();
     logout();
     setShowLogoutModal(false);
+    navigate("/");
   };
 
   const userMenuItems = [
@@ -137,89 +139,82 @@ function Navbar({ isOpen, setIsOpen }) {
         />
       </div>
 
-
-
       <div className="navbar-actions">
-              <nav className="navbar-search" ref={wrapperRef}>
-        <input
-          type="search"
-          placeholder="Search..."
-          className="navbar-input"
-          value={query}
-          onChange={handleSearch}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setShowDropdown(true)}
-        />
+        <nav className="navbar-search" ref={wrapperRef}>
+          <input
+            type="search"
+            placeholder="Search..."
+            className="navbar-input"
+            value={query}
+            onChange={handleSearch}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setShowDropdown(true)}
+          />
 
-        {isDropdownOpen && (
-          <div className="search-dropdown">
-            {showHistory && (
-              <div className="search-dropdown__section">
-                {history.map((item) => (
-                  <div
-                    key={item}
-                    className="search-dropdown__history-item"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handleHistoryClick(item)}
-                  >
-                    <Clock size={14} className="search-dropdown__clock" />
-                    <span className="search-dropdown__history-text">
-                      {item}
-                    </span>
-                    <button
-                      className="search-dropdown__remove"
-                      onMouseDown={(e) => e.stopPropagation()}
-                      onClick={(e) => handleRemoveHistory(e, item)}
+          {isDropdownOpen && (
+            <div className="search-dropdown">
+              {showHistory && (
+                <div className="search-dropdown__section">
+                  {history.map((item) => (
+                    <div
+                      key={item}
+                      className="search-dropdown__history-item"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleHistoryClick(item)}
                     >
-                      <X size={13} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {showHistory && showResults && (
-              <div className="search-dropdown__divider" />
-            )}
-
-            {showResults && (
-              <div className="search-dropdown__section">
-                <p className="search-dropdown__label">Kết quả</p>
-                {searching && (
-                  <p className="search-dropdown__loading">Đang tìm...</p>
-                )}
-                {results.map((song) => (
-                  <div
-                    key={song._id}
-                    className="search-dropdown__result-item"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      playSong(song, results);
-                      setQuery("");
-                      setResults([]);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    {/* <img
-                      src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-                      alt={song.title}
-                      className="search-dropdown__result-img"
-                    /> */}
-                    <div>
-                      <p className="search-dropdown__result-title">
-                        {song.title}
-                      </p>
-                      <p className="search-dropdown__result-artist">
-                        {song.artist}
-                      </p>
+                      <Clock size={14} className="search-dropdown__clock" />
+                      <span className="search-dropdown__history-text">
+                        {item}
+                      </span>
+                      <button
+                        className="search-dropdown__remove"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => handleRemoveHistory(e, item)}
+                      >
+                        <X size={13} />
+                      </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </nav>
+                  ))}
+                </div>
+              )}
+
+              {showHistory && showResults && (
+                <div className="search-dropdown__divider" />
+              )}
+
+              {showResults && (
+                <div className="search-dropdown__section">
+                  <p className="search-dropdown__label">Kết quả</p>
+                  {searching && (
+                    <p className="search-dropdown__loading">Đang tìm...</p>
+                  )}
+                  {results.map((song) => (
+                    <div
+                      key={song._id}
+                      className="search-dropdown__result-item"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        playSong(song, results);
+                        setQuery("");
+                        setResults([]);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <div>
+                        <p className="search-dropdown__result-title">
+                          {song.title}
+                        </p>
+                        <p className="search-dropdown__result-artist">
+                          {song.artist}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </nav>
         {isLoggedIn ? (
           <div className="user-menu-wrapper" ref={userMenuRef}>
             <button
@@ -233,9 +228,7 @@ function Navbar({ isOpen, setIsOpen }) {
                   className="user-avatar-img"
                 />
               ) : (
-                <span className="user-avatar-fallback">
-                  {user?.username?.[0]?.toUpperCase() ?? "U"}
-                </span>
+                <AvatarDefault name={user?.username || "U"} size={40} />
               )}
             </button>
 
@@ -249,9 +242,7 @@ function Navbar({ isOpen, setIsOpen }) {
                       className="user-avatar-img user-avatar-img--lg"
                     />
                   ) : (
-                    <div className="user-avatar-fallback user-avatar-fallback--lg">
-                      {user?.username?.[0]?.toUpperCase() ?? "U"}
-                    </div>
+                    <AvatarDefault name={user?.username || "U"} size={45} />
                   )}
                   <div>
                     <p className="user-dropdown__name">{user?.username}</p>
@@ -306,8 +297,8 @@ function Navbar({ isOpen, setIsOpen }) {
         isOpen={showLogoutModal}
         title="Đăng xuất ?"
         message="Bạn có chắc muốn đăng xuất không ?"
-        cancel = "Huỷ"
-        confirm = "Đăng xuất"
+        cancel="Huỷ"
+        confirm="Đăng xuất"
         onConfirm={handleLogout}
         onCancel={() => setShowLogoutModal(false)}
       />
