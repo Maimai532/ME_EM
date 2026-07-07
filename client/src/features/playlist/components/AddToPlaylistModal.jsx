@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { X, Plus, Check, ListMusic } from "lucide-react";
+import { X, Plus, ListMusic } from "lucide-react";
 import { usePlaylist } from "../context/PlaylistContext";
 import "../styles/AddToPlaylistModal.css";
 import { createPortal } from "react-dom";
 
 export default function AddToPlaylistModal({ song, onClose }) {
-  const { playlists, fetchPlaylists, createPlaylist, addSong } = usePlaylist();
+  const { playlists, fetchPlaylists, createPlaylist, addSong, removeSong } =
+    usePlaylist();
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [addedIds, setAddedIds] = useState(new Set());
@@ -14,15 +15,26 @@ export default function AddToPlaylistModal({ song, onClose }) {
     fetchPlaylists();
   }, []);
 
-  async function handleAdd(playlistId) {
-    await addSong(playlistId, song._id);
-    setAddedIds((prev) => new Set([...prev, playlistId]));
+  useEffect(() => {
+    if (!song) return;
+    const idsContainingSong = playlists
+      .filter((pl) => pl.songs?.some((s) => s._id === song._id))
+      .map((pl) => pl._id);
+    setAddedIds(new Set(idsContainingSong));
+  }, [playlists, song]);
+
+  async function handleToggle(playlistId) {
+    if (addedIds.has(playlistId)) {
+      await removeSong(playlistId, song._id);
+    } else {
+      await addSong(playlistId, song._id);
+    }
   }
 
   async function handleCreate() {
     if (!newName.trim()) return;
     const playlist = await createPlaylist(newName.trim());
-    await handleAdd(playlist._id);
+    await addSong(playlist._id, song._id);
     setNewName("");
     setCreating(false);
   }
@@ -40,13 +52,35 @@ export default function AddToPlaylistModal({ song, onClose }) {
 
         {/* Song info */}
         <div className="atp-song">
-          <img src={song.coverUrl || song.imageUrl || "/placeholder.jpg"} alt={song.title} />
+          <img
+            src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
+            alt={song.title}
+          />
           <div>
             <p className="atp-song__title">{song.title}</p>
             <p className="atp-song__artist">{song.artist}</p>
           </div>
         </div>
 
+        {/* Playlist list */}
+        <div className="atp-list">
+          {playlists.length === 0 && (
+            <p className="atp-empty">Chưa có playlist nào</p>
+          )}
+          {playlists.map((pl) => (
+            <button
+              key={pl._id}
+              className={`atp-item ${addedIds.has(pl._id) ? "atp-item--active" : ""}`}
+              onClick={() => handleToggle(pl._id)}
+            >
+              <ListMusic size={16} className="atp-item__icon" />
+              <span className="atp-item__name">{pl.name}</span>
+              <span className="atp-item__count">
+                {pl.songs?.length ?? 0} bài
+              </span>
+            </button>
+          ))}
+        </div>
         {/* New playlist */}
         {creating ? (
           <div className="atp-create">
@@ -61,7 +95,10 @@ export default function AddToPlaylistModal({ song, onClose }) {
             <button className="atp-btn atp-btn--confirm" onClick={handleCreate}>
               Tạo
             </button>
-            <button className="atp-btn atp-btn--cancel" onClick={() => setCreating(false)}>
+            <button
+              className="atp-btn atp-btn--cancel"
+              onClick={() => setCreating(false)}
+            >
               Huỷ
             </button>
           </div>
@@ -71,27 +108,8 @@ export default function AddToPlaylistModal({ song, onClose }) {
             <span>Tạo playlist mới</span>
           </button>
         )}
-
-        {/* Playlist list */}
-        <div className="atp-list">
-          {playlists.length === 0 && (
-            <p className="atp-empty">Chưa có playlist nào</p>
-          )}
-          {playlists.map((pl) => (
-            <button
-              key={pl._id}
-              className={`atp-item ${addedIds.has(pl._id) ? "atp-item--added" : ""}`}
-              onClick={() => !addedIds.has(pl._id) && handleAdd(pl._id)}
-            >
-              <ListMusic size={16} className="atp-item__icon" />
-              <span className="atp-item__name">{pl.name}</span>
-              <span className="atp-item__count">{pl.songs?.length ?? 0} bài</span>
-              {addedIds.has(pl._id) && <Check size={16} className="atp-item__check" />}
-            </button>
-          ))}
-        </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

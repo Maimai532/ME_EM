@@ -1,37 +1,40 @@
-.library {}
+.library {
+  height: calc(100vh - 40px);
+}
 
 /*  HEADER  */
 .library__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 20px;
 }
+
 .library__title {
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
   color: #fff;
   gap: 8px;
   margin: 0;
+  margin-bottom: 10px;
 }
 .library__new-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #68c5ed86;
+  background: #65656586;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  padding: 7px 16px;
+  padding: 10px 16px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
+  transition: opacity 0.3s, transform 0.3s;
 }
+
 .library__new-btn:hover {
   background: #68c5ed;
+  color: black;
   transform: translateY(-1px);
 }
 
@@ -39,7 +42,7 @@
 .library__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-  gap: 20px;
+  gap: 40px;
   margin-bottom: 40px;
 }
 .library__empty {
@@ -58,13 +61,10 @@
   overflow: visible;
   cursor: pointer;
   position: relative;
-  padding: 5px 0 0 5px;
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .library__card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(5px);
 }
 
 /* COVER  */
@@ -119,6 +119,15 @@
   top: 0;
   left: 0;
   object-fit: cover;
+  border-radius: 8px;
+  z-index: 1;
+}
+.library__stack-empty {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  padding: 15px;
   border-radius: 8px;
   z-index: 1;
 }
@@ -232,4 +241,141 @@
   font-size: 11px;
   color: rgba(255, 255, 255, 0.4);
   margin: 0;
+}
+
+/* New playlist */
+
+.playlist__creat {
+  background: rgba(127, 127, 127, 0.223);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 15px ;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3S;
+  font-size: 14px;
+  font-weight: 600;
+}
+.playlist__creat:hover {
+  background: #68c5ed6a;
+  transform:scale(1.08);
+}
+
+.cpl-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.cpl-modal {
+  background-color: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  width: 380px;
+  max-width: 90vw;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: cpl-pop-in 0.15s ease-out;
+}
+
+@keyframes cpl-pop-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cpl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cpl-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.cpl-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  transition: color 0.15s;
+}
+.cpl-close:hover { color: #fff; }
+
+.cpl-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cpl-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 8px;
+}
+.cpl-label:first-child { margin-top: 0; }
+
+.cpl-input,
+.cpl-textarea {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  padding: 10px 12px;
+  outline: none;
+  font-family: inherit;
+  resize: none;
+}
+.cpl-input:focus,
+.cpl-textarea:focus {
+  border-color: #68c6ed;
+}
+
+.cpl-error {
+  font-size: 12px;
+  color: #ef5350;
+  margin: 0;
+}
+
+.cpl-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cpl-btn {
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.cpl-btn--confirm {
+  background: #68c6ed;
+  color: #000;
+}
+.cpl-btn--confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.cpl-btn--cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
 }

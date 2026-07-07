@@ -4,7 +4,8 @@ import { usePlaylist } from "../context/PlaylistContext";
 import "../styles/Library.css";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { usePlayer } from "../../player/context/PlayerContext";
-import { Plus, Trash2, ListMusic } from "lucide-react";
+import { Plus, Trash2, ListMusic, X } from "lucide-react";
+import { createPortal } from "react-dom";
 import ConfirmModal from "../../../shared/components/ConfirmModal";
 
 export default function Library() {
@@ -15,15 +16,46 @@ export default function Library() {
   const { playSong } = usePlayer();
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // ── Create playlist modal state ──
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [createError, setCreateError] = useState("");
+
   useEffect(() => {
     fetchPlaylists();
     fetchLikedSongs();
   }, []);
 
-  async function handleCreate() {
-    const name = prompt("Tên playlist:");
-    if (name?.trim()) await createPlaylist(name.trim());
+  function closeCreateModal() {
+    setShowCreateModal(false);
+    setNewName("");
+    setNewDescription("");
+    setCreateError("");
   }
+
+  async function handleCreatePlaylist() {
+    if (!newName.trim()) {
+      setCreateError("Vui lòng nhập tên playlist");
+      return;
+    }
+    try {
+      setSubmitting(true);
+      const created = await createPlaylist(
+        newName.trim(),
+        newDescription.trim(),
+      );
+      closeCreateModal();
+      navigate(`/playlist/${created._id}`);
+    } catch (err) {
+      setCreateError("Tạo playlist thất bại, thử lại");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   const handleConfirmDelete = async () => {
     if (selectedPlaylistId) {
       await deletePlaylist(selectedPlaylistId);
@@ -34,12 +66,14 @@ export default function Library() {
 
   return (
     <div className="library">
-      <div className="library__header" style={{ marginBottom: 12 }}>
-        <h2 className="library__title" style={{ fontSize: 18 }}>
-          Playlist của bạn
-        </h2>
-        <button className="library__new-btn" onClick={handleCreate}>
-          <Plus size={16} /> Playlist mới
+      <div className="library__header">
+        <h2 className="library__title">Playlist của bạn</h2>
+        <button
+          className="playlist__creat"
+          onClick={() => setShowCreateModal(true)}
+        >
+          <Plus size={16} />
+          Tạo playlist
         </button>
       </div>
 
@@ -77,7 +111,9 @@ export default function Library() {
                   />
                 </div>
               ) : (
-                <ListMusic size={32} opacity={0.4} />
+                <div className="library__stack">
+                  <ListMusic size={32} className="library__stack-empty" />
+                </div>
               )}
             </div>
 
@@ -99,9 +135,9 @@ export default function Library() {
           </div>
         ))}
       </div>
+
       <ConfirmModal
         isOpen={showDeleteModal}
-        // title="Đăng xuất ?"
         message="Bạn có chắc muốn xoá playlist này không ?"
         cancel="Huỷ"
         confirm="Xoá"
@@ -111,6 +147,64 @@ export default function Library() {
           setSelectedPlaylistId(null);
         }}
       />
+
+      {/* MODAL */}
+      {showCreateModal &&
+        createPortal(
+          <div className="cpl-overlay" onClick={closeCreateModal}>
+            <div className="cpl-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="cpl-header">
+                <span className="cpl-title">Tạo playlist mới</span>
+                <button className="cpl-close" onClick={closeCreateModal}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="cpl-body">
+                <label className="cpl-label">Tên playlist</label>
+                <input
+                  autoFocus
+                  className="cpl-input"
+                  placeholder="Ví dụ: Nhạc chill cuối tuần"
+                  value={newName}
+                  onChange={(e) => {
+                    setNewName(e.target.value);
+                    if (createError) setCreateError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
+                />
+
+                {/* <label className="cpl-label">Mô tả (tuỳ chọn)</label>
+                <textarea
+                  className="cpl-textarea"
+                  placeholder="Mô tả ngắn về playlist..."
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  rows={3}
+                /> */}
+
+                {createError && <p className="cpl-error">{createError}</p>}
+              </div>
+
+              <div className="cpl-footer">
+                <button
+                  className="cpl-btn cpl-btn--cancel"
+                  onClick={closeCreateModal}
+                >
+                  Huỷ
+                </button>
+                <button
+                  className="cpl-btn cpl-btn--confirm"
+                  onClick={handleCreatePlaylist}
+                  disabled={submitting}
+                >
+                  {submitting ? "Đang tạo..." : "Tạo playlist"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

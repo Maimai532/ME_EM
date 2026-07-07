@@ -112,6 +112,13 @@
   object-fit: cover;
   flex-shrink: 0;
 }
+.liked__image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
 
 .liked__info {
   flex: 1;

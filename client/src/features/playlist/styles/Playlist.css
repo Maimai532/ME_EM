@@ -93,8 +93,13 @@
   flex-direction: column;
   padding: 24px 24px 24px 0;
   min-width: 0;
+  
+}
+.playlist__empty {
+  color: #f9f9f9;
 }
 
+/* button tạo pl/play music */
 .playlist__play-all {
   display: inline-flex;
   align-items: center;
@@ -123,6 +128,9 @@
   gap: 3px;
   overflow-y: auto;
   height: 300px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #6d6f701b;
   /* width: 70%; */
 }
 
@@ -195,6 +203,13 @@
   object-fit: cover;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.08);
+}
+.song-row__thumb--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
 }
 
 .song-row__info {
@@ -293,7 +308,14 @@
   border-radius: 7px;
   object-fit: cover;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(183, 39, 39, 0.07);
+}
+.suggestion-row__thumb--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
 }
 
 .suggestion-row__info {
@@ -340,7 +362,7 @@
   color: #fff;
 }
 
-/* ── Responsive ────────────────────────────────── */
+/* ── ResponsivKe ────────────────────────────────── */
 
 @media (max-width: 680px) {
   .playlist__hero {
@@ -356,3 +378,4 @@
     padding: 0 16px 20px;
   }
 }
+

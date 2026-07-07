@@ -2,7 +2,8 @@ import "../styles/Playlist.css";
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Play, Trash2, ArrowLeft, Music } from "lucide-react";
+import { Play, Trash2, ArrowLeft, Music, X } from "lucide-react";
+import { createPortal } from "react-dom";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { usePlaylist } from "../context/PlaylistContext";
 import * as playlistService from "../services/playlistService";
@@ -10,11 +11,17 @@ import * as playlistService from "../services/playlistService";
 export default function Playlist() {
   const { id } = useParams();
   const { playSong } = usePlayer();
-  const { removeSong } = usePlaylist();
+  const { removeSong, createPlaylist } = usePlaylist();
   const [playlist, setPlaylist] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // ── Create playlist modal state ──
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -36,7 +43,7 @@ export default function Playlist() {
     );
 
   const songs = playlist.songs ?? [];
-
+console.log("showCreateModal:", showCreateModal);
   return (
     <div className="playlist-page">
       <button className="playlist__back" onClick={() => navigate(-1)}>
@@ -46,17 +53,6 @@ export default function Playlist() {
 
       <div className="playlist__hero">
         <div className="playlist__hero-info">
-          {/* {playlist.imageUrl ? (
-            <img
-              src={playlist.imageUrl}
-              alt={playlist.name}
-              className="playlist__avatar"
-            />
-          ) : (
-            <div className="playlist__avatar-placeholder">
-              <Music size={36} />
-            </div>
-          )} */}
 
           <div className="playlist__text">
             <h1 className="playlist__name">{playlist.name}</h1>
@@ -66,15 +62,16 @@ export default function Playlist() {
             <p className="playlist__meta" style={{ marginTop: 6 }}>
               {songs.length} bài hát
             </p>
-            {songs.length > 0 && (
-              <button
-                className="playlist__play-all"
-                onClick={() => playSong(songs[0], songs)}
-              >
-                <Play size={16} fill="currentColor" />
-                Phát tất cả
-              </button>
-            )}
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+           
+                <button
+                  className="playlist__play-all"
+                  onClick={() => playSong(songs[0], songs)}
+                >
+                  <Play size={16} fill="currentColor" />
+                  Phát tất cả
+                </button>
+            </div>
           </div>
         </div>
 
@@ -144,11 +141,18 @@ export default function Playlist() {
           <div className="suggestions__list">
             {suggestions.map((song) => (
               <div key={song._id} className="suggestion-row">
-                <img
-                  src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-                  alt={song.title}
-                  className="suggestion-row__thumb"
-                />
+
+                {song.coverUrl || song.imageUrl ? (
+                  <img
+                    src={song.coverUrl || song.imageUrl}
+                    alt={song.title}
+                    className="suggestion-row__thumb"
+                  />
+                ) : (
+                  <div className="suggestion-row__thumb suggestion-row__thumb--placeholder">
+                    <Music size={20} />
+                  </div>
+                )}
 
                 <div className="suggestion-row__info">
                   <p className="suggestion-row__title">{song.title}</p>
@@ -170,6 +174,61 @@ export default function Playlist() {
           </div>
         </div>
       )}
+
+      {/* ══ MODAL TẠO PLAYLIST ══ */}
+      {showCreateModal &&
+        createPortal(
+          <div className="cpl-overlay" onClick={closeCreateModal}>
+            <div className="cpl-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="cpl-header">
+                <span className="cpl-title">Tạo playlist mới</span>
+                <button className="cpl-close" onClick={closeCreateModal}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="cpl-body">
+                <label className="cpl-label">Tên playlist</label>
+                <input
+                  autoFocus
+                  className="cpl-input"
+                  placeholder="Ví dụ: Nhạc chill cuối tuần"
+                  value={newName}
+                  onChange={(e) => {
+                    setNewName(e.target.value);
+                    if (createError) setCreateError("");
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
+                />
+
+                <label className="cpl-label">Mô tả (tuỳ chọn)</label>
+                <textarea
+                  className="cpl-textarea"
+                  placeholder="Mô tả ngắn về playlist..."
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  rows={3}
+                />
+
+                {createError && <p className="cpl-error">{createError}</p>}
+              </div>
+
+              <div className="cpl-footer">
+                <button className="cpl-btn cpl-btn--cancel" onClick={closeCreateModal}>
+                  Huỷ
+                </button>
+                <button
+                  className="cpl-btn cpl-btn--confirm"
+                  onClick={handleCreatePlaylist}
+                  disabled={submitting}
+                >
+                  {submitting ? "Đang tạo..." : "Tạo playlist"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
