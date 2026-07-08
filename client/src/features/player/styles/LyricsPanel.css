@@ -1,0 +1,153 @@
+/* LyricsPanel.css - Phiên bản đơn giản như hình */
+
+.lyrics-panel {
+  height: 100%;
+  padding: 20px 15px ;
+  overflow: hidden;
+}
+
+.lyrics-container {
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+} 
+
+.lyrics-container::-webkit-scrollbar {
+  width: 3px;
+}
+
+.lyrics-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lyrics-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+/* Mỗi dòng lyrics */
+.lyric-line {
+  padding: 6px 0;
+  margin: 2px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  cursor: default;
+}
+
+/* Dòng đang active - như trong hình */
+.lyric-line.active {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 500;
+  padding: 8px 0;
+  margin: 4px 0;
+  letter-spacing: 0.5px;
+}
+
+/* Dòng trước active - mờ hơn */
+.lyric-line.prev-active {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 14px;
+}
+
+/* Dòng sau active - mờ nhất */
+.lyric-line.next-active {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+}
+
+/* Message */
+.message {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 15px;
+  padding: 40px 20px;
+  font-weight: 300;
+}
+
+.message.error {
+  color: #f87171;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  gap: 15px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Retry button */
+.retry-btn {
+  display: block;
+  margin: 15px auto 0;
+  padding: 8px 25px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lyrics-panel {
+    border-radius: 8px;
+    padding: 10px 0;
+  }
+
+  .lyrics-container {
+    padding: 10px 20px;
+    max-height: 400px;
+  }
+
+  .lyric-line {
+    font-size: 14px;
+  }
+
+  .lyric-line.active {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lyrics-container {
+    padding: 10px 15px;
+    max-height: 300px;
+  }
+
+  .lyric-line {
+    font-size: 13px;
+  }
+
+  .lyric-line.active {
+    font-size: 15px;
+  }
+}

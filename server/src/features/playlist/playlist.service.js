@@ -1,5 +1,6 @@
+
 import Playlist from "./playlist.model.js";
-import { resolveAlbumCover } from "../song/song.controller.js"; 
+import { resolveAlbumCover } from "../song/song.controller.js";
 import User from "../../shared/models/User.js";
 
 export const getUserPlaylists = async (userId) => {

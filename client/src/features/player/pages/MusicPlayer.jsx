@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "../context/PlayerContext";
 import { useEffect, useState } from "react";
-
+import LyricsPanel from "../components/LyricsPanel";
 import { Vibrant } from "node-vibrant/browser";
 import { FastAverageColor } from "fast-average-color";
 import "../styles/MusicPlayer.css";
 import { Music } from "lucide-react";
+
 
 const fac = new FastAverageColor();
 function darkenColor(hex) {
@@ -153,11 +154,7 @@ export default function MusicPlayer() {
             </div>
           )}
 
-          {activeTab === "lyrics" && (
-            <div className="lyrics-panel">
-              <p style={{ opacity: 0.5, padding: "10px 8px" }}>Lyrics</p>
-            </div>
-          )}
+          {activeTab === "lyrics" && <LyricsPanel />}
 
           {activeTab === "related" && (
             <div className="related-panel">

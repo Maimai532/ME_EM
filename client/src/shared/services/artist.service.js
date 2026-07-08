@@ -1,20 +1,19 @@
 import axios from "axios";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+import { API_URL } from "../../shared/constants/api";
 
 const getToken = () => localStorage.getItem("token");
 const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
 
 export const artistService = {
-  getAll: () => axios.get(`${API}/artists`),
-  getById: (id) => axios.get(`${API}/artists/${id}`),
+  getAll: () => axios.get(`${API_URL}/artists`),
+  getById: (id) => axios.get(`${API_URL}/artists/${id}`),
 
   delete: (id) =>
-    axios.delete(`${API}/artists/${id}`, { headers: authHeader() }),
+    axios.delete(`${API_URL}/artists/${id}`, { headers: authHeader() }),
 
   // Album
   addAlbum: (artistId, formData) =>
-    axios.post(`${API}/artists/${artistId}/albums`, formData, {
+    axios.post(`${API_URL}/artists/${artistId}/albums`, formData, {
       headers: {
         ...authHeader(),
         "Content-Type": "multipart/form-data", // ép đúng type
@@ -22,7 +21,7 @@ export const artistService = {
     }),
 
   create: (formData) =>
-    axios.post(`${API}/artists`, formData, {
+    axios.post(`${API_URL}/artists`, formData, {
       headers: {
         ...authHeader(),
         "Content-Type": "multipart/form-data",
@@ -30,7 +29,7 @@ export const artistService = {
     }),
 
   update: (id, formData) =>
-    axios.put(`${API}/artists/${id}`, formData, {
+    axios.put(`${API_URL}/artists/${id}`, formData, {
       headers: {
         ...authHeader(),
         "Content-Type": "multipart/form-data",
@@ -38,25 +37,25 @@ export const artistService = {
     }),
 
   deleteAlbum: (artistId, albumId) =>
-    axios.delete(`${API}/artists/${artistId}/albums/${albumId}`, {
+    axios.delete(`${API_URL}/artists/${artistId}/albums/${albumId}`, {
       headers: authHeader(),
     }),
 
   // Songs
   addExistingSong: (artistId, songId, albumId) =>
     axios.post(
-      `${API}/artists/${artistId}/songs`,
+      `${API_URL}/artists/${artistId}/songs`,
       { songId, albumId },
       { headers: authHeader() },
     ),
 
   createNewSong: (artistId, data) =>
-    axios.post(`${API}/artists/${artistId}/songs/new`, data, {
+    axios.post(`${API_URL}/artists/${artistId}/songs/new`, data, {
       headers: authHeader(),
     }),
 
   removeSong: (artistId, songId) =>
-    axios.delete(`${API}/artists/${artistId}/songs/${songId}`, {
+    axios.delete(`${API_URL}/artists/${artistId}/songs/${songId}`, {
       headers: authHeader(),
     }),
 };

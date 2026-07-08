@@ -10,6 +10,7 @@ import { addToHistory } from "../../../shared/services/history.service";
 import { getSongById } from "../../home/services/songService";
 import { getRandomSongs } from "../../home/services/songService";
 
+
 const PlayerContext = createContext(null);
 
 export function PlayerProvider({ children }) {
