@@ -82,8 +82,6 @@ export function PlayerProvider({ children }) {
 
       try {
         const fresh = await getSongById(song._id);
-        console.log("SONG (gốc, từ random list):", song);
-        console.log("FRESH (từ getSongById):", fresh);
         src = fresh.streamUrl || fresh.audioUrl;
         songData = { ...song, ...fresh, streamUrl: src };
       } catch (err) {

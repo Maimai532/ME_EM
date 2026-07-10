@@ -115,6 +115,7 @@ export default function MusicPlayer() {
         </div>
 
         <div className="queue-panel">
+
           {activeTab === "queue" && (
             <div className="queue-list">
               {dedupedQueue.map((s) => (
@@ -158,9 +159,6 @@ export default function MusicPlayer() {
 
           {activeTab === "related" && (
             <div className="related-panel">
-              <p style={{ opacity: 0.5, padding: "10px 8px" }}>
-                Bài hát liên quan
-              </p>
             </div>
           )}
         </div>

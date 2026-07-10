@@ -18,14 +18,16 @@ export default function LyricsPanel() {
     return [...lyrics].sort((a, b) => a.time - b.time);
   }, [lyrics]);
 
-  // Tìm dòng đang active dựa trên currentTime
+  const LYRIC_OFFSET = 0.3;
+
   const activeLineIndex = useMemo(() => {
     if (!sortedLyrics.length || currentTime == null) return -1;
 
-    // Tìm dòng cuối cùng có thời gian bắt đầu <= currentTime
+    const adjustedTime = currentTime + LYRIC_OFFSET;
+
     let lastIndex = -1;
     for (let i = 0; i < sortedLyrics.length; i++) {
-      if (sortedLyrics[i].time <= currentTime) {
+      if (sortedLyrics[i].time <= adjustedTime) {
         lastIndex = i;
       } else {
         break;
@@ -55,11 +57,11 @@ export default function LyricsPanel() {
         }
 
         const validLyrics = data.lyrics.filter(
-          item =>
+          (item) =>
             item &&
             typeof item === "object" &&
             typeof item.time === "number" &&
-            typeof item.text === "string"
+            typeof item.text === "string",
         );
 
         if (validLyrics.length === 0) {
@@ -75,10 +77,11 @@ export default function LyricsPanel() {
         if (!cancelled) setStatus("error");
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [currentSong?._id]);
 
-  // Tự động scroll đến dòng active
   useEffect(() => {
     if (activeLineIndex < 0 || !lineRefs.current[activeLineIndex]) return;
     const el = lineRefs.current[activeLineIndex];
@@ -101,7 +104,7 @@ export default function LyricsPanel() {
         {sortedLyrics.map((line, idx) => (
           <div
             key={idx}
-            ref={el => (lineRefs.current[idx] = el)}
+            ref={(el) => (lineRefs.current[idx] = el)}
             className={`lyric-line ${idx === activeLineIndex ? "active" : ""}`}
           >
             {line.text}
@@ -111,9 +114,12 @@ export default function LyricsPanel() {
     );
   };
 
-  // UI states
   if (status === "idle") {
-    return <div className="lyrics-panel"><p className="message">Chọn bài hát để xem lyrics</p></div>;
+    return (
+      <div className="lyrics-panel">
+        <p className="message">Chọn bài hát để xem lyrics</p>
+      </div>
+    );
   }
   if (status === "loading") {
     return (
@@ -134,7 +140,7 @@ export default function LyricsPanel() {
           onClick={() => {
             setStatus("loading");
             getLyricsBySongId(currentSong._id)
-              .then(data => {
+              .then((data) => {
                 if (data.lyrics?.length > 0) {
                   setLyrics(data.lyrics);
                   setStatus("ready");
@@ -151,7 +157,11 @@ export default function LyricsPanel() {
     );
   }
   if (status === "empty") {
-    return <div className="lyrics-panel"><p className="message">🎵 Chưa có lyrics cho bài hát này</p></div>;
+    return (
+      <div className="lyrics-panel">
+        <p className="message">Chưa có lyrics cho bài hát này</p>
+      </div>
+    );
   }
 
   return (
