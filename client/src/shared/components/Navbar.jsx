@@ -280,14 +280,15 @@ function Navbar({ isOpen, setIsOpen }) {
           </div>
         ) : (
           <>
-            <button className="navbar-btn" onClick={() => navigate("/login")}>
-              Login
-            </button>
+            {" "}
             <button
-              className="navbar-btn"
+              className="navbar-btn navbar-btn-reg "
               onClick={() => navigate("/register")}
             >
-              Register
+              Đăng ký
+            </button>
+            <button className="navbar-btn navbar-btn-log" onClick={() => navigate("/login")}>
+              Đăng nhập
             </button>
           </>
         )}

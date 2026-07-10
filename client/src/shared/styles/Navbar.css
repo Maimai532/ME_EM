@@ -77,17 +77,26 @@
 }
 
 .navbar-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #68c6ed;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 700;
   color: #68c6ed;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+}
+.navbar-btn-reg {
+  padding: 8px 16px;
+  color: #68c6ed;
+}
+.navbar-btn-log {
+  padding: 5px 20px;
+  border-radius: 12px;
+  border: 1px solid #68c6ed;
+  color: #ffffff;
+  background-color:#68c6ed ;
 }
 
 .navbar-btn:hover {
-  background-color: #438aa87c;
+  transform: scale(1.1);
 }
 
 .navbar-search {

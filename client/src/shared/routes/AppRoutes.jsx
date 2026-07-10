@@ -5,8 +5,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import MainLayout from "../layouts/MainLayout";
 import NavigationSetter from "../components/NavigationSetter.jsx";
 
-import Login from "../../features/auth/pages/Login";
-import Register from "../../features/auth/pages/Register";
+import Auth from "../../features/auth/pages/Auth";
 import Home from "../../features/home/pages/Home";
 import Profile from "../../features/profile/pages/Profile";
 import Playlist from "../../features/playlist/pages/Playlist";
@@ -26,50 +25,84 @@ import Admin_Section from "../../features/admin/pages/Admin_Section";
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-    <NavigationSetter />
+      <NavigationSetter />
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Auth mode="login" />} />
+          <Route path="/register" element={<Auth mode="register" />} />
         </Route>
 
         <Route element={<MainLayout />}>
           <Route path="/home" element={<Home />} />
           <Route
             path="/profile"
-            element={<RequireAuth><Profile /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
           />
           <Route
             path="/library"
-            element={<RequireAuth><Library /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Library />
+              </RequireAuth>
+            }
           />
           <Route
             path="/settings"
-            element={<RequireAuth><Profile /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
           />
           <Route path="/search" element={<Search />} />
           <Route
             path="/history"
-            element={<RequireAuth><History /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <History />
+              </RequireAuth>
+            }
           />
           <Route
             path="/playlist/:id"
-            element={<RequireAuth><Playlist /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <Playlist />
+              </RequireAuth>
+            }
           />
           <Route
             path="/liked-songs"
-            element={<RequireAuth><LikedSongs /></RequireAuth>}
+            element={
+              <RequireAuth>
+                <LikedSongs />
+              </RequireAuth>
+            }
           />
           <Route path="/artist/:id" element={<Artist />} />
         </Route>
 
-        <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          }
+        >
           <Route index element={<Navigate to="song_admin" replace />} />
           <Route index element={<Admin_Page />} />
           <Route path="song_admin" element={<Admin_Song />} />
           <Route path="section_admin" element={<Admin_Section />} />
-          <Route path="playlist_admin" element={<Navigate to="/admin/section_admin" replace />} />
+          <Route
+            path="playlist_admin"
+            element={<Navigate to="/admin/section_admin" replace />}
+          />
           <Route path="user_admin" element={<Admin_User />} />
           <Route path="artist_admin" element={<Admin_Artist />} />
         </Route>
