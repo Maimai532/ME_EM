@@ -5,37 +5,29 @@ import ArtistSection from "../components/ArtistSection";
 import "../styles/Home.css";
 
 function Home() {
-  const { sections, artists, loading } = useSections();
-
-  useEffect(() => {
-    document.title = "Me_Em";
-  }, []);
+  const { sections, autoSections, artists, loading } = useSections()
 
   return (
     <div className="home-content">
       <h1>Tôi yêu âm nhạc</h1>
 
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : (
+      {loading ? <p>Đang tải...</p> : (
         <>
-          {sections.map((section) =>
-            section.type === "artist" ? (
-              <ArtistSection
-                key={section._id}
-                title={section.name}
-                artist={section.artists || []}
-                layout={section.layout}
-              />
+          {autoSections.map(section => (
+            <SongSection
+              key={section._id}
+              title={section.name}
+              songs={section.songs}
+              layout={section.layout}
+            />
+          ))}
+
+          {sections.map(section =>
+            section.type === 'artist' ? (
+              <ArtistSection key={section._id} title={section.name} artist={section.artists || []} layout={section.layout} />
             ) : (
-              <SongSection
-                key={section._id}
-                title={section.name}
-                songs={section.songs || []}
-                songList={section.songs || []}
-                layout={section.layout}
-              />
-            ),
+              <SongSection key={section._id} title={section.name} songs={section.songs || []} layout={section.layout} />
+            )
           )}
         </>
       )}
@@ -44,7 +36,7 @@ function Home() {
         <p>© 2026 Me_EM — Enjoy music anytime, anywhere.</p>
       </footer>
     </div>
-  );
+  )
 }
 
 export default Home;

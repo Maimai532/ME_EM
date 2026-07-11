@@ -12,6 +12,8 @@ import playlistRoutes from "./features/playlist/playlist.routes.js";
 import aiRoutes from "./features/ai/ai.routes.js";
 import albumRoutes from "./features/album/album.routes.js";
 import lyricsRoutes from "./features/lyrics/lyrics.routes.js";
+import recommendationRoute from './features/recommendations/recommendation.route.js'
+
 
 export function createApp() {
   const app = express();
@@ -46,6 +48,7 @@ Nếu chưa parse → req.body = undefined → controller đọc không được
   app.use("/api/ai", aiRoutes);
   app.use("/api/albums", albumRoutes);
   app.use("/api/lyrics", lyricsRoutes);
+  app.use('/api/recommendations', recommendationRoute)
 
   return app;
 }
