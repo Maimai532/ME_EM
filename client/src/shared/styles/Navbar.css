@@ -18,7 +18,6 @@
 }
 
 .navbar--player-open {
-  /* background: #000 !important; */
   background: rgba(0, 0, 0, 0.55);
 }
 
@@ -48,21 +47,22 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  position: relative;
 }
 
 .navbar-input {
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 12px;
   outline: none;
   font-size: 14px;
-  width: 350px;
-  height: 30px;
+  width: 320px;
+  height: 35px;
   color: #fff;
-  border: 1px rgba(146, 146, 146, 0.602) solid;
+  border: 1px rgba(58, 58, 58, 0.602) solid;
   background: transparent;
 }
 .navbar-input::placeholder {
-  color: #5e5e5e;
+  color: #808080;
 
 }
 .navbar-input:focus {
@@ -99,9 +99,6 @@
   transform: scale(1.1);
 }
 
-.navbar-search {
-  position: relative;
-}
 
 
 
@@ -109,10 +106,7 @@
 .user-menu-wrapper {
   position: relative;
   border-radius: 99px;
-  transition: all 0.5s ease;
-}
-.user-menu-wrapper:hover {
-  transform: scale(1.08);
+  /* transition: all 0.5s ease; */
 }
 
 .user-avatar-btn {
@@ -127,10 +121,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: border-color 0.5s ease, box-shadow 0.5s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .user-avatar-btn:hover {
+  border-color: #ffffff33;
+  box-shadow: 0 0 0 4px #ffffff33;
+  transform: scale(1.08);
+}
+
+.user-menu-wrapper--open .user-avatar-btn {
+  transform: scale(1.08);
   border-color: #ffffff33;
   box-shadow: 0 0 0 4px #ffffff33;
 }

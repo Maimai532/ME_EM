@@ -51,7 +51,7 @@ function AuthPage({ mode = "login" }) {
 
   return (
     <div className="auth-page">
-       <div className="auth-left">
+      <div className="auth-left">
         <svg
           viewBox="0 0 1920 1080"
           xmlns="http://www.w3.org/2000/svg"
@@ -67,16 +67,24 @@ function AuthPage({ mode = "login" }) {
         <div className="auth-poster-overlay">
           <h2 className="auth-poster-title">
             <p>Listen</p>
-            <p><span>and</span>Feel</p>
+            <p>
+              <span>and</span>Feel
+            </p>
           </h2>
-          <p className="auth-poster-desc">Trải nghiệm âm nhạc theo cách của bạn</p>
+          <p className="auth-poster-desc">
+            Trải nghiệm âm nhạc theo cách của bạn
+          </p>
         </div>
       </div>
 
       <div className="auth-right">
         <div className="auth-box">
           <img src="/logo2.png" alt="Logo" className="auth-logo" />
-          <h1 className="auth-title">{isLogin ? "Đăng nhập" : "Đăng ký"}</h1>
+          <h1 className="auth-title">
+            {isLogin
+              ? "Chào mừng bạn trở lại"
+              : "Chào mừng bạn đến với chúng tôi"}
+          </h1>
           {/* <p className="auth-subtitle">
             {isLogin
               ? "Chào mừng bạn trở lại"
@@ -128,12 +136,6 @@ function AuthPage({ mode = "login" }) {
             </Button>
 
             {error && <p className="auth-error">{error}</p>}
-
-            <Link className="auth-link" to={isLogin ? "/register" : "/login"}>
-              {isLogin ? "Chưa có tài khoản ?" : "Đã có tài khoản ?"}
-              <br />
-              <h3>{isLogin ? "Đăng ký" : "Đăng nhập"}</h3>
-            </Link>
           </form>
 
           <div className="auth-divider">
@@ -156,6 +158,11 @@ function AuthPage({ mode = "login" }) {
               {isLogin ? "Đăng nhập với Apple" : "Đăng ký với Apple"}
             </button>
           </div>
+          <Link className="auth-link" to={isLogin ? "/register" : "/login"}>
+            {isLogin ? "Chưa có tài khoản ?" : "Đã có tài khoản ?"}
+            <br />
+            <h3>{isLogin ? "Đăng ký" : "Đăng nhập"}</h3>
+          </Link>
         </div>
       </div>
     </div>

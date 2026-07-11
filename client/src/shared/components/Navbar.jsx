@@ -216,7 +216,10 @@ function Navbar({ isOpen, setIsOpen }) {
           )}
         </nav>
         {isLoggedIn ? (
-          <div className="user-menu-wrapper" ref={userMenuRef}>
+          <div
+            ref={userMenuRef}
+            className={`user-menu-wrapper ${showUserMenu ? "user-menu-wrapper--open" : ""}`}
+          >
             <button
               className="user-avatar-btn"
               onClick={() => setShowUserMenu((v) => !v)}
@@ -287,7 +290,10 @@ function Navbar({ isOpen, setIsOpen }) {
             >
               Đăng ký
             </button>
-            <button className="navbar-btn navbar-btn-log" onClick={() => navigate("/login")}>
+            <button
+              className="navbar-btn navbar-btn-log"
+              onClick={() => navigate("/login")}
+            >
               Đăng nhập
             </button>
           </>
