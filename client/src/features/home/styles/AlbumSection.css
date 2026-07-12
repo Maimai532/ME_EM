@@ -1,0 +1,28 @@
+/* AlbumSection.css */
+
+.album-section {
+    margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 5px 15px;
+}
+
+.album-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.album-section__title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.album-section__scroll {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}

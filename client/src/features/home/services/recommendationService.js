@@ -19,3 +19,7 @@ export async function getFeaturedArtists() {
   const res = await api.get('/recommendations/featured-artists')
   return res.data
 }
+export async function getFeaturedAlbums() {
+  const res = await api.get('/recommendations/featured-albums')
+  return res.data
+}

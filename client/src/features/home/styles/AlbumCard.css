@@ -1,0 +1,91 @@
+.album-card{
+  cursor: pointer;
+  isolation: isolate;
+  position: relative;
+  display: flex; 
+  flex-direction: column;
+  align-items:center;
+  gap: 14px;
+  width: 180px;
+  flex-shrink: 0;
+  padding: 5px;
+  margin: 10px 8px;
+}
+
+.album-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.album-card__play-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background:rgb(47, 47, 47);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.album-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  z-index: 0;
+  transition: transform 0.3s ease;
+}
+
+.album-card:hover::before {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.09);
+}
+
+.album-card__title {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.album-card__artist{
+  font-size: 12px;
+  color: #b4b4b4;
+}
+
+.album-card__img--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
+
+
+.album-card__cover-wrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.album-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+.album-card__info {
+  /* text-align: center; */
+  width: 100%;
+}
