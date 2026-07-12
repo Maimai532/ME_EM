@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getSections } from '../services/sectionService'
 import { artistService } from '../../../shared/services/artist.service'
-import { getRecentlyPlayed, getSuggestedSongs, getNewReleases } from '../services/recommendationService'
+import { getRecentlyPlayed, getSuggestedSongs, getNewReleases, getFeaturedArtists } from '../services/recommendationService'
 
 function useSections() {
   const [sections, setSections] = useState([])
@@ -16,15 +16,18 @@ function useSections() {
       getRecentlyPlayed().catch(() => []),
       getSuggestedSongs().catch(() => []),
       getNewReleases().catch(() => []),
+      getFeaturedArtists().catch(() => []),
     ])
-      .then(([sectionsData, artistsRes, recent, suggested, newReleases]) => {
+      .then(([sectionsData, artistsRes, recent, suggested, newReleases, featuredArtists]) => {
+         console.log('featuredArtists:', featuredArtists)
         setSections(sectionsData)
         setArtists(artistsRes.data.map(a => ({ ...a, imageUrl: a.avatar })))
         setAutoSections([
           { _id: 'recent',    name: 'Nghe gần đây',  songs: recent,      type: 'song', layout: 'scroll' },
           { _id: 'suggested', name: 'Gợi ý cho bạn', songs: suggested,   type: 'song', layout: 'scroll' },
           { _id: 'new',       name: 'Mới phát hành', songs: newReleases, type: 'song', layout: 'grid'   },
-        ].filter(s => s.songs.length > 0))
+          { _id: 'artists',   name: 'Nghệ sĩ nổi bật', artists: featuredArtists, type: 'artist', layout: 'scroll' },
+        ].filter(s => (s.songs || s.artists || []).length > 0))
       })
       .catch(() => {})
       .finally(() => setLoading(false))

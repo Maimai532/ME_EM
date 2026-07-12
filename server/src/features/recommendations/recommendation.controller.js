@@ -1,6 +1,7 @@
 import History from '../../shared/models/history.model.js'
 import Song from '../../shared/models/Song.js'
 import Album from '../../shared/models/album.model.js'
+import Artist from '../../shared/models/artist.model.js'
 import { resolveAlbumCover } from '../song/song.controller.js' // import hàm có sẵn
 
 async function enrichSongs(songs) {
@@ -91,6 +92,17 @@ export async function getNewReleases(req, res) {
   try {
     const rawSongs = await Song.find().sort({ createdAt: -1 }).limit(10).lean()
     res.json(await enrichSongs(rawSongs))
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+export async function getFeaturedArtists(req, res) {
+  try {
+    const count = await Artist.countDocuments()
+    const randomSkip = Math.max(0, Math.floor(Math.random() * (count - 10)))
+    const artists = await Artist.find().skip(randomSkip).limit(10).lean()
+    res.json(artists)
   } catch (err) {
     res.status(500).json({ message: err.message })
   }

@@ -13,14 +13,13 @@ function Home() {
 
       {loading ? <p>Đang tải...</p> : (
         <>
-          {autoSections.map(section => (
-            <SongSection
-              key={section._id}
-              title={section.name}
-              songs={section.songs}
-              layout={section.layout}
-            />
-          ))}
+{autoSections.map(section =>
+  section.type === 'artist' ? (
+    <ArtistSection key={section._id} title={section.name} artist={section.artists || []} />
+  ) : (
+    <SongSection key={section._id} title={section.name} songs={section.songs || []} layout={section.layout} />
+  )
+)}
 
           {sections.map(section =>
             section.type === 'artist' ? (
