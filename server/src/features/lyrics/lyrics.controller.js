@@ -11,7 +11,6 @@ export async function getLyricsBySongId(req, res, next) {
       return res.status(404).json({ message: "Không tìm thấy bài hát" });
     }
 
-    // Kiểm tra cache - chỉ dùng nếu đã có lyrics và là line-level
     if (song.lyrics && song.lyrics.length > 0 && song.isWordLevel === false) {
       console.log("Using cached line-level lyrics");
       return res.status(200).json({ 

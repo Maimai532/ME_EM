@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getSections } from "../services/sectionService";
 import { artistService } from "../../../shared/services/artist.service";
+import { useAuth } from "../../auth/context/AuthContext";
 import {
   getRecentlyPlayed,
   getSuggestedSongs,
@@ -10,6 +11,7 @@ import {
 } from "../services/recommendationService";
 
 function useSections() {
+  const { isLoggedIn } = useAuth();
   const [sections, setSections] = useState([]);
   const [autoSections, setAutoSections] = useState([]);
   const [artists, setArtists] = useState([]);
@@ -17,13 +19,15 @@ function useSections() {
 
   useEffect(() => {
     Promise.all([
+      
       getSections(),
       artistService.getAll(),
-      getRecentlyPlayed().catch(() => []),
-      getSuggestedSongs().catch(() => []),
+      isLoggedIn ? getRecentlyPlayed().catch(() => []) : Promise.resolve([]),
+      isLoggedIn ? getSuggestedSongs().catch(() => []) : Promise.resolve([]),
       getNewReleases().catch(() => []),
       getFeaturedArtists().catch(() => []),
       getFeaturedAlbums().catch(() => []),
+      
     ])
       .then(
         ([

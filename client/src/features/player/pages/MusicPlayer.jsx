@@ -7,7 +7,6 @@ import { FastAverageColor } from "fast-average-color";
 import "../styles/MusicPlayer.css";
 import { Music } from "lucide-react";
 
-
 const fac = new FastAverageColor();
 function darkenColor(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -36,6 +35,11 @@ export default function MusicPlayer() {
   const [computedColor, setComputedColor] = useState("#000000");
   const [activeTab, setActiveTab] = useState("queue");
 
+useEffect(() => {
+  if (currentSong) {
+    document.title = currentSong.title;
+  }
+}, [currentSong]);
   useEffect(() => {
     const cover = currentSong?.coverUrl || currentSong?.imageUrl;
     if (!cover) return;
@@ -115,7 +119,6 @@ export default function MusicPlayer() {
         </div>
 
         <div className="queue-panel">
-
           {activeTab === "queue" && (
             <div className="queue-list">
               {dedupedQueue.map((s) => (
@@ -157,10 +160,7 @@ export default function MusicPlayer() {
 
           {activeTab === "lyrics" && <LyricsPanel />}
 
-          {activeTab === "related" && (
-            <div className="related-panel">
-            </div>
-          )}
+          {activeTab === "related" && <div className="related-panel"></div>}
         </div>
       </div>
     </div>

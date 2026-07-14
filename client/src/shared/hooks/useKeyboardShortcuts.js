@@ -29,6 +29,10 @@ export default function useKeyboardShortcuts() {
         volume,
         toggleRepeat,
         toggleShuffle,
+        showOsd,
+          isPlaying,   // thiếu cái này thì lỗi y hệt bạn đang gặp
+  isRepeat,    // và cái này
+  isShuffle, 
       } = playerRef.current;
 
       if (!currentSong) return;
@@ -48,46 +52,61 @@ export default function useKeyboardShortcuts() {
         case "Space":
           e.preventDefault();
           togglePlay();
+          showOsd(isPlaying ? "pause" : "play");
           break;
 
-        case "KeyM":
+        case "KeyM": {
           toggleMute();
+          showOsd(volume > 0 ? "mute" : "unmute");
           break;
+        }
 
         case "ArrowRight":
           e.preventDefault();
           seek(Math.min(currentTime + 5, duration));
+          showOsd("seek-forward");
           break;
 
         case "ArrowLeft":
           e.preventDefault();
           seek(Math.max(currentTime - 5, 0));
+          showOsd("seek-backward");
           break;
 
-        case "ArrowUp":
+        case "ArrowUp": {
           e.preventDefault();
-          changeVolume(Math.min(+(volume + 0.05).toFixed(2), 1));
+          const v = Math.min(+(volume + 0.05).toFixed(2), 1);
+          changeVolume(v);
+          showOsd("volume", v);
           break;
+        }
 
-        case "ArrowDown":
+        case "ArrowDown": {
           e.preventDefault();
-          changeVolume(Math.max(+(volume - 0.05).toFixed(2), 0));
+          const v = Math.max(+(volume - 0.05).toFixed(2), 0);
+          changeVolume(v);
+          showOsd("volume", v);
           break;
+        }
 
         case "KeyN":
           playNext();
+          showOsd("next");
           break;
 
         case "KeyP":
           playPrev();
+          showOsd("prev");
           break;
 
-        //BUG: Các phím gõ dấu do EVKey
         case "KeyH":
           toggleShuffle();
+          showOsd(isShuffle ? "shuffle-off" : "shuffle-on");
           break;
+
         case "KeyL":
           toggleRepeat();
+          showOsd(isRepeat ? "repeat-off" : "repeat-on");
           break;
 
         default:
@@ -97,6 +116,5 @@ export default function useKeyboardShortcuts() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-    // deps rỗng — chỉ add/remove listener đúng 1 lần khi mount/unmount
   }, []);
 }

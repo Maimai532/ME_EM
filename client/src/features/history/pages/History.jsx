@@ -2,6 +2,7 @@ import { useHistory } from "../hooks/useHistory";
 import { usePlayer } from "../../player/context/PlayerContext";
 import { Play, Trash2, Music } from "lucide-react";
 import "../styles/History.css";
+import { useEffect } from "react";
 
 const FILTERS = [
   { label: "Hôm nay", value: "today" },
@@ -53,8 +54,11 @@ export default function HistoryPage() {
   const { histories, filter, setFilter, loading, handleDelete } = useHistory();
   const { playSong } = usePlayer();
 
-  const songs = histories.map((h) => h.songId);
+  // const songs = histories.map((h) => h.songId);
   const groups = groupByDate(histories);
+  useEffect(() => {
+    document.title = "History";
+  }, []);
 
   return (
     <div className="history-page">

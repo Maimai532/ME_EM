@@ -10,7 +10,6 @@ import { addToHistory } from "../../../shared/services/history.service";
 import { getSongById } from "../../home/services/songService";
 import { getRandomSongs } from "../../home/services/songService";
 
-
 const PlayerContext = createContext(null);
 
 export function PlayerProvider({ children }) {
@@ -21,6 +20,8 @@ export function PlayerProvider({ children }) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const lastVolumeRef = useRef(0.8);
+  const [osd, setOsd] = useState(null);
+  const osdTimeoutRef = useRef(null);
 
   const [isBuffering, setIsBuffering] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
@@ -118,7 +119,7 @@ export function PlayerProvider({ children }) {
       }
 
       try {
-        addToHistory(song._id);
+        await addToHistory(song._id);
       } catch {
         /* chưa login */
       }
@@ -314,6 +315,12 @@ export function PlayerProvider({ children }) {
     return () => audio.removeEventListener("ended", handleEnded);
   }, []);
 
+  const showOsd = useCallback((type, payload) => {
+    setOsd({ type, payload, id: Date.now() });
+    if (osdTimeoutRef.current) clearTimeout(osdTimeoutRef.current);
+    osdTimeoutRef.current = setTimeout(() => setOsd(null), 900);
+  }, []);
+
   useEffect(() => {
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
@@ -366,6 +373,7 @@ export function PlayerProvider({ children }) {
         isBuffering,
         isColorBgEnabled,
         toggleColorBg,
+        osd, showOsd
       }}
     >
       {children}

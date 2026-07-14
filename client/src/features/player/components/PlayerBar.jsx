@@ -21,6 +21,8 @@ import { ListPlus } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import AddToPlaylistModal from "../../playlist/components/AddToPlaylistModal";
+import Tooltip from "../components/Tooltip";
+import PlayerOSD from "../components/PlayerOSD";
 
 export default function PlayerBar() {
   const {
@@ -86,16 +88,6 @@ export default function PlayerBar() {
 
         <div className="player-bar__content">
           <div className="player-bar__song" style={{ cursor: "pointer" }}>
-            {/* <img
-              src={
-                currentSong.coverUrl ||
-                currentSong.imageUrl ||
-                "/placeholder.jpg"
-              }
-              alt={currentSong.title}
-              className="player-bar__thumb"
-            /> */}
-
             {currentSong.coverUrl || currentSong.imageUrl ? (
               <img
                 src={currentSong.coverUrl || currentSong.imageUrl}
@@ -119,32 +111,44 @@ export default function PlayerBar() {
             className="player-bar__controls"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              className={`player-btn ${isShuffle ? "active" : ""}`}
-              onClick={toggleShuffle}
-            >
-              <Shuffle size={18} />
-            </button>
-            <button className="player-btn" onClick={playPrev}>
-              <SkipBack size={20} />
-            </button>
-            <button
-              className={`player-btn player-btn--play ${
-                isBuffering ? "player-btn--loading" : ""
-              }`}
-              onClick={togglePlay}
-            >
-              {isPlaying ? <Pause size={22} /> : <Play size={22} />}
-            </button>
-            <button className="player-btn" onClick={playNext}>
-              <SkipForward size={20} />
-            </button>
-            <button
-              className={`player-btn ${isRepeat ? "active" : ""}`}
-              onClick={toggleRepeat}
-            >
-              <Repeat size={18} />
-            </button>
+            <Tooltip label="Phát ngẫu nhiên" shortcut="H">
+              <button
+                className={`player-btn ${isShuffle ? "active" : ""}`}
+                onClick={toggleShuffle}
+              >
+                <Shuffle size={18} />
+              </button>
+            </Tooltip>
+
+            <Tooltip label="Bài trước" shortcut="P">
+              <button className="player-btn" onClick={playPrev}>
+                <SkipBack size={20} />
+              </button>
+            </Tooltip>
+
+            <Tooltip label={isPlaying ? "Tạm dừng" : "Phát"} shortcut="Space">
+              <button
+                className={`player-btn player-btn--play ${isBuffering ? "player-btn--loading" : ""}`}
+                onClick={togglePlay}
+              >
+                {isPlaying ? <Pause size={22} /> : <Play size={22} />}
+              </button>
+            </Tooltip>
+
+            <Tooltip label="Bài tiếp theo" shortcut="N">
+              <button className="player-btn" onClick={playNext}>
+                <SkipForward size={20} />
+              </button>
+            </Tooltip>
+
+            <Tooltip label="Lặp lại" shortcut="L">
+              <button
+                className={`player-btn ${isRepeat ? "active" : ""}`}
+                onClick={toggleRepeat}
+              >
+                <Repeat size={18} />
+              </button>
+            </Tooltip>
           </div>
 
           {/* Volume */}
@@ -157,29 +161,38 @@ export default function PlayerBar() {
               <span>/</span>
               <span>{formatTime(duration)}</span>
             </div>
-            <button
-              className="player-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMute();
-              }}
+
+            <Tooltip
+              label={volume === 0 ? "Bật tiếng" : "Tắt tiếng"}
+              shortcut="M"
             >
-              {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={(e) => changeVolume(Number(e.target.value))}
-              className="player-bar__volume"
-              style={{
-                background: `linear-gradient(to right, 
-                #68c6ed ${volume * 100}%, 
-                rgba(255,255,255,0.15) ${volume * 100}%)`,
-              }}
-            />
+              <button
+                className="player-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMute();
+                }}
+              >
+                {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+            </Tooltip>
+
+            <Tooltip>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={(e) => changeVolume(Number(e.target.value))}
+                className="player-bar__volume"
+                style={{
+                  background: `linear-gradient(to right, 
+      #68c6ed ${volume * 100}%, 
+      rgba(255,255,255,0.15) ${volume * 100}%)`,
+                }}
+              />
+            </Tooltip>
             <button
               className={`player-btn ${isLiked ? "player-btn--liked" : ""}`}
               onClick={(e) => {
