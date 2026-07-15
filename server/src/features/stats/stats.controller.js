@@ -24,6 +24,7 @@ export async function getDashboardStats(req, res) {
       playsTimeline,
       recentUsers,
       recentSongs,
+      playsbyHour,
     ] = await Promise.all([
       Song.countDocuments(),
       User.countDocuments(),
@@ -31,10 +32,8 @@ export async function getDashboardStats(req, res) {
       Playlist.countDocuments(),
       User.countDocuments({ createdAt: { $gte: since } }),
 
-      Song.aggregate([{ $group: { _id: null, total: { $sum: "$plays" } } }]),
+      History.countDocuments(),
 
-      // Đếm dữ liệu thiếu — dùng $facet để chỉ 1 lượt quét
-      // Đếm dữ liệu thiếu — có xét ảnh kế thừa từ album
       Song.aggregate([
         {
           $facet: {
@@ -107,7 +106,6 @@ export async function getDashboardStats(req, res) {
         .limit(10)
         .select("title artist plays imageUrl"),
 
-      // Top nghệ sĩ theo tổng plays của các bài hát thuộc nghệ sĩ đó
       Song.aggregate([
         { $match: { artistId: { $ne: null } } },
         { $group: { _id: "$artistId", totalPlays: { $sum: "$plays" } } },
@@ -132,11 +130,19 @@ export async function getDashboardStats(req, res) {
       ]),
 
       History.aggregate([
-        { $match: { playedAt: { $gte: since } } },
+        { $match: { listenedAt: { $gte: since } } },
         {
           $group: {
             _id: {
-              $dateToString: { format: "%Y-%m-%d", date: "$playedAt" },
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$listenedAt",
+                timezone: "Asia/Ho_Chi_Minh",
+              },
+              $hour: {
+                date: "$listenedAt",
+                timezone: "Asia/Ho_Chi_Minh",
+              },
             },
             count: { $sum: 1 },
           },
@@ -160,7 +166,7 @@ export async function getDashboardStats(req, res) {
         users: totalUsers,
         artists: totalArtists,
         playlists: totalPlaylists,
-        plays: totalPlaysAgg[0]?.total || 0,
+        plays: totalPlaysAgg || 0,
         newUsers,
       },
       missingData: {
@@ -170,9 +176,10 @@ export async function getDashboardStats(req, res) {
       },
       topSongs,
       topArtists,
-      playsTimeline, // [{ _id: "2026-07-10", count: 42 }, ...]
+      playsTimeline,
       recentUsers,
       recentSongs,
+      playsbyHour,
     });
   } catch (err) {
     console.error(err);

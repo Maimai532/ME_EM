@@ -6,7 +6,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { addToHistory } from "../../../shared/services/history.service";
+import { trackSongPlay } from "../../../shared/services/song.service";
 import { getSongById } from "../../home/services/songService";
 import { getRandomSongs } from "../../home/services/songService";
 
@@ -22,6 +22,7 @@ export function PlayerProvider({ children }) {
   const lastVolumeRef = useRef(0.8);
   const [osd, setOsd] = useState(null);
   const osdTimeoutRef = useRef(null);
+  const playTrackedRef = useRef(false);
 
   const [isBuffering, setIsBuffering] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
@@ -118,13 +119,21 @@ export function PlayerProvider({ children }) {
         setIsMusicPlayerVisible(true);
       }
 
-      try {
-        await addToHistory(song._id);
-      } catch {
-        /* chưa login */
-      }
+      playTrackedRef.current = false; // reset cho lượt phát mới
 
-      audio.ontimeupdate = () => setCurrentTime(audio.currentTime);
+      audio.ontimeupdate = () => {
+        setCurrentTime(audio.currentTime);
+
+        if (!playTrackedRef.current && audio.duration) {
+          const threshold = Math.min(30, audio.duration * 0.3);
+          if (audio.currentTime >= threshold) {
+            playTrackedRef.current = true;
+            trackSongPlay(songData._id).catch(() => {
+              /* lỗi mạng thì bỏ qua, không chặn playback */
+            });
+          }
+        }
+      };
       audio.ondurationchange = () => setDuration(audio.duration);
     },
     [updateQueue],
@@ -373,7 +382,8 @@ export function PlayerProvider({ children }) {
         isBuffering,
         isColorBgEnabled,
         toggleColorBg,
-        osd, showOsd
+        osd,
+        showOsd,
       }}
     >
       {children}

@@ -11,6 +11,18 @@ import {
   deleteFromCloudinary,
   uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
+import { registerSongPlay } from "./song.service.js";
+
+export const trackSongPlay = async (req, res) => {
+  try {
+    const song = await registerSongPlay(req.params.id, req.user?._id);
+    res.status(200).json({ plays: song.plays });
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json({ message: error.message || "Không thể ghi nhận lượt nghe" });
+  }
+};
 
 export async function resolveAlbumCover(song) {
   if (song.imageUrl) return song.imageUrl;

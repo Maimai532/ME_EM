@@ -12,9 +12,10 @@ import {
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 import { uploadSongMedia } from "../../shared/services/b2.service.js";
 import Song from "../../shared/models/Song.js";
+import { optionalAuth } from "../../shared/middleware/optionalAuth.js";
+import { trackSongPlay } from "./song.controller.js";
 
 const router = express.Router();
-
 const uploadFields = (req, res, next) => {
   uploadSongMedia.fields([
     { name: "audio", maxCount: 1 },
@@ -38,6 +39,7 @@ router.post("/", protect, adminOnly, uploadFields, createSong);
 router.put("/:id", protect, adminOnly, uploadFields, updateSong);
 router.delete("/:id", protect, adminOnly, deleteSong);
 router.patch("/:id/play", incrementPlay);
+router.post("/:id/play", optionalAuth, trackSongPlay);
 
 
 export default router;

@@ -18,7 +18,17 @@ function StatCard({ icon: Icon, label, value, tone = "default" }) {
     </div>
   );
 }
-
+function fillTimeline(data, days) {
+  const map = Object.fromEntries(data.map((d) => [d._id, d.count]));
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (days - 1 - i));
+    // const key = d.toISOString().slice(0, 10);
+    const key = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
+    return { _id: key, count: map[key] ?? 0 };
+    
+  });
+}
 function PlaysMiniChart({ data }) {
   if (!data || data.length === 0) {
     return <p className="dashboard__chart-empty">Chưa có dữ liệu lượt nghe</p>;
@@ -49,7 +59,6 @@ function PlaysMiniChart({ data }) {
     </svg>
   );
 }
-
 function MissingAlert({ count, label, to }) {
   if (!count) return null;
   return (
@@ -96,7 +105,7 @@ export default function Admin_Dashboard() {
       <div className="dashboard__grid">
         <div className="dashboard__panel">
           <h3 className="dashboard__panel-title">Lượt nghe 7 ngày qua</h3>
-          <PlaysMiniChart data={playsTimeline} />
+          <PlaysMiniChart data={fillTimeline(playsTimeline, 7)} />
         </div>
 
         <div className="dashboard__panel">
