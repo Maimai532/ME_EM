@@ -674,8 +674,11 @@ function Admin_Song() {
   const [missingFilter, setMissingFilter] = useState("");
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState(false);
-
   const tableRef = useRef(null);
+
+  useEffect(() => {
+    document.title = "Songs Management";
+  }, []);
 
   function fetchSongs(onDone) {
     setLoading(true);

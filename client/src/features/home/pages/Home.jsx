@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import useSections from "../hooks/useSections";
 import SongSection from "../components/SongSection";
 import ArtistSection from "../components/ArtistSection";
-import AlbumSection from '../components/AlbumSection'
+import AlbumSection from "../components/AlbumSection";
 import "../styles/Home.css";
 
 function Home() {
   const { sections, autoSections, artists, loading } = useSections();
-
+  useEffect(() => {
+    document.title = "Me_EM";
+  }, []);
   return (
     <div className="home-content">
       <h1>Tôi yêu âm nhạc</h1>
@@ -16,7 +18,6 @@ function Home() {
         <p>Đang tải...</p>
       ) : (
         <>
-          
           {autoSections.map((section) =>
             section.type === "artist" ? (
               <ArtistSection

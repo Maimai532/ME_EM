@@ -1,5 +1,5 @@
 
-import Playlist from "./playlist.model.js";
+import Playlist from "../../shared/models/Playlist.js";
 import { resolveAlbumCover } from "../song/song.controller.js";
 import User from "../../shared/models/User.js";
 

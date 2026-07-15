@@ -16,6 +16,7 @@ import LikedSongs from "../../features/playlist/pages/LikedSongs";
 import Artist from "../../features/artist/pages/Artist";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
+import Admin_Dashboard from "../../features/admin/pages/Admin_Dashboard.jsx";
 import Admin_Song from "../../features/admin/pages/Admin_Song";
 import Admin_User from "../../features/admin/pages/Admin_User";
 import AdminLayout from "../layouts/AdminLayout";
@@ -95,8 +96,7 @@ const AppRoutes = () => {
             </RequireAdmin>
           }
         >
-          <Route index element={<Navigate to="song_admin" replace />} />
-          <Route index element={<Admin_Page />} />
+          <Route index element={<Admin_Dashboard />} />
           <Route path="song_admin" element={<Admin_Song />} />
           <Route path="section_admin" element={<Admin_Section />} />
           <Route

@@ -35,6 +35,9 @@ export default function Playlist() {
     }
     fetchData();
   }, [id]);
+   useEffect(() => {
+    if (playlist) document.title = playlist.name;
+  }, [playlist]);
 
   if (loading) return <p style={{ padding: 32, color: "#fff" }}>Đang tải...</p>;
   if (!playlist)

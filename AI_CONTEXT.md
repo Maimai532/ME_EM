@@ -32,7 +32,7 @@ Backend:
 * Cloudinary (upload image)
 * B2 Backblaze (upload audio)
 
-Deploy:
+Deploy: (để sau)
 * Frontend: Vercel
 * Backend: Render
 * Database: MongoDB Atlas
@@ -61,8 +61,10 @@ client/
     ├── features/
     │   ├── admin/
     │   ├── auth/
+    │   ├── album/
+    │   ├── artist/
     │   ├── home/
-    │   ├── library/
+    │   ├── history/
     │   ├── player/
     │   ├── playlist/
     │   ├── profile/
@@ -95,6 +97,18 @@ server
 ├── src/
 │   │
 │   ├── features/
+│   │   ├── ai/
+│   │   ├── album/
+│   │   ├── artist/
+│   │   ├── history/
+│   │   ├── lyrics/
+│   │   ├── playlist/
+│   │   ├── recommendations/
+│   │   ├── section/
+│   │   ├── song/
+│   │   └── user/
+│   │  
+│   │   
 │   ├── services/
 │   ├── shared/
 │   │   ├── config/
@@ -103,7 +117,6 @@ server
 │   │   ├── models/
 │   │   ├── routes/
 │   │   ├── services/
-│   │   └── utils/
 │   │   └── utils/
 │   │
 │   │

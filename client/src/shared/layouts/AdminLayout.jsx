@@ -5,7 +5,7 @@ import "../styles/AdminLayout.css";
 import { useEffect } from "react";
 
 const navItems = [
-  // { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/song_admin", label: "Songs", icon: Music, end: true },
   { to: "/admin/artist_admin", label: "Artists", icon: Mic2 },
   { to: "/admin/section_admin", label: "Sections", icon: ListMusic },

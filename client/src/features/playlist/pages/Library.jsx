@@ -25,6 +25,9 @@ export default function Library() {
   const [createError, setCreateError] = useState("");
 
   useEffect(() => {
+    document.title = "Library";
+  }, []);
+  useEffect(() => {
     fetchPlaylists();
     fetchLikedSongs();
   }, []);

@@ -237,6 +237,10 @@ function Search() {
   const [suggestionSource, setSuggestionSource] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  useEffect(() => {
+    document.title = q ? `${q} - Me_EM` : "Search";
+  }, [q]);
+
   const handleSuggestionClick = useCallback(
     (song) => playSong(song, suggestions),
     [playSong, suggestions],
@@ -364,7 +368,9 @@ function Search() {
                     src={
                       topResultType === "artist"
                         ? topResult.avatar || "/default-artist.png"
-                        : topResult.coverUrl || topResult.imageUrl || "/placeholder.jpg"
+                        : topResult.coverUrl ||
+                          topResult.imageUrl ||
+                          "/placeholder.jpg"
                     }
                     alt={topResult.title || topResult.name}
                   />

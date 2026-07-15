@@ -11,6 +11,9 @@ export default function LikedSongs() {
   const { playSong } = usePlayer();
   const navigate = useNavigate();
 
+    useEffect(() => {
+    document.title = "Bài hát yêu thích";
+  }, []);
   useEffect(() => {
     fetchLikedSongs();
   }, []);

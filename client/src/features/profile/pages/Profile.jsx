@@ -12,22 +12,6 @@ function getColor(name) {
   return COLORS[name.charCodeAt(0) % COLORS.length];
 }
 
-// function AvatarDefault({ name, size = 88 }) {
-//   return (
-//     <div
-//       style={{
-//         width: size, height: size, borderRadius: "50%",
-//         backgroundColor: getColor(name),
-//         display: "flex", alignItems: "center", justifyContent: "center",
-//         fontSize: size * 0.4, fontWeight: "500", color: "#fff",
-//         border: "2.5px solid #2e595f", flexShrink: 0,
-//       }}
-//     >
-//       {name.charAt(0).toUpperCase()}
-//     </div>
-//   );
-// }
-
 function Toast({ message, type }) {
   if (!message) return null;
   return (
@@ -77,8 +61,11 @@ function Profile() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ message: "", type: "" });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    document.title = "Profile";
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {

@@ -975,6 +975,9 @@ export default function Admin_Artist() {
       setLoading(false);
     }
   }, []);
+  useEffect(() => {
+    document.title = "Artist Management";
+  }, []);
 
   useEffect(() => {
     fetchArtists();

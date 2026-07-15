@@ -134,6 +134,9 @@ function Admin_Section() {
   const [confirm, setConfirm] = useState(null);
   const { showToast } = useToast();
 
+  useEffect(() => {
+    document.title = "Sections Management";
+  }, []);
   function fetchSections() {
     setLoading(true);
     axios
