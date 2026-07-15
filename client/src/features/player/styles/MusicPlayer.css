@@ -12,15 +12,20 @@
   /* top: -45px; */
   top: 0;
   right: 0;
-  width: calc(100% - 80px);
-  height: calc(100% + 45px) !important;
+  /* width: calc(100% - 80px); */
+  width: 100%;
+  /* height: calc(100% + 45px) !important; */
+  height: 100vh;
   display: flex;
+  flex-direction: row;
   overflow: hidden;
+  box-sizing: border-box;
   z-index: 500;
   transform: translateY(0);
   transition: transform 0.5s ease;
-  padding: 45px 0 125px 0;
-  background-color: #000;
+  padding: 45px 0 90px 0;
+  background-color: #000000;
+  
 }
 
 .player-body::before {
@@ -42,51 +47,31 @@
   transform: translateY(100%);
 }
 
+.player-left,
+.player-right {
+  height: auto; /* bỏ height:100% */
+  flex: 1; /* hoặc giữ flex-basis như cũ */
+  /* nếu muốn giữ tỉ lệ 70/30 thì dùng flex: 0 0 70% và 0 0 30% */
+  /* và thêm min-height: 0; để flex co giãn tốt */
+}
+
 /* TRÁI */
 .player-left {
   flex: 0 0 70%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%; 
-  overflow-y: auto;
+  /* height: 100%;  */
+  /* overflow-y: auto; */
   position: relative;
-  background: transparent;
+  /* background: transparent; */
+  /* position: relative;
+  z-index: 1; */
 }
-
-/* .player-left::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  background:
-    radial-gradient(
-      circle at center,
-      var(--bg) 0%,
-      transparent 70%
-    );
-
-  filter:
-    blur(120px)
-    saturate(160%)
-    brightness(0.8);
-
-  transform: scale(1.4);
-
-  z-index: 0;
-} */
-
-.player-left > * {
-  position: relative;
-  z-index: 1;
-}
-
 .player-cover {
-  width: 650px;
-  height: 650px;
-  border-radius: 5px;
+  /* width: ; */
+  height: 100%;
+  border-radius: 12px;
   object-fit: cover;
 }
 .player-cover--placeholder {
@@ -110,7 +95,8 @@
 /* PHẢI */
 .player-right {
   flex: 0 0 30%;
-  height: 100%;
+  /* height: 100%; */
+  /* margin: 10px; */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -118,7 +104,7 @@
   background: rgba(50, 50, 50, 0.2);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(12px);
-  border-radius: 10px 0 0 10px;
+  border-radius: 12px;
 }
 
 .player-right::before {

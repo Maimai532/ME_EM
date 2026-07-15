@@ -1,5 +1,4 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../../features/auth/context/AuthContext";
 import { usePlayer } from "../../features/player/context/PlayerContext";
 import { useState, useEffect } from "react";
 import PlayerOSD from "../../features/player/components/PlayerOSD";
@@ -12,7 +11,6 @@ import useKeyboardShortcuts from "../hooks/useKeyboardShortcuts";
 
 function MainLayout() {
   const [isOpen, setIsOpen] = useState(true);
-  const { isLoggedIn, logout } = useAuth();
   const { isPlayerVisible, isMusicPlayerVisible, setIsMusicPlayerVisible } =
     usePlayer();
   const location = useLocation();
@@ -33,13 +31,8 @@ function MainLayout() {
 
   return (
     <>
-      <Navbar
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        isLoggedIn={isLoggedIn}
-        onLogout={logout}
-      />
-      <Sidebar isOpen={isOpen} />
+      <Navbar />
+      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
 
       <main
         className={`main-layout__content ${isPlayerVisible ? "" : "main-layout__content--player-hidden"}`}

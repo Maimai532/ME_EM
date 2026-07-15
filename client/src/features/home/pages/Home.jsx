@@ -12,7 +12,7 @@ function Home() {
   }, []);
   return (
     <div className="home-content">
-      <h1>Tôi yêu âm nhạc</h1>
+      {/* <h1>Tôi yêu âm nhạc</h1> */}
 
       {loading ? (
         <p>Đang tải...</p>

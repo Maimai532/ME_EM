@@ -134,14 +134,18 @@ export async function getDashboardStats(req, res) {
         {
           $group: {
             _id: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$listenedAt",
-                timezone: "Asia/Ho_Chi_Minh",
+              date: {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: "$listenedAt",
+                  timezone: "Asia/Ho_Chi_Minh",
+                },
               },
-              $hour: {
-                date: "$listenedAt",
-                timezone: "Asia/Ho_Chi_Minh",
+              hour: {
+                $hour: {
+                  date: "$listenedAt",
+                  timezone: "Asia/Ho_Chi_Minh",
+                },
               },
             },
             count: { $sum: 1 },
