@@ -34,16 +34,13 @@ export async function resolveAlbumCover(song) {
     if (album?.coverImage) return album.coverImage;
   }
 
-  if (song.album?.trim()) {
-    const query = {
-      title: { $regex: new RegExp(`^${song.album.trim()}$`, "i") },
-    };
-    // Cùng tên album có thể thuộc nhiều nghệ sĩ — lọc artistId để tránh lấy nhầm cover
-    if (song.artistId) query.artistId = song.artistId;
-
-    const album = await Album.findOne(query).select("coverImage").lean();
-    if (album?.coverImage) return album.coverImage;
-  }
+if (song.album?.trim() && song.artistId) {
+  const album = await Album.findOne({
+    title: { $regex: new RegExp(`^${song.album.trim()}$`, "i") },
+    artistId: song.artistId,
+  }).select("coverImage").lean();
+  if (album?.coverImage) return album.coverImage;
+}
 
   return null;
 }
@@ -247,7 +244,6 @@ export const createSong = async (req, res) => {
       sourceType,
     });
 
-    // --- Auto-link Artist theo tên; nếu chưa tồn tại thì tự tạo mới ---
     const artistNames = parseArtistNames(artist);
     for (const artistName of artistNames) {
       const foundArtist = await findOrCreateArtist(artistName);
@@ -263,7 +259,6 @@ export const createSong = async (req, res) => {
       }
     }
 
-    // --- Link Album: CHỈ dùng albumId gửi từ dropdown (frontend đã lọc đúng theo artist) ---
     if (req.body.albumId) {
       song.albumId = req.body.albumId;
       await song.save();
@@ -272,7 +267,6 @@ export const createSong = async (req, res) => {
         { $addToSet: { songs: song._id } },
       );
     }
-    // Không auto text-match theo `album` string — tránh gán nhầm album của artist khác
 
     const streamUrl = song.audioKey
       ? await getPresignedUrl(song.audioKey, 3600)
@@ -328,7 +322,6 @@ export const updateSong = async (req, res) => {
     const oldAudioKey = song.audioKey;
     const oldArtistString = song.artist;
 
-    // --- Đồng bộ Artist khi tên nghệ sĩ thay đổi (tự tạo Artist mới nếu chưa có) ---
     if (
       req.body.artist !== undefined &&
       req.body.artist.trim() !== (oldArtistString || "").trim()
@@ -411,12 +404,16 @@ export const deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song)
-      return res
-        .status(404)
-        .json({ success: false, message: "Không tìm thấy bài hát" });
+      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+
     if (song.audioKey) await deleteFromB2(song.audioKey);
-    // if (song.imageKey) await deleteFromB2(song.imageKey);
     if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
+
+    await Artist.updateOne({ _id: song.artistId }, { $pull: { songs: song._id } });
+    if (song.albumId) {
+      await Album.updateOne({ _id: song.albumId }, { $pull: { songs: song._id } });
+    }
+
     await song.deleteOne();
     res.json({ success: true, message: "Đã xoá bài hát" });
   } catch (err) {

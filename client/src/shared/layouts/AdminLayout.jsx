@@ -31,7 +31,7 @@ function AdminLayout() {
       <aside className="admin-layout__sidebar">
         <div className="admin-layout__logo-box">
           <img src="/logo2.png" alt="Logo" className="admin-layout__logo-img" />
-          <span className="admin-layout__logo-text">ME_EM</span>
+          <span className="admin-layout__logo-text">ME_EM Admin</span>
         </div>
 
         <nav className="admin-layout__nav">

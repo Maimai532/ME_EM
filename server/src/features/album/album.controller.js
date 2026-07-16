@@ -66,18 +66,22 @@ export const createAlbum = async (req, res, next) => {
 export const updateAlbum = async (req, res, next) => {
   try {
     const album = await Album.findById(req.params.id);
-    if (!album)
-      return res.status(404).json({ message: "Album không tồn tại" });
+    if (!album) return res.status(404).json({ message: "Album không tồn tại" });
 
     const updateData = { ...req.body };
 
-    if (req.body.coverImage) {
+    if (
+      req.body.coverImage !== undefined &&
+      req.body.coverImage !== album.coverImage
+    ) {
       const result = await ensureCloudinaryUrl(req.body.coverImage, "albums");
+      if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
       if (result) {
-        if (album.coverPublicId)
-          await deleteFromCloudinary(album.coverPublicId);
         updateData.coverImage = result.url;
         updateData.coverPublicId = result.publicId;
+      } else {
+        updateData.coverImage = req.body.coverImage;
+        updateData.coverPublicId = null;
       }
     }
 
@@ -97,7 +101,7 @@ export const deleteAlbum = async (req, res, next) => {
     if (!album) return res.status(404).json({ message: "Album không tồn tại" });
 
     if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
-
+    await Song.updateMany({ albumId: album._id }, { albumId: null });
     await Artist.findByIdAndUpdate(album.artistId, {
       $pull: { albums: album._id },
     });

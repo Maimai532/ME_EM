@@ -1,7 +1,7 @@
 /* LAYOUT */
 .song-admin__layout {
   display: grid;
-  grid-template-columns: 600px 1fr;
+  grid-template-columns: 750px 1fr;
   gap: 16px;
   height: 100%;
 }
@@ -51,7 +51,7 @@
 }
 
 .song-admin__search-input {
-  width: 250px;
+  width: 350px;
   height: 100%;
   padding: 5px 10px;
   border: 1px solid #d1d5db;
@@ -63,7 +63,7 @@
 }
 
 .song-admin__sort-input {
-  width: 120px;
+  width: 200px;
   height: 100%;
   padding: 5px 10px;
   border: 1px solid #d1d5db;
@@ -209,13 +209,13 @@
   border: 1px solid #d1d5db;
   background-color: #ffffff;
   min-width: 100px;
-  height: 34px;
-  border-radius: 6px;
+  height: 100%;
+  border-radius: 12px;
   font-size: 12px;
   color: #000000;
   cursor: pointer;
   outline: none;
-  transition: all 0.15s;
+  transition: all 0.2s;
   box-sizing: border-box;
 }
 
@@ -298,7 +298,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #1e3a5f;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -348,9 +348,10 @@
 .song-admin__label {
   display: block;
   font-size: 11px;
-  color: #6b7280;
-  margin-bottom: 3px;
-  margin-top: 10px;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 2px;
+  margin-top: 15px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -396,8 +397,9 @@
 /* Media */
 .song-admin__media-row {
   display: flex;
+  justify-content: space-around;
   gap: 8px;
-  align-items: flex-start;
+  /* align-items: flex-start; */
   margin-top: 4px;
   /* background-color: #1f293776; */
 }
@@ -416,15 +418,11 @@
 }
 
 .song-admin__media-content span {
-  font-size: 12px;
-  color: #15803d;
-  background: #39d36730;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin-bottom: 4px;
+  font-size: 14px;
+  /* color: #9b0e0e;
+  background: #d3393930; */
   display: flex;
   align-items: center;
-  gap: 6px;
 }
 
 /* Upload area */
@@ -432,18 +430,18 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1.5px dashed #d1d5db;
+  border: 1px dashed #d1d5db;
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   background: #fafbfc;
-  min-height: 34px;
+  /* min-height: 34px; */
 }
 
 .song-admin__upload-area:hover {
-  border-color: #60a5fa;
-  background: #f0f9ff;
+  border-color: #15803d;
+  background: #15803c22;
 }
 
 .song-admin__upload-area i {
@@ -789,7 +787,7 @@
   justify-content: center;
   gap: 8px;
   padding: 12px 16px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #ebe5e5;
   background: #fff;
   border-radius: 0 0 8px 8px;
 }
