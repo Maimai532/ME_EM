@@ -437,3 +437,42 @@ export const syncAllSongsToArtists = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const updateAlbum = async (req, res) => {
+  try {
+    const album = await Album.findById(req.params.albumId);
+    if (!album)
+      return res.status(404).json({ message: "Không tìm thấy album" });
+
+    const { title, releaseYear, description } = req.body;
+
+    if (req.file) {
+      if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
+      const result = await uploadBufferToCloudinary(req.file.buffer, "albums");
+      album.coverImage = result.url;
+      album.coverPublicId = result.publicId;
+    } else if (
+      req.body.coverImage !== undefined &&
+      req.body.coverImage !== album.coverImage
+    ) {
+      const result = await ensureCloudinaryUrl(req.body.coverImage, "albums");
+      if (album.coverPublicId) await deleteFromCloudinary(album.coverPublicId);
+      if (result) {
+        album.coverImage = result.url;
+        album.coverPublicId = result.publicId;
+      } else {
+        album.coverImage = req.body.coverImage;
+        album.coverPublicId = null;
+      }
+    }
+
+    if (title !== undefined) album.title = title;
+    if (releaseYear !== undefined) album.releaseYear = releaseYear;
+    if (description !== undefined) album.description = description;
+
+    await album.save();
+    res.json(album);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

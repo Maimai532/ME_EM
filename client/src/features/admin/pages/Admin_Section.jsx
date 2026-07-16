@@ -183,9 +183,9 @@ function Admin_Section() {
 
   return (
     <AdminPage title="Quản lý Section" actions={headerActions}>
-      <div className="section-admin-meta">
+      {/* <div className="section-admin-meta">
         Sections: <span>{sections.length}</span>
-      </div>
+      </div> */}
 
       {loading ? (
         <p>Đang tải...</p>

@@ -9,6 +9,7 @@ import {
   addSongToArtist,
   createSongForArtist,
   addAlbum,
+  updateAlbum,
   deleteAlbum,
   removeSongFromArtist,
   syncAllSongsToArtists,
@@ -18,7 +19,7 @@ import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Static POST routes — PHẢI đặt TRƯỚC bất kỳ /:id nào
+// Static POST routes — đặt TRƯỚC bất kỳ /:id nào
 router.post("/sync-songs", syncAllSongsToArtists);
 
 // Public GET
@@ -31,7 +32,20 @@ router.put("/:id", protect, adminOnly, upload.single("avatar"), updateArtist);
 router.delete("/:id", protect, adminOnly, deleteArtist);
 
 // Admin — Album
-router.post("/:id/albums", protect, adminOnly, upload.single("coverImage"), addAlbum);
+router.post(
+  "/:id/albums",
+  protect,
+  adminOnly,
+  upload.single("coverImage"),
+  addAlbum,
+);
+router.put(
+  "/:id/albums/:albumId",
+  protect,
+  adminOnly,
+  upload.single("coverImage"),
+  updateAlbum,
+);
 router.delete("/:id/albums/:albumId", protect, adminOnly, deleteAlbum);
 
 // Admin — Songs

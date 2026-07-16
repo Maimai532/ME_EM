@@ -6,6 +6,7 @@ import { useAuth } from "../../auth/context/AuthContext";
 import ConfirmModal from "../components/ConfirmModal";
 import AdminPage from "./Admin_Page";
 import "../styles/Admin_Artist.css";
+import { albumService } from "../../../shared/services/album.service";
 
 function splitArtists(artistStr) {
   if (!artistStr) return [];
@@ -353,6 +354,165 @@ function AddAlbumModal({ artistId, onClose, onSaved }) {
     </div>
   );
 }
+function EditAlbumModal({ album, artistId, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    title: album.title || "",
+    releaseYear: album.releaseYear || "",
+    description: album.description || "",
+  });
+  const [coverMode, setCoverMode] = useState("url");
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverUrl, setCoverUrl] = useState(album.coverImage || "");
+  const [preview, setPreview] = useState(album.coverImage || "");
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    setForm({
+      title: album.title || "",
+      releaseYear: album.releaseYear || "",
+      description: album.description || "",
+    });
+    setCoverUrl(album.coverImage || "");
+    setPreview(album.coverImage || "");
+    setCoverFile(null);
+    setCoverMode("url");
+  }, [album]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setCoverFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleUrlChange = (e) => {
+    setCoverUrl(e.target.value);
+    setPreview(e.target.value);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.title.trim()) return alert("Thiếu tên album");
+    setLoading(true);
+    try {
+      const payload = {
+        title: form.title,
+        releaseYear: form.releaseYear,
+        description: form.description,
+        coverImage: coverMode === "url" ? coverUrl : undefined,
+      };
+      await albumService.update(album._id, payload);
+      onSaved();
+    } catch (err) {
+      showToast("Lỗi khi cập nhật album", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <form
+        className="modal"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
+        <div className="modal__header">
+          <h3>Sửa album</h3>
+        </div>
+
+        <div className="modal__body">
+          <div className="form-group">
+            <label>Tên album *</label>
+            <input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Năm phát hành</label>
+            <input
+              type="number"
+              value={form.releaseYear ?? ""}
+              onChange={(e) =>
+                setForm({ ...form, releaseYear: e.target.value })
+              }
+              placeholder="2024"
+            />
+          </div>
+          <div className="form-group">
+            <label>Mô tả</label>
+            <textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+              rows={3}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Ảnh bìa album</label>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setCoverMode("url");
+                  setCoverFile(null);
+                  setPreview(coverUrl);
+                }}
+                style={{ fontWeight: coverMode === "url" ? 700 : 400 }}
+              >
+                URL
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCoverMode("file");
+                  setCoverUrl("");
+                  setPreview("");
+                }}
+                style={{ fontWeight: coverMode === "file" ? 700 : 400 }}
+              >
+                Upload file
+              </button>
+            </div>
+
+            {coverMode === "url" ? (
+              <input
+                value={coverUrl}
+                onChange={handleUrlChange}
+                placeholder="https://..."
+              />
+            ) : (
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+            )}
+
+            {preview && (
+              <img
+                src={preview}
+                alt="preview"
+                className="artist-album__preview"
+                onError={() => setPreview("")}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="modal__footer">
+          <button type="button" onClick={onClose}>
+            Hủy
+          </button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Đang cập nhật..." : "Cập nhật album"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 function AddSongModal({ artistId, albumId, onClose, onSaved }) {
   const [tab, setTab] = useState("existing");
@@ -608,6 +768,8 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
   const [songContextMenu, setSongContextMenu] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const { showToast } = useToast();
+  const [editingAlbum, setEditingAlbum] = useState(null);
+  const [showEditAlbum, setShowEditAlbum] = useState(false);
 
   const fetchArtist = useCallback(async () => {
     if (!artistId) return;
@@ -867,6 +1029,7 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
           style={{ top: albumContextMenu.y, left: albumContextMenu.x }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Nút thêm bài hát */}
           <button
             onClick={() => {
               setTargetAlbumId(albumContextMenu.albumId);
@@ -876,6 +1039,22 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
           >
             + Add song
           </button>
+
+          {/* Nút sửa album (thêm mới) */}
+          <button
+            onClick={() => {
+              const album = artist.albums.find(
+                (a) => a._id === albumContextMenu.albumId,
+              );
+              setEditingAlbum(album);
+              setShowEditAlbum(true);
+              setAlbumContextMenu(null);
+            }}
+          >
+            Sửa album
+          </button>
+
+          {/* Nút xóa album */}
           <button
             className="btn--danger"
             onClick={() => {
@@ -928,6 +1107,22 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
           onClose={() => setShowAddAlbum(false)}
           onSaved={() => {
             setShowAddAlbum(false);
+            fetchArtist();
+            onChanged?.();
+          }}
+        />
+      )}
+      {showEditAlbum && editingAlbum && (
+        <EditAlbumModal
+          album={editingAlbum}
+          artistId={artistId}
+          onClose={() => {
+            setShowEditAlbum(false);
+            setEditingAlbum(null);
+          }}
+          onSaved={() => {
+            setShowEditAlbum(false);
+            setEditingAlbum(null);
             fetchArtist();
             onChanged?.();
           }}
@@ -1098,11 +1293,10 @@ export default function Admin_Artist() {
   return (
     <AdminPage title="Quản lý nghệ sĩ" actions={headerActions}>
       <div className="artist-admin__layout">
-        {/* ── Left panel ── */}
         <div className="artist-admin__left">
-          <div className="artist-admin-meta">
+          {/* <div className="artist-admin-meta">
             Artists <span>{artists.length}</span>
-          </div>
+          </div> */}
 
           <div className="artist-admin__filter-bar">
             <div style={{ position: "relative", flex: 1 }}>

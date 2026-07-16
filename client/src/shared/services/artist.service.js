@@ -16,7 +16,7 @@ export const artistService = {
     axios.post(`${API_URL}/artists/${artistId}/albums`, formData, {
       headers: {
         ...authHeader(),
-        "Content-Type": "multipart/form-data", // ép đúng type
+        "Content-Type": "multipart/form-data", 
       },
     }),
 

@@ -152,6 +152,7 @@ function DetailForm({
   const [removeImage, setRemoveImage] = useState(false);
 
   const [albums, setAlbums] = useState([]);
+  const [artistsList, setArtistsList] = useState([]);
   const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
 
   const [form, setForm] = useState(safeSong);
@@ -163,6 +164,10 @@ function DetailForm({
     axios
       .get(`${API_URL}/albums`)
       .then((res) => setAlbums(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {});
+    axios
+      .get(`${API_URL}/artists`)
+      .then((res) => setArtistsList(Array.isArray(res.data) ? res.data : []))
       .catch(() => {});
   }, []);
 
@@ -200,6 +205,34 @@ function DetailForm({
     setImagePreview(form.coverUrl || "");
   }, [imageFile, imageMethod, form.imageUrl, form.coverUrl]);
 
+  const typedArtistNames = splitArtists(form.artist);
+  const matchedArtist = typedArtistNames.length
+    ? artistsList.find((a) =>
+        typedArtistNames.some(
+          (name) => name.toLowerCase() === a.name.toLowerCase(),
+        ),
+      )
+    : null;
+  const artistLocked = !form.artist.trim();
+  const albumsOfArtist = matchedArtist
+    ? albums.filter((a) => {
+        const albumArtistId =
+          a.artistId && typeof a.artistId === "object"
+            ? a.artistId._id
+            : a.artistId;
+        return String(albumArtistId || "") === String(matchedArtist._id);
+      })
+    : [];
+
+  useEffect(() => {
+    if (!form.albumId) return;
+    const stillValid = albumsOfArtist.some((a) => a._id === form.albumId);
+    if (!stillValid) {
+      setForm((p) => ({ ...p, album: "", albumId: "" }));
+    }
+  }, [matchedArtist?._id]);
+
+  const albumLocked = artistLocked || !matchedArtist;
   function clearImage() {
     setImageFile(null);
     setImagePreview("");
@@ -297,7 +330,6 @@ function DetailForm({
   const imageOptions = [
     { value: "upload", label: "Upload" },
     { value: "url", label: "URL" },
-    // { value: "album", label: "Cover album" },
   ];
 
   return (
@@ -344,9 +376,7 @@ function DetailForm({
                         ...p,
                         imageUrl: "",
                         coverUrl: "",
-                        albumId: "",
                       }));
-                      setAlbumSearch("");
                       setIsDirty(true);
                     }
                   }}
@@ -391,39 +421,46 @@ function DetailForm({
                 value={form.album}
                 onChange={(e) => {
                   handleChange(e);
+                  setForm((p) => ({ ...p, albumId: "" }));
                   setShowAlbumTextSuggest(true);
                 }}
                 onFocus={() => setShowAlbumTextSuggest(true)}
                 onBlur={() =>
                   setTimeout(() => setShowAlbumTextSuggest(false), 150)
                 }
-                placeholder="Nhập tên album..."
+                placeholder={
+                  artistLocked
+                    ? "Nhập nghệ sĩ trước..."
+                    : !matchedArtist
+                      ? "Nghệ sĩ chưa có trong hệ thống"
+                      : "Nhập tên album..."
+                }
                 autoComplete="off"
-                disabled={isBusy}
+                disabled={isBusy || albumLocked}
               />
-              {showAlbumTextSuggest &&
-                form.album.trim() &&
-                albums.filter((a) =>
-                  a.title
-                    ?.toLowerCase()
-                    .includes(form.album.trim().toLowerCase()),
-                ).length > 0 && (
-                  <ul className="song-admin__album-dropdown">
-                    {albums
+              {!albumLocked && showAlbumTextSuggest && (
+                <ul className="song-admin__album-dropdown">
+                  {albumsOfArtist.length > 0 ? (
+                    albumsOfArtist
                       .filter((a) =>
-                        a.title
-                          ?.toLowerCase()
-                          .includes(form.album.trim().toLowerCase()),
+                        form.album.trim()
+                          ? a.title
+                              .toLowerCase()
+                              .includes(form.album.trim().toLowerCase())
+                          : true,
                       )
                       .map((a) => (
                         <li
                           key={a._id}
                           className="song-admin__album-option"
                           onMouseDown={() => {
-                            setForm((p) => ({ ...p, album: a.title }));
+                            setForm((p) => ({
+                              ...p,
+                              album: a.title,
+                              albumId: a._id,
+                            }));
                             setShowAlbumTextSuggest(false);
                             setIsDirty(true);
-                            // Chọn album xong -> hiện luôn ảnh bìa của album đó
                             if (!imageFile && imageMethod !== "url") {
                               setImagePreview(a.coverImage || "");
                             }
@@ -438,11 +475,21 @@ function DetailForm({
                           )}
                           {a.title}
                         </li>
-                      ))}
-                  </ul>
-                )}
+                      ))
+                  ) : (
+                    <li className="song-admin__album-option song-admin__album-option--empty">
+                      {matchedArtist.name} chưa có album nào — vào trang Artist
+                      để tạo album mới
+                    </li>
+                  )}
+                </ul>
+              )}
               <span className="song-admin__hint-text">
-                Ảnh bìa sẽ tự động lấy theo album bạn chọn
+                {artistLocked
+                  ? "Cần nhập nghệ sĩ trước khi chọn album"
+                  : !matchedArtist
+                    ? "Nghệ sĩ chưa tồn tại trong hệ thống — tạo nghệ sĩ trước khi gán album"
+                    : "Ảnh bìa sẽ tự động lấy theo album bạn chọn"}
               </span>
             </div>
 
@@ -568,9 +615,7 @@ function DetailForm({
                         ...p,
                         imageUrl: "",
                         coverUrl: "",
-                        albumId: "",
                       }));
-                      setAlbumSearch("");
                       setIsDirty(true);
                     }
                   }}
@@ -675,9 +720,22 @@ function Admin_Song() {
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState(false);
   const tableRef = useRef(null);
+  const [albums, setAlbums] = useState([]);
+  const [artistsList, setArtistsList] = useState([]);
+  const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
 
   useEffect(() => {
     document.title = "Songs Management";
+  }, []);
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/albums`)
+      .then((res) => setAlbums(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {});
+    axios
+      .get(`${API_URL}/artists`)
+      .then((res) => setArtistsList(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {});
   }, []);
 
   function fetchSongs(onDone) {
@@ -854,9 +912,9 @@ function Admin_Song() {
     <AdminPage title="Quản lý bài hát" actions={headerActions}>
       <div className="song-admin__layout">
         <div className="song-admin__left">
-          <div className="song-admin__meta">
+          {/* <div className="song-admin__meta">
             Songs <span>{songs.length}</span>
-          </div>
+          </div> */}
 
           <div className="song-admin__filter">
             <input

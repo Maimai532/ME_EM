@@ -23,7 +23,7 @@ function AdminLayout() {
   }
     useEffect(() => {
     document.body.setAttribute("data-theme", "admin");
-    return () => document.body.removeAttribute("data-theme"); // cleanup khi rời admin
+    return () => document.body.removeAttribute("data-theme");
   }, []);
 
   return (

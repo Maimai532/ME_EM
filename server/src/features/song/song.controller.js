@@ -48,11 +48,88 @@ export async function resolveAlbumCover(song) {
   return null;
 }
 
+export function parseArtistNames(artistStr) {
+  return (artistStr || "")
+    .split(/,| và /)
+    .map((a) => a.trim())
+    .filter(Boolean);
+}
+
+async function findOrCreateArtist(name) {
+  let artist = await Artist.findOne({
+    name: { $regex: new RegExp(`^${name}$`, "i") },
+  });
+  if (artist) return artist;
+
+  try {
+    artist = await Artist.create({ name });
+  } catch (e) {
+    if (e.code === 11000) {
+      artist = await Artist.findOne({
+        name: { $regex: new RegExp(`^${name}$`, "i") },
+      });
+    } else {
+      throw e;
+    }
+  }
+  return artist;
+}
+
+async function syncArtistLinks(song, oldNames, newNames) {
+  const newLower = new Set(newNames.map((n) => n.toLowerCase()));
+  const oldLower = new Set(oldNames.map((n) => n.toLowerCase()));
+
+  const removedNames = oldNames.filter((n) => !newLower.has(n.toLowerCase()));
+  const addedNames = newNames.filter((n) => !oldLower.has(n.toLowerCase()));
+
+  if (removedNames.length > 0) {
+    await Artist.updateMany(
+      { name: { $in: removedNames.map((n) => new RegExp(`^${n}$`, "i")) } },
+      { $pull: { songs: song._id } },
+    );
+  }
+
+  for (const name of addedNames) {
+    const artist = await findOrCreateArtist(name);
+    if (artist) {
+      await Artist.updateOne(
+        { _id: artist._id },
+        { $addToSet: { songs: song._id } },
+      );
+    }
+  }
+
+  let primaryArtistId = null;
+  for (const name of newNames) {
+    const artist = await Artist.findOne({
+      name: { $regex: new RegExp(`^${name}$`, "i") },
+    });
+    if (artist) {
+      primaryArtistId = artist._id;
+      break;
+    }
+  }
+  song.artistId = primaryArtistId;
+}
+
+async function applyAlbumLink(song, newAlbumId) {
+  const current = song.albumId ? String(song.albumId) : null;
+  const next = newAlbumId ? String(newAlbumId) : null;
+  if (current === next) return next;
+
+  if (current) {
+    await Album.updateOne({ _id: current }, { $pull: { songs: song._id } });
+  }
+  if (next) {
+    await Album.updateOne({ _id: next }, { $addToSet: { songs: song._id } });
+  }
+  return next;
+}
+
 export const getAllSongs = async (req, res) => {
   try {
     const songs = await Song.find().sort({ createdAt: -1 }).lean();
 
-    // Gom albumId duy nhất — query Album 1 lần thay vì N lần (tránh N+1)
     const albumIds = [
       ...new Set(
         songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
@@ -170,14 +247,10 @@ export const createSong = async (req, res) => {
       sourceType,
     });
 
-    const artistNames = artist
-      .split(/,| và /)
-      .map((a) => a.trim())
-      .filter(Boolean);
+    // --- Auto-link Artist theo tên; nếu chưa tồn tại thì tự tạo mới ---
+    const artistNames = parseArtistNames(artist);
     for (const artistName of artistNames) {
-      const foundArtist = await Artist.findOne({
-        name: { $regex: new RegExp(`^${artistName}$`, "i") },
-      });
+      const foundArtist = await findOrCreateArtist(artistName);
       if (foundArtist) {
         if (!foundArtist.songs.includes(song._id)) {
           foundArtist.songs.push(song._id);
@@ -190,19 +263,16 @@ export const createSong = async (req, res) => {
       }
     }
 
-    // Auto-match albumId theo tên album (nếu chưa có albumId từ request)
-    if (album && !req.body.albumId) {
-      const foundAlbum = await Album.findOne({
-        title: { $regex: new RegExp(`^${album.trim()}$`, "i") },
-      });
-      if (foundAlbum) {
-        song.albumId = foundAlbum._id;
-        await song.save();
-      }
-    } else if (req.body.albumId) {
+    // --- Link Album: CHỈ dùng albumId gửi từ dropdown (frontend đã lọc đúng theo artist) ---
+    if (req.body.albumId) {
       song.albumId = req.body.albumId;
       await song.save();
+      await Album.updateOne(
+        { _id: req.body.albumId },
+        { $addToSet: { songs: song._id } },
+      );
     }
+    // Không auto text-match theo `album` string — tránh gán nhầm album của artist khác
 
     const streamUrl = song.audioKey
       ? await getPresignedUrl(song.audioKey, 3600)
@@ -255,12 +325,23 @@ export const updateSong = async (req, res) => {
     delete updateData._id;
     delete updateData.__v;
 
-    if (req.body.albumId !== undefined) {
-      updateData.albumId = req.body.albumId || null;
+    const oldAudioKey = song.audioKey;
+    const oldArtistString = song.artist;
+
+    // --- Đồng bộ Artist khi tên nghệ sĩ thay đổi (tự tạo Artist mới nếu chưa có) ---
+    if (
+      req.body.artist !== undefined &&
+      req.body.artist.trim() !== (oldArtistString || "").trim()
+    ) {
+      const oldNames = parseArtistNames(oldArtistString);
+      const newNames = parseArtistNames(req.body.artist);
+      await syncArtistLinks(song, oldNames, newNames);
+      updateData.artistId = song.artistId;
     }
 
-    const oldAudioKey = song.audioKey; 
-
+    if (req.body.albumId !== undefined) {
+      updateData.albumId = await applyAlbumLink(song, req.body.albumId || null);
+    }
     if (req.files?.audio?.[0]) {
       const audioFile = req.files.audio[0];
       const audioKey = await uploadToB2(
@@ -479,5 +560,3 @@ async function safeDeleteAudio(audioKey, excludeSongId) {
   }
   await deleteFromB2(audioKey);
 }
-
-

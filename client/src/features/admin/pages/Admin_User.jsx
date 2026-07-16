@@ -69,9 +69,9 @@ function Admin_User() {
 
   return (
     <AdminPage title="Quản lý User">
-      <div className="user-admin-meta">
+      {/* <div className="user-admin-meta">
         Users: <span>{users.length}</span>{" "}
-      </div>
+      </div> */}
 
       <div className="user-admin__table-wrapper">
         <table className="user-admin-table">
