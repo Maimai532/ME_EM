@@ -2,6 +2,7 @@ import "dotenv/config";
 import Artist from "../../shared/models/artist.model.js";
 import Song from "../../shared/models/Song.js";
 import Album from "../../shared/models/album.model.js";
+import User from "../../shared/models/User.js";
 import { resolveAlbumCover } from "../song/song.controller.js";
 import {
   uploadToB2,
@@ -50,7 +51,6 @@ export const getArtistById = async (req, res) => {
       })),
     );
 
-    // Gom albumId của songs — query Album 1 lần thay vì N lần (tránh N+1)
     const albumIds = [
       ...new Set(
         artist.songs.filter((s) => s.albumId).map((s) => s.albumId.toString()),
@@ -81,11 +81,20 @@ export const getArtistById = async (req, res) => {
       }),
     );
 
+    let isFollowing = false;
+    if (req.user?.id) {
+      isFollowing = artist.followers.some(
+        (id) => id.toString() === req.user.id,
+      );
+    }
+
     res.json({
       ...artist.toObject(),
       avatar: await resolveUrl(artist.avatarKey, artist.avatar),
       albums: albumsWithUrls,
-      songs: songsWithUrls, 
+      songs: songsWithUrls,
+      isFollowing,
+      followersCount: artist.followers.length,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -472,6 +481,50 @@ export const updateAlbum = async (req, res) => {
 
     await album.save();
     res.json(album);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const toggleFollowArtist = async (req, res) => {
+  try {
+    const artistId = req.params.id;
+    const userId = req.user.id;
+
+    const artist = await Artist.findById(artistId);
+    if (!artist)
+      return res.status(404).json({ message: "Không tìm thấy nghệ sĩ" });
+
+    const user = await User.findById(userId);
+    const isFollowing = user.followingArtists.some(
+      (id) => id.toString() === artistId,
+    );
+
+    if (isFollowing) {
+      user.followingArtists.pull(artistId);
+      artist.followers.pull(userId);
+    } else {
+      user.followingArtists.push(artistId);
+      artist.followers.push(userId);
+    }
+
+    await user.save();
+    await artist.save();
+
+    res.json({
+      success: true,
+      isFollowing: !isFollowing,
+      followersCount: artist.followers.length,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getFollowingArtists = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("followingArtists");
+    res.json({ success: true, data: user.followingArtists });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

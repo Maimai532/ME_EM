@@ -13,8 +13,10 @@ import {
   deleteAlbum,
   removeSongFromArtist,
   syncAllSongsToArtists,
+  toggleFollowArtist,
 } from "./artist.controller.js";
 import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
+import { optionalAuth } from "../../shared/middleware/optionalAuth.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -24,7 +26,8 @@ router.post("/sync-songs", syncAllSongsToArtists);
 
 // Public GET
 router.get("/", getArtists);
-router.get("/:id", getArtistById);
+router.get("/:id", optionalAuth, getArtistById);
+router.post("/:id/follow", protect, toggleFollowArtist);
 
 // Admin — Artist CRUD
 router.post("/", protect, adminOnly, upload.single("avatar"), createArtist);

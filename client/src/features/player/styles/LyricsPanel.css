@@ -1,14 +1,10 @@
 /* LyricsPanel.css */
-
-
-
 .lyrics-container {
   flex: 1;
   scroll-behavior: smooth;
   overflow-y: auto;
   padding: 0 10px;
   height: 100%;
-  /* background-color: rgba(94, 94, 94, 0.699); */
 
 }
 

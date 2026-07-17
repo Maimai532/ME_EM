@@ -12,7 +12,6 @@ export async function getLyricsBySongId(req, res, next) {
     }
 
     if (song.lyrics && song.lyrics.length > 0 && song.isWordLevel === false) {
-      console.log("Using cached line-level lyrics");
       return res.status(200).json({ 
         source: "cache", 
         lyrics: song.lyrics,

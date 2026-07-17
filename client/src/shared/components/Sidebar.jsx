@@ -66,6 +66,16 @@ function Sidebar({ isOpen, setIsOpen }) {
         </NavLink>
 
         <NavLink
+          to="/follow"
+          className={({ isActive }) =>
+            `sidebar__link ${isActive ? "sidebar__link--active" : ""}`
+          }
+        >
+          <img src="/library.png" alt="Follow" className="sidebar__icon" />
+          Follow
+        </NavLink>
+
+        <NavLink
           to="/history"
           className={({ isActive }) =>
             `sidebar__link ${isActive ? "sidebar__link--active" : ""}`

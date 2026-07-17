@@ -8,7 +8,7 @@
 } */
 
 .player-body {
-  position: fixed;
+  position: fixed ;
   /* top: -45px; */
   top: 0;
   right: 0;
@@ -20,7 +20,7 @@
   flex-direction: row;
   overflow: hidden;
   box-sizing: border-box;
-  z-index: 500;
+  z-index: 700;
   transform: translateY(0);
   transition: transform 0.5s ease;
   padding: 45px 0 90px 0;

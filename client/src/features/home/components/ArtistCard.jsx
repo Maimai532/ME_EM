@@ -27,7 +27,7 @@ function ArtistCard({ artist, onPlay }) {
         <p className="artist-card__title" title={artist.name}>
           {artist.name}
         </p>
-        <p className="artist-card__followers">{artist.followers}</p>
+        {/* <p className="artist-card__followers">{artist.followers}</p> */}
       </div>
     </div>
   );

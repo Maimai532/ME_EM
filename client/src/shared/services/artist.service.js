@@ -1,39 +1,45 @@
+// client/src/shared/services/artist.service.js
 import axios from "axios";
-import { API_URL } from "../../shared/constants/api";
+import { API_URL } from "../constants/api";
 
 const getToken = () => localStorage.getItem("token");
 const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
+const optionalAuthConfig = () => {
+  const token = getToken();
+  return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+};
 
 export const artistService = {
   getAll: () => axios.get(`${API_URL}/artists`),
-  getById: (id) => axios.get(`${API_URL}/artists/${id}`),
+  getById: (id) => axios.get(`${API_URL}/artists/${id}`, optionalAuthConfig()),
+
+  toggleFollow: (id) =>
+    axios.post(
+      `${API_URL}/artists/${id}/follow`,
+      {},
+      { headers: authHeader() },
+    ),
+  getFollowing: () =>
+    axios.get(`${API_URL}/users/me/following`, {
+      headers: authHeader(),
+    }),
 
   delete: (id) =>
     axios.delete(`${API_URL}/artists/${id}`, { headers: authHeader() }),
 
-  // Album
-  addAlbum: (artistId, formData) =>
-    axios.post(`${API_URL}/artists/${artistId}/albums`, formData, {
-      headers: {
-        ...authHeader(),
-        "Content-Type": "multipart/form-data", 
-      },
-    }),
-
   create: (formData) =>
     axios.post(`${API_URL}/artists`, formData, {
-      headers: {
-        ...authHeader(),
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
     }),
 
   update: (id, formData) =>
     axios.put(`${API_URL}/artists/${id}`, formData, {
-      headers: {
-        ...authHeader(),
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
+    }),
+
+  addAlbum: (artistId, formData) =>
+    axios.post(`${API_URL}/artists/${artistId}/albums`, formData, {
+      headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
     }),
 
   deleteAlbum: (artistId, albumId) =>
@@ -41,7 +47,6 @@ export const artistService = {
       headers: authHeader(),
     }),
 
-  // Songs
   addExistingSong: (artistId, songId, albumId) =>
     axios.post(
       `${API_URL}/artists/${artistId}/songs`,

@@ -3,6 +3,7 @@ import User from "../../shared/models/User.js";
 import bcrypt from "bcryptjs";
 import asyncHandler from "../../shared/utils/asyncHandler.js";
 import { sendSuccess, sendError } from "../../shared/utils/responseHandler.js";
+import { getPresignedUrl } from "../../shared/services/b2.service.js";
 
 // GET /api/users — lấy danh sách tất cả user
 export const getAllUsers = async (req, res) => {
@@ -132,4 +133,22 @@ export const getLikedSongs = asyncHandler(async (req, res) => {
     "title artist imageUrl audioUrl duration"
   );
   sendSuccess(res, user.likedSongs);
+});
+
+export const getFollowingArtists = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).populate(
+    "followingArtists",
+    "name avatar avatarKey country followers"
+  );
+  const artists = await Promise.all(
+    (user.followingArtists ?? []).map(async (artist) => ({
+      ...artist.toObject(),
+      avatar: artist.avatarKey
+        ? await getPresignedUrl(artist.avatarKey, 3600)
+        : artist.avatar,
+      followersCount: artist.followers?.length || 0,
+    })),
+  );
+
+  sendSuccess(res, artists);
 });

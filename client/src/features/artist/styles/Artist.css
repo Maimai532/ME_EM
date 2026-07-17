@@ -205,6 +205,43 @@
   flex-shrink: 0;
 }
 
+.artist__actions{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-top:20px;
+}
+
+.artist__follow{
+    height:42px;
+    padding:0 28px;
+
+    border-radius:999px;
+    border:1px solid #fff;
+
+    background:transparent;
+    color:#fff;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.artist__follow:hover{
+    transform:scale(1.05);
+}
+
+.artist__follow--active{
+    background:#fff;
+    color:#000;
+}
+
+.artist__followers{
+    color:#b3b3b3;
+    font-size:.9rem;
+}
 
 
 .artist__albums {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchArtistById } from "../services/artist.service";
+import { artistService } from "../../../shared/services/artist.service";
 
 export default function useArtistDetail(id) {
   const [artist, setArtist] = useState(null);
@@ -12,8 +12,9 @@ export default function useArtistDetail(id) {
     setLoading(true);
     setError(null);
 
-    fetchArtistById(id)
-      .then((data) => setArtist(data))
+    artistService
+      .getById(id)
+      .then((res) => setArtist(res.data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);

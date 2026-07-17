@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     role:       { type: String, enum: ["user", "admin"], default: "user" },
     likedSongs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
     playlists:  [{ type: mongoose.Schema.Types.ObjectId, ref: "Playlist" }],
+    followingArtists: [{ type: mongoose.Schema.Types.ObjectId, ref: "Artist" }],
   },
   { timestamps: true }
 );
