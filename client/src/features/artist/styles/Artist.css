@@ -213,20 +213,16 @@
 }
 
 .artist__follow{
-    height:42px;
-    padding:0 28px;
-
-    border-radius:999px;
-    border:1px solid #fff;
-
-    background:transparent;
-    color:#fff;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:.2s;
+  height:42px;
+  width: 140px;
+  padding:10px;
+  border-radius:999px;
+  border:1px solid #fff;
+  background:transparent;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition: all 0.3s;
 }
 
 .artist__follow:hover{

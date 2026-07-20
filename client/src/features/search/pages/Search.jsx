@@ -277,7 +277,6 @@ function Search() {
       setArtists(matchedArtists);
       setLoading(false);
 
-      // Related songs chỉ tính dựa theo song (artist object không có .artist/.genre)
       const songForRelated =
         finalTopResultType === "song" ? finalTopResult : null;
       let related = await getRelatedSongs(q, songForRelated);

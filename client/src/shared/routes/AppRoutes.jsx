@@ -15,6 +15,7 @@ import History from "../../features/history/pages/History.jsx";
 import LikedSongs from "../../features/playlist/pages/LikedSongs";
 import Artist from "../../features/artist/pages/Artist";
 import Follow from "../../features/follow/pages/Follow";
+import Album from "../../features/album/pages/Album";
 
 import Admin_Page from "../../features/admin/pages/Admin_Page";
 import Admin_Dashboard from "../../features/admin/pages/Admin_Dashboard.jsx";
@@ -95,6 +96,7 @@ const AppRoutes = () => {
             }
           />
           <Route path="/artist/:id" element={<Artist />} />
+          <Route path="/album/:id" element={<Album />} />
         </Route>
 
         <Route

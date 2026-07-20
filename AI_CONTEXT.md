@@ -1,7 +1,5 @@
 # Tổng Quan Dự Án
-
 Tên project: ME_EM
-
 Đây là một web nghe nhạc fullstack lấy cảm hứng từ Spotify và YouTube Music.
 
 Mục tiêu:
@@ -18,7 +16,7 @@ CÔNG NGHỆ SỬ DỤNG
 
 Frontend:
 * React + Vite
-* Tailwind CSS
+* CSS
 * React Router DOM
 * Axios
 * Lucide React
@@ -135,21 +133,16 @@ USER:
 * JWT Authentication
 * Tìm kiếm nhạc / nghệ sĩ / album / thể loại
 * Nghe nhạc
-* Play / Pause
-* Next / Previous
-* Autoplay
-* Repeat
+* Play / Pause / Next / Previous /Autoplay /Repeat
 * Queue nhạc
 * Yêu thích bài hát
 * Tạo playlist
 * Lịch sử nghe
-* Quản lý tài khoản
-* Đổi avatar / tên / mật khẩu
-* Xoá tài khoản
-* libraly, tạo playlist
-
+* Quản lý tài khoản (Đổi avatar / tên / mật khẩu)
+* Follow artist
 
 ADMIN:
+* Drashboard
 * Quản lí songs
 * Quản lý playlist
 * Quản lý người dùng
@@ -175,7 +168,7 @@ MongoDB CHỈ lưu:
 * audioUrl
 * imageUrl
 
-File audio và image thực tế sẽ lưu trên B2
+File audio thực tế lưu trên B2, image trên cloudinary
 
 ============
 QUY TẮC CODE
@@ -201,7 +194,6 @@ Backend:
 ===========
 QUAN TRỌNG
 ==========
-
 * KHÔNG lưu file audio trong MongoDB
 * KHÔNG nhét toàn bộ code vào App.jsx
 * KHÔNG tạo component quá lớn

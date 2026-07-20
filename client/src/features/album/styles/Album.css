@@ -1,0 +1,248 @@
+.album {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  position: relative;
+}
+.album__back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.album__back:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+
+.album__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 14px;
+}
+
+/*BANNER*/
+
+.album__banner {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 25px 25px 100px;
+  position: relative;
+  background: #181818;
+  overflow: hidden;
+}
+
+.album__banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--bg) 0%, #181818 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.album__cover-wrap,
+.album__meta {
+  position: relative;
+  z-index: 1;
+}
+
+.album__cover-wrap {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.album__cover {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.album__cover--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
+
+.album__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.album__type {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.album__title {
+  font-size: 48px;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.album__sub {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.album__artist-name {
+  color: white;
+  font-weight: 600;
+}
+
+.album__dot {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ===== ACTIONS ===== */
+
+.album__actions {
+  padding: 16px 24px;
+}
+
+.album__play-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: absolute;
+  right: -16px;
+  bottom: -16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.album__play-btn:hover {
+  transform: scale(1.05);
+}
+
+.album__play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== EMPTY ===== */
+
+.album__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgb(212, 27, 27);
+  padding: 80px 0;
+}
+
+.album__empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ===== LIST ===== */
+
+.album__list { 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: -100px;
+}
+
+.album__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.album__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.album__index {
+  width: 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.album__image {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.album__image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
+
+.album__info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.album__song-title {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album__song-artist {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  margin: 0;
+}
+
+.album__duration {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}

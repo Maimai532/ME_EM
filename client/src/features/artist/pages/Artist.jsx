@@ -155,7 +155,11 @@ export default function Artist() {
 
               <div className="artist__albums-grid">
                 {artist.albums.slice(0, 6).map((album) => (
-                  <div key={album._id} className="artist__album-card">
+                  <div
+                    key={album._id}
+                    className="artist__album-card"
+                    onClick={() => navigate(`/album/${album._id}`)}
+                  >
                     <img
                       src={album.coverImage || "/placeholder.jpg"}
                       alt={album.title}

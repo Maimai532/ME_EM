@@ -96,15 +96,15 @@
     cursor:pointer;
     height: 50px;
     width: 120px;
+    transition: all 0.3s;
 }
 
 .follow__button:hover:not(:disabled){
-    transform:scale(1.03);
+    transform:scale(1.05);
 }
 
 .follow__button:disabled{
     cursor:not-allowed;
-    opacity:.7;
 }
 
 .follow__button--active{
