@@ -7,6 +7,7 @@ import { API_URL } from "../../../shared/constants/api";
 import { useState, useEffect, useRef } from "react";
 import ConfirmModal from "../components/ConfirmModal";
 import { Music, Image } from "lucide-react";
+import { splitArtists } from "../../../shared/utils/artistName";
 
 const emptyForm = {
   title: "",
@@ -36,13 +37,15 @@ function splitGenres(genreStr) {
     .map(normalizeGenre)
     .filter(Boolean);
 }
+function getLastArtistSegment(value) {
+  const parts = value.split(/(,|\/| và )/);
+  return parts[parts.length - 1] || "";
+}
 
-function splitArtists(artistStr) {
-  if (!artistStr) return [];
-  return artistStr
-    .split(/,|\/| và /)
-    .map((a) => a.trim())
-    .filter(Boolean);
+function replaceLastArtistSegment(value, name) {
+  const parts = value.split(/(,|\/| và )/);
+  parts[parts.length - 1] = name;
+  return parts.join("");
 }
 
 function normalizeSongForm(input = {}) {
@@ -154,6 +157,7 @@ function DetailForm({
   const [albums, setAlbums] = useState([]);
   const [artistsList, setArtistsList] = useState([]);
   const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
+  const [showArtistSuggest, setShowArtistSuggest] = useState(false);
 
   const [form, setForm] = useState(safeSong);
   const [loading, setLoading] = useState(false);
@@ -226,11 +230,12 @@ function DetailForm({
 
   useEffect(() => {
     if (!form.albumId) return;
+    if (albums.length === 0 || artistsList.length === 0) return;
     const stillValid = albumsOfArtist.some((a) => a._id === form.albumId);
     if (!stillValid) {
       setForm((p) => ({ ...p, album: "", albumId: "" }));
     }
-  }, [matchedArtist?._id]);
+  }, [matchedArtist?._id, albums, artistsList]);
 
   const albumLocked = artistLocked || !matchedArtist;
   function clearImage() {
@@ -405,13 +410,58 @@ function DetailForm({
             <label className="song-admin__label">
               Nghệ sĩ <span>*</span>
             </label>
-            <input
-              className="song-admin__input"
-              name="artist"
-              value={form.artist}
-              onChange={handleChange}
-              disabled={isBusy}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                className="song-admin__input"
+                name="artist"
+                value={form.artist}
+                onChange={(e) => {
+                  handleChange(e);
+                  setShowArtistSuggest(true);
+                }}
+                onFocus={() => setShowArtistSuggest(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowArtistSuggest(false), 150)
+                }
+                autoComplete="off"
+                disabled={isBusy}
+              />
+              {showArtistSuggest &&
+                (() => {
+                  const query = getLastArtistSegment(form.artist)
+                    .trim()
+                    .toLowerCase();
+                  const suggestions = query
+                    ? artistsList.filter((a) =>
+                        a.name.toLowerCase().includes(query),
+                      )
+                    : artistsList;
+                  if (suggestions.length === 0) return null;
+                  return (
+                    <ul className="song-admin__album-dropdown">
+                      {suggestions.slice(0, 8).map((a) => (
+                        <li
+                          key={a._id}
+                          className="song-admin__album-option"
+                          onMouseDown={() => {
+                            setForm((p) => ({
+                              ...p,
+                              artist: replaceLastArtistSegment(
+                                p.artist,
+                                a.name,
+                              ),
+                            }));
+                            setShowArtistSuggest(false);
+                            setIsDirty(true);
+                          }}
+                        >
+                          {a.name}
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
+            </div>
 
             <label className="song-admin__label">Album</label>
             <div style={{ position: "relative" }}>

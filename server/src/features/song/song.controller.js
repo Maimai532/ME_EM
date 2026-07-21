@@ -1,6 +1,7 @@
 import Song from "../../shared/models/Song.js";
 import Artist from "../../shared/models/artist.model.js";
 import Album from "../../shared/models/album.model.js";
+import { splitArtists } from "../../shared/utils/artistName.js";
 import {
   uploadToB2,
   getPresignedUrl,
@@ -46,10 +47,7 @@ if (song.album?.trim() && song.artistId) {
 }
 
 export function parseArtistNames(artistStr) {
-  return (artistStr || "")
-    .split(/,| và /)
-    .map((a) => a.trim())
-    .filter(Boolean);
+  return splitArtists(artistStr);
 }
 
 async function findOrCreateArtist(name) {

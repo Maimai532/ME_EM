@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { artistService } from "../../../shared/services/artist.service";
 import { songService } from "../../home/services/songService";
@@ -8,14 +7,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import AdminPage from "./Admin_Page";
 import "../styles/Admin_Artist.css";
 import { albumService } from "../../../shared/services/album.service";
-
-function splitArtists(artistStr) {
-  if (!artistStr) return [];
-  return artistStr
-    .split(/,|\/| và /)
-    .map((a) => a.trim())
-    .filter(Boolean);
-}
+import { splitArtists } from "../../../shared/utils/artistName";
 
 function ArtistForm({ artist, onSaved, onCancel }) {
   const isEdit = !!artist;
@@ -547,10 +539,9 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
   const filteredSongs = allSongs.filter((s) => {
     const q = search.toLowerCase();
     const matchTitle = s.title?.toLowerCase().includes(q);
-    const matchArtist = s.artist
-      ?.split(/,| và /)
-      .map((a) => a.trim())
-      .some((a) => a.toLowerCase().includes(q));
+    const matchArtist = splitArtists(s.artist).some((a) =>
+      a.toLowerCase().includes(q),
+    );
     return matchTitle || matchArtist;
   });
 

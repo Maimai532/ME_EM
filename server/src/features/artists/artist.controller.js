@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { splitArtists } from "../../shared/utils/artistName.js";
 import Artist from "../../shared/models/artist.model.js";
 import Song from "../../shared/models/Song.js";
 import Album from "../../shared/models/album.model.js";
@@ -134,12 +135,13 @@ export const createArtist = async (req, res) => {
     });
     await artist.save();
 
-    const matchedSongs = await Song.find({
-      artist: {
-        $regex: new RegExp(`(^|,\\s*| và )${name}(\\s*,| và |$)`, "i"),
-      },
-      artistId: null,
-    });
+    const normalizedName = name.trim().toLowerCase();
+    const candidateSongs = await Song.find({ artistId: null });
+    const matchedSongs = candidateSongs.filter((song) =>
+      splitArtists(song.artist).some(
+        (n) => n.toLowerCase() === normalizedName,
+      ),
+    );
 
     if (matchedSongs.length > 0) {
       const songIds = matchedSongs.map((s) => s._id);
@@ -414,14 +416,12 @@ export const syncAllSongsToArtists = async (req, res) => {
     let totalLinked = 0;
 
     for (const artist of artists) {
-      const matched = songs.filter((song) => {
-        const songArtists =
-          song.artist
-            ?.split(/,\s*| và |\s*\/\s*/)
-            .map((a) => a.trim().toLowerCase())
-            .filter(Boolean) || [];
-        return songArtists.includes(artist.name.toLowerCase());
-      });
+      const artistNameLower = artist.name.toLowerCase();
+      const matched = songs.filter((song) =>
+        splitArtists(song.artist).some(
+          (n) => n.toLowerCase() === artistNameLower,
+        ),
+      );
 
       const existingIds = new Set(artist.songs.map((s) => s.toString()));
       const newSongIds = matched
