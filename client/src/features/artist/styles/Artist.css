@@ -178,6 +178,14 @@
   color: #9ca3af;
 }
 
+.artist__album-cover--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+}
+
 .artist__info {
   flex: 1;
   overflow: hidden;

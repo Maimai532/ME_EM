@@ -3,6 +3,7 @@ import { artistService } from "../../../shared/services/artist.service";
 import { songService } from "../../home/services/songService";
 import { useToast } from "../../../shared/hooks/useToast";
 import { useAuth } from "../../auth/context/AuthContext";
+import { Music, User } from "lucide-react";
 import ConfirmModal from "../components/ConfirmModal";
 import AdminPage from "./Admin_Page";
 import "../styles/Admin_Artist.css";
@@ -144,13 +145,17 @@ function ArtistForm({ artist, onSaved, onCancel }) {
           </div>
 
           <div className="avatar-mode-preview">
-            {preview && (
+            {preview ? (
               <img
                 src={preview}
                 alt="preview"
                 className="artist-form__preview"
                 onError={() => setPreview("")}
               />
+            ) : (
+              <div className="artist-form__preview artist-form__preview--placeholder">
+                <User size={40} />
+              </div>
             )}
           </div>
         </div>
@@ -658,10 +663,16 @@ function AddSongModal({ artistId, albumId, onClose, onSaved }) {
                   className={selectedSongIds.has(song._id) ? "selected" : ""}
                   onClick={() => toggleSong(song._id)}
                 >
-                  <img
-                    src={song.coverUrl || song.imageUrl || "/default-cover.png"}
-                    alt={song.title}
-                  />
+                  {song.coverUrl || song.imageUrl ? (
+                    <img
+                      src={song.coverUrl || song.imageUrl}
+                      alt={song.title}
+                    />
+                  ) : (
+                    <div className="song-picker__cover-placeholder">
+                      <Music size={16} />
+                    </div>
+                  )}
                   <div>
                     <strong>{song.title}</strong>
                     <span>
@@ -897,11 +908,17 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
       </div>
 
       <div className="artist-admin__info-row">
-        <img
-          src={artist.avatar || "/default-artist.png"}
-          alt={artist.name}
-          className="artist-admin__info-avatar"
-        />
+        {artist.avatar ? (
+          <img
+            src={artist.avatar}
+            alt={artist.name}
+            className="artist-admin__info-avatar"
+          />
+        ) : (
+          <div className="artist-admin__info-avatar artist-admin__info-avatar--placeholder">
+            <User size={24} />
+          </div>
+        )}
         <div className="artist-admin__info-text">
           <h3>{artist.name}</h3>
           <span className="artist-admin__info-country">
@@ -970,11 +987,17 @@ function ArtistDetailPanel({ artistId, onChanged, onClose }) {
                   onClick={() => setExpandedAlbumId(isOpen ? null : album._id)}
                   onContextMenu={(e) => handleAlbumContextMenu(e, album._id)}
                 >
-                  <img
-                    src={album.coverImage || "/default-cover.png"}
-                    alt={album.title}
-                    className="artist-admin__album-cover"
-                  />
+                  {album.coverImage ? (
+                    <img
+                      src={album.coverImage}
+                      alt={album.title}
+                      className="artist-admin__album-cover"
+                    />
+                  ) : (
+                    <div className="artist-admin__album-cover artist-admin__album-cover--placeholder">
+                      <Music size={18} />
+                    </div>
+                  )}
                   <div className="artist-admin__album-info">
                     <strong>{album.title}</strong>
                     <span>

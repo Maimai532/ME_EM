@@ -1,7 +1,7 @@
 /* LAYOUT */
 .song-admin__layout {
   display: grid;
-  grid-template-columns: 750px 1fr;
+  grid-template-columns: 650px 1fr;
   gap: 16px;
   height: 100%;
 }

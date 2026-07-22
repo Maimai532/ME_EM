@@ -413,6 +413,15 @@
   flex-shrink: 0;
 }
 
+.section-artist-avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
 /* Màu xen kẽ */
 .section-table__row--in:nth-child(even) {
   background-color: #faf5ff;

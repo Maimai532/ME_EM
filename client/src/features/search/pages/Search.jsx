@@ -204,11 +204,17 @@ function SongItem({ song, queue, playSong }) {
   return (
     <div className="search-page__item" onClick={() => playSong(song, queue)}>
       <div className="search-page__img-wrap">
-        <img
-          src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-          alt={song.title}
-          className="search-page__img"
-        />
+        {song.coverUrl || song.imageUrl ? (
+          <img
+            src={song.coverUrl || song.imageUrl}
+            alt={song.title}
+            className="search-page__img"
+          />
+        ) : (
+          <div className="search-page__img search-page__img--placeholder">
+            <Music size={20} />
+          </div>
+        )}
         <div className="search-page__play-overlay">
           <Play size={16} fill="white" color="white" />
         </div>
@@ -363,16 +369,27 @@ function Search() {
                 }}
               >
                 <div className="search-top-card__img-wrap">
-                  <img
-                    src={
-                      topResultType === "artist"
-                        ? topResult.avatar || "/default-artist.png"
-                        : topResult.coverUrl ||
-                          topResult.imageUrl ||
-                          "/placeholder.jpg"
-                    }
-                    alt={topResult.title || topResult.name}
-                  />
+                  {topResultType === "artist" ? (
+                    topResult.avatar ? (
+                      <img
+                        src={topResult.avatar}
+                        alt={topResult.name}
+                      />
+                    ) : (
+                      <div className="search-top-card__placeholder search-top-card__placeholder--artist">
+                        <User size={56} />
+                      </div>
+                    )
+                  ) : topResult.coverUrl || topResult.imageUrl ? (
+                    <img
+                      src={topResult.coverUrl || topResult.imageUrl}
+                      alt={topResult.title}
+                    />
+                  ) : (
+                    <div className="search-top-card__placeholder">
+                      <Music size={56} />
+                    </div>
+                  )}
                   {topResultType === "song" && (
                     <div className="search-top-card__play-overlay">
                       <Play size={20} fill="white" color="white" />

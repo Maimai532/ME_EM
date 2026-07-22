@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { User } from "lucide-react";
 import "../styles/Artist_Card.css";
 
 function ArtistCard({ artist, onPlay }) {
@@ -16,11 +17,17 @@ function ArtistCard({ artist, onPlay }) {
       onClick={() => navigate(`/artist/${artist._id}`)}
     >
       <div className="artist-card__cover-wrap">
-        <img
-          src={artist.avatar || "/placeholder.jpg"}
-          alt={artist.name}
-          className="artist-card__img"
-        />
+        {artist.avatar || artist.imageUrl ? (
+          <img
+            src={artist.avatar || artist.imageUrl}
+            alt={artist.name}
+            className="artist-card__img"
+          />
+        ) : (
+          <div className="artist-card__img artist-card__img--placeholder">
+            <User size={36} />
+          </div>
+        )}
       </div>
 
       <div className="artist-card__info">

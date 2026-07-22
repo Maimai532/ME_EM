@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Plus, ListMusic } from "lucide-react";
+import { X, Plus, ListMusic, Music } from "lucide-react";
 import { usePlaylist } from "../context/PlaylistContext";
 import "../styles/AddToPlaylistModal.css";
 import { createPortal } from "react-dom";
@@ -52,10 +52,16 @@ export default function AddToPlaylistModal({ song, onClose }) {
 
         {/* Song info */}
         <div className="atp-song">
-          <img
-            src={song.coverUrl || song.imageUrl || "/placeholder.jpg"}
-            alt={song.title}
-          />
+          {song.coverUrl || song.imageUrl ? (
+            <img
+              src={song.coverUrl || song.imageUrl}
+              alt={song.title}
+            />
+          ) : (
+            <div className="atp-song__cover-placeholder">
+              <Music size={20} />
+            </div>
+          )}
           <div>
             <p className="atp-song__title">{song.title}</p>
             <p className="atp-song__artist">{song.artist}</p>

@@ -169,6 +169,13 @@
   border: 1px solid #e5e7eb;
 }
 
+.artist-admin__info-avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
 .artist-admin__info-text h3 {
   margin: 0 0 2px 0;
   font-size: 16px;
@@ -321,6 +328,13 @@
   object-fit: cover;
   background: #e5e7eb;
   flex-shrink: 0;
+}
+
+.artist-admin__album-cover--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
 }
 
 .artist-admin__album-info {
@@ -547,6 +561,15 @@
   border-radius: 50%;
   object-fit: cover;
   display: block;
+}
+
+.artist-form__preview--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
 }
 
 /* Form*/
@@ -791,6 +814,18 @@
   height: 30px;
   border-radius: 4px;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+.song-picker__cover-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
   flex-shrink: 0;
 }
 

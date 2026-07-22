@@ -44,6 +44,15 @@
   object-fit: cover;
 }
 
+.artist-card__img--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a;
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
  .artist-card__info {
   text-align: center;
   width: 100%;
@@ -60,5 +69,4 @@
   font-size: 12px;
   color: #ffffff;
 }
-
 

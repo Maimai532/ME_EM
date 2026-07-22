@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { User } from "lucide-react";
 import { API_URL } from "../../../shared/constants/api";
 import "../styles/Admin_Section.css";
 import "../styles/Admin_Playlist.css";
@@ -265,12 +266,16 @@ function ManageItemsModal({ section, onClose, token }) {
                       </td>
                       <td className="section-table__td section-table__td--name">
                         <div className="section-artist-cell">
-                          {artist.imageUrl && (
+                          {artist.imageUrl || artist.avatar ? (
                             <img
-                              src={artist.imageUrl}
+                              src={artist.imageUrl || artist.avatar}
                               alt={artist.name}
                               className="section-artist-avatar"
                             />
+                          ) : (
+                            <div className="section-artist-avatar section-artist-avatar--placeholder">
+                              <User size={16} />
+                            </div>
                           )}
                           <span>{artist.name}</span>
                         </div>
@@ -372,12 +377,16 @@ function ManageItemsModal({ section, onClose, token }) {
                       </td>
                       <td className="section-table__td section-table__td--name">
                         <div className="section-artist-cell">
-                          {artist.imageUrl && (
+                          {artist.imageUrl || artist.avatar ? (
                             <img
-                              src={artist.imageUrl}
+                              src={artist.imageUrl || artist.avatar}
                               alt={artist.name}
                               className="section-artist-avatar"
                             />
+                          ) : (
+                            <div className="section-artist-avatar section-artist-avatar--placeholder">
+                              <User size={16} />
+                            </div>
                           )}
                           <span>{artist.name}</span>
                         </div>

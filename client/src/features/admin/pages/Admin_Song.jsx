@@ -1126,9 +1126,9 @@ function Admin_Song() {
                               />
                             </td>
                             <td className="song-admin__td">
-                              {song.coverUrl ? (
+                              {song.coverUrl || song.imageUrl ? (
                                 <img
-                                  src={song.coverUrl}
+                                  src={song.coverUrl || song.imageUrl}
                                   alt={song.title}
                                   className="song-admin__cover"
                                 />

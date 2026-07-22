@@ -160,11 +160,17 @@ export default function Artist() {
                     className="artist__album-card"
                     onClick={() => navigate(`/album/${album._id}`)}
                   >
-                    <img
-                      src={album.coverImage || "/placeholder.jpg"}
-                      alt={album.title}
-                      className="artist__album-cover"
-                    />
+                    {album.coverImage ? (
+                      <img
+                        src={album.coverImage}
+                        alt={album.title}
+                        className="artist__album-cover"
+                      />
+                    ) : (
+                      <div className="artist__album-cover artist__album-cover--placeholder">
+                        <Music size={24} />
+                      </div>
+                    )}
 
                     <div className="artist__album-info">
                       <h3>{album.title}</h3>

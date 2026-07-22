@@ -1,4 +1,4 @@
-import { Search, Sparkles, Play } from "lucide-react";
+import { Search, Sparkles, Play, Music } from "lucide-react";
 import "../styles/SuggestionSection.css";
 
 function SuggestionSection({ query, suggestions, sourceType, onSuggestionClick, hideHeader = false }) {
@@ -41,7 +41,9 @@ function SuggestionSection({ query, suggestions, sourceType, onSuggestionClick, 
                   className="suggestion-card__img"
                 />
               ) : (
-                <div className="suggestion-card__img-placeholder">♪</div>
+                <div className="suggestion-card__img-placeholder">
+                  <Music size={36} />
+                </div>
               )}
               <div className="suggestion-card__play-overlay">
                 <Play size={14} fill="white" color="white" />
