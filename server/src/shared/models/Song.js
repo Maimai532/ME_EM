@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import GENRES from "../constants/genres.js";
 
 const songSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     artist: { type: String, required: true, trim: true },
     album: { type: String, default: "" },
-    genre: { type: String, default: "" },
+    genre: { type: String, enum: [...GENRES, ""], default: "" },
     duration: { type: Number, default: 0 },
     sourceType: {
       type: String,

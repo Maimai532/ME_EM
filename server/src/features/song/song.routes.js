@@ -14,6 +14,9 @@ import { uploadSongMedia } from "../../shared/services/b2.service.js";
 import Song from "../../shared/models/Song.js";
 import { optionalAuth } from "../../shared/middleware/optionalAuth.js";
 import { trackSongPlay } from "./song.controller.js";
+import { getGenres } from "./song.controller.js";
+ 
+
 
 const router = express.Router();
 const uploadFields = (req, res, next) => {
@@ -34,6 +37,7 @@ const uploadFields = (req, res, next) => {
 router.get("/", getAllSongs);
 router.get("/random", getRandomSongs);
 router.get("/search", searchSongs);
+router.get("/genres", getGenres);
 router.get("/:id", getSongById);
 router.post("/", protect, adminOnly, uploadFields, createSong);
 router.put("/:id", protect, adminOnly, uploadFields, updateSong);

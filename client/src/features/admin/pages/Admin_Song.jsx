@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import ConfirmModal from "../components/ConfirmModal";
 import { Music, Image } from "lucide-react";
 import { splitArtists } from "../../../shared/utils/artistName";
+import useGenres from "../../../shared/hooks/useGenres";
 
 const emptyForm = {
   title: "",
@@ -158,6 +159,18 @@ function DetailForm({
   const [artistsList, setArtistsList] = useState([]);
   const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
   const [showArtistSuggest, setShowArtistSuggest] = useState(false);
+  const parseGenreTags = (genreStr) => {
+    if (!genreStr) return [];
+    return genreStr
+      .split(",")
+      .map((g) => g.trim())
+      .filter(Boolean);
+  };
+  const { genres: genreOptions } = useGenres();
+  const [genreTags, setGenreTags] = useState(parseGenreTags(safeSong.genre));
+  const [genreInputVal, setGenreInputVal] = useState("");
+  const [showGenreSuggest, setShowGenreSuggest] = useState(false);
+  const genreInputRef = useRef(null);
 
   const [form, setForm] = useState(safeSong);
   const [loading, setLoading] = useState(false);
@@ -182,6 +195,9 @@ function DetailForm({
     setImageFile(null);
     setImagePreview(s.coverUrl || "");
     setIsDirty(!s._id);
+    isFirstGenreRender.current = true;
+    setGenreTags(parseGenreTags(s.genre));
+    setGenreInputVal("");
 
     if (s._id && (s.audioUrl || s.audioKey)) {
       setAudioMethod(s.audioUrl ? "url" : "b2key");
@@ -208,6 +224,16 @@ function DetailForm({
     }
     setImagePreview(form.coverUrl || "");
   }, [imageFile, imageMethod, form.imageUrl, form.coverUrl]);
+
+  const isFirstGenreRender = useRef(true);
+  useEffect(() => {
+    if (isFirstGenreRender.current) {
+      isFirstGenreRender.current = false;
+      return;
+    }
+    setForm((p) => ({ ...p, genre: genreTags.join(", ") }));
+    setIsDirty(true);
+  }, [genreTags]);
 
   const typedArtistNames = splitArtists(form.artist);
   const matchedArtist = typedArtistNames.length
@@ -543,16 +569,105 @@ function DetailForm({
               </span>
             </div>
 
-            <label className="song-admin__label">
-              Thể loại <span>*</span>
-            </label>
-            <input
-              className="song-admin__input"
-              name="genre"
-              value={form.genre}
-              onChange={handleChange}
-              disabled={isBusy}
-            />
+            <label className="song-admin__label">Thể loại</label>
+            <div
+              className="song-admin__genre-tag-box"
+              onClick={() => genreInputRef.current?.focus()}
+            >
+              {genreTags.map((tag) => (
+                <span key={tag} className="song-admin__genre-tag">
+                  {tag}
+                  <button
+                    type="button"
+                    className="song-admin__genre-tag-remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setGenreTags((prev) => prev.filter((t) => t !== tag));
+                      setIsDirty(true);
+                    }}
+                    disabled={isBusy}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <div style={{ position: "relative", flex: 1, minWidth: 120 }}>
+                <input
+                  ref={genreInputRef}
+                  className="song-admin__genre-tag-input"
+                  value={genreInputVal}
+                  onChange={(e) => {
+                    setGenreInputVal(e.target.value);
+                    setShowGenreSuggest(true);
+                  }}
+                  onFocus={() => setShowGenreSuggest(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowGenreSuggest(false), 150)
+                  }
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Backspace" &&
+                      !genreInputVal &&
+                      genreTags.length > 0
+                    ) {
+                      setGenreTags((prev) => prev.slice(0, -1));
+                      setIsDirty(true);
+                    }
+                  }}
+                  placeholder={genreTags.length === 0 ? "Nhập thể loại..." : ""}
+                  disabled={isBusy}
+                  autoComplete="off"
+                />
+                {showGenreSuggest && (
+                  <ul className="song-admin__album-dropdown">
+                    {(() => {
+                      const q = genreInputVal.trim().toLowerCase();
+                      const filtered = q
+                        ? genreOptions.filter(
+                            (g) =>
+                              g.toLowerCase().includes(q) &&
+                              !genreTags.includes(g),
+                          )
+                        : genreOptions.filter((g) => !genreTags.includes(g));
+
+                      const addTag = (tag) => {
+                        setGenreTags((prev) =>
+                          prev.includes(tag) ? prev : [...prev, tag],
+                        );
+                        setGenreInputVal("");
+                        setShowGenreSuggest(false);
+                        setIsDirty(true);
+                        genreInputRef.current?.focus();
+                      };
+
+                      if (filtered.length === 0 && q) {
+                        return (
+                          <li
+                            className="song-admin__album-option"
+                            onMouseDown={() => addTag("Other")}
+                          >
+                            <span style={{ opacity: 0.6 }}>
+                              "{genreInputVal}" — không có trong danh sách, thêm
+                            </span>
+                            &nbsp;<strong>Other</strong>
+                          </li>
+                        );
+                      }
+
+                      return filtered.slice(0, 8).map((g) => (
+                        <li
+                          key={g}
+                          className="song-admin__album-option"
+                          onMouseDown={() => addTag(g)}
+                        >
+                          {g}
+                        </li>
+                      ));
+                    })()}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

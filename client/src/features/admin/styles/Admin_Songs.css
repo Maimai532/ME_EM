@@ -817,3 +817,60 @@
   text-align: center;
   color: #374151;
 }
+
+
+.song-admin__genre-tag-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  cursor: text;
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  color: #111827;
+  background: #fff;
+}
+
+.song-admin__genre-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #7de07d71;
+  border: #0b760b 1px solid;
+  color: #000000;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.song-admin__genre-tag-remove {
+  background: none;
+  border: none;
+  color: #000000;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+}
+
+.song-admin__genre-tag-remove:hover {
+  opacity: 1;
+}
+
+.song-admin__genre-tag-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-size: 13px;
+  width: 100%;
+  padding: 2px 0;
+}

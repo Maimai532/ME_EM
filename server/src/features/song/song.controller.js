@@ -13,7 +13,11 @@ import {
   uploadBufferToCloudinary,
 } from "../../shared/services/cloudinary.service.js";
 import { registerSongPlay } from "./song.service.js";
+import GENRES from "../../shared/constants/genres.js";
 
+export const getGenres = (req, res) => {
+  res.json({ genres: GENRES });
+};
 export const trackSongPlay = async (req, res) => {
   try {
     const song = await registerSongPlay(req.params.id, req.user?._id);
