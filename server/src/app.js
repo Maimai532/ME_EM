@@ -12,14 +12,14 @@ import playlistRoutes from "./features/playlist/playlist.routes.js";
 import aiRoutes from "./features/ai/ai.routes.js";
 import albumRoutes from "./features/album/album.routes.js";
 import lyricsRoutes from "./features/lyrics/lyrics.routes.js";
-import recommendationRoute from './features/recommendations/recommendation.route.js'
+import recommendationRoute from "./features/recommendations/recommendation.route.js";
 import statsRoutes from "./features/stats/stats.routes.js";
-
+import uploadRoutes from "./features/upload/upload.routes.js";
 
 export function createApp() {
   const app = express();
 
-/* 
+  /* 
 cors() phải đứng đầu:  Browser gửi request → Express kiểm tra CORS ngay lập tức
  Nếu cors() chưa chạy → browser bị block, request không đi tiếp được
  */
@@ -49,8 +49,8 @@ Nếu chưa parse → req.body = undefined → controller đọc không được
   app.use("/api/ai", aiRoutes);
   app.use("/api/albums", albumRoutes);
   app.use("/api/lyrics", lyricsRoutes);
-  app.use('/api/recommendations', recommendationRoute);
+  app.use("/api/recommendations", recommendationRoute);
   app.use("/api/admin/stats", statsRoutes);
-
+  app.use("/api/upload", uploadRoutes);
   return app;
 }

@@ -19,6 +19,7 @@ const emptyForm = {
   audioUrl: "",
   audioKey: "",
   imageUrl: "",
+  imagePublicId: "",
   sourceType: "upload",
 };
 
@@ -68,10 +69,45 @@ function normalizeSongForm(input = {}) {
     audioUrl: input.audioUrl ?? "",
     audioKey: input.audioKey ?? "",
     imageUrl: input.imageUrl ?? "",
+    imagePublicId: input.imagePublicId ?? "",
     coverUrl: input.coverUrl ?? input.imageUrl ?? "",
     sourceType,
     _id: input._id,
   };
+}
+async function uploadAudioToB2(file, token, onProgress) {
+  const { data } = await axios.get(`${API_URL}/upload/b2-upload-url`, {
+    params: { fileName: file.name, mimeType: file.type, folder: "audio" },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const { uploadUrl, key } = data.data;
+  await axios.put(uploadUrl, file, {
+    headers: { "Content-Type": file.type },
+    onUploadProgress: onProgress,
+  });
+  return key;
+}
+
+async function uploadImageToCloudinary(file, token, onProgress) {
+  const { data } = await axios.get(`${API_URL}/upload/cloudinary-signature`, {
+    params: { folder: "songs" },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const { signature, timestamp, apiKey, cloudName, folder } = data.data;
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("api_key", apiKey);
+  form.append("timestamp", timestamp);
+  form.append("signature", signature);
+  form.append("folder", folder);
+
+  const res = await axios.post(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    form,
+    { onUploadProgress: onProgress },
+  );
+  return { url: res.data.secure_url, publicId: res.data.public_id };
 }
 
 function CustomSelect({ value, onChange, options, disabled = false }) {
@@ -141,7 +177,7 @@ function DetailForm({
   onSaved,
   onClose,
   onDelete,
-   onLoadingChange,
+  onLoadingChange,
   externalLoading = false,
 }) {
   const safeSong = normalizeSongForm({ ...emptyForm, ...(song || {}) });
@@ -305,21 +341,46 @@ function DetailForm({
     setLoading(true);
     onLoadingChange?.(true);
     try {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => {
-        if (k === "coverUrl" || k === "_id") return;
-        if (v !== undefined && v !== null) fd.append(k, v);
-      });
-      if (audioFile) fd.append("audio", audioFile);
-      if (imageFile) fd.append("image", imageFile);
-      if (removeImage && !imageFile) fd.append("removeImage", "true");
+      let audioKey = form.audioKey;
+      let audioUrl = form.audioUrl;
+      let imageUrl = form.imageUrl;
+      let imagePublicId = form.imagePublicId;
+
+      if (audioFile) {
+        audioKey = await uploadAudioToB2(audioFile, token);
+        audioUrl = "";
+      }
+
+      if (imageFile) {
+        const uploaded = await uploadImageToCloudinary(imageFile, token);
+        imageUrl = uploaded.url;
+        imagePublicId = uploaded.publicId;
+      }
+
+      const payload = {
+        title: form.title,
+        artist: form.artist,
+        album: form.album,
+        albumId: form.albumId,
+        genre: form.genre,
+        audioUrl,
+        audioKey,
+        imageUrl,
+        imagePublicId,
+        sourceType: form.sourceType,
+      };
+      if (removeImage && !imageFile) payload.removeImage = "true";
 
       const config = { headers: { Authorization: `Bearer ${token}` } };
       let res;
       if (isEdit) {
-        res = await axios.put(`${API_URL}/songs/${safeSong._id}`, fd, config);
+        res = await axios.put(
+          `${API_URL}/songs/${safeSong._id}`,
+          payload,
+          config,
+        );
       } else {
-        res = await axios.post(`${API_URL}/songs`, fd, config);
+        res = await axios.post(`${API_URL}/songs`, payload, config);
       }
 
       showToast(isEdit ? "Đã lưu thay đổi!" : "Đã tạo!", "success");
@@ -892,7 +953,7 @@ function Admin_Song() {
   const [artistsList, setArtistsList] = useState([]);
   const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
   const [formBusy, setFormBusy] = useState(false);
-const pageBusy = formBusy || deleting;
+  const pageBusy = formBusy || deleting;
 
   useEffect(() => {
     document.title = "Songs Management";
@@ -1079,7 +1140,7 @@ const pageBusy = formBusy || deleting;
   );
 
   return (
-    <AdminPage title="Quản lý bài hát" actions={headerActions}>
+    <AdminPage title="Quản lý Bài hát" actions={headerActions}>
       <div className="song-admin__layout">
         <div className="song-admin__left">
           {/* <div className="song-admin__meta">
@@ -1319,11 +1380,14 @@ const pageBusy = formBusy || deleting;
           )}
         </div>
       </div>
-{pageBusy && (
-  <div className="song-admin__page-overlay">
-    <div className="song-admin__page-spinner" />
-  </div>
-)}
+      {pageBusy && (
+        <div className="song-admin__page-overlay">
+          <div className="song-admin__page-spinner" />
+          <span className="song-admin__page-overlay-text">
+            {activeSong?._id ? "Đang lưu..." : "Đang tạo..."}
+          </span>
+        </div>
+      )}
       {confirm && (
         <ConfirmModal
           message={confirm.message}

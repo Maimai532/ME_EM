@@ -82,3 +82,13 @@ export const uploadAvatar = multer({
     cb(null, true);
   },
 });
+export const getPresignedUploadUrl = async (fileName, mimeType, folder) => {
+  const key = `${folder}/${Date.now()}-${fileName}`;
+  const command = new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    ContentType: mimeType,
+  });
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+  return { uploadUrl, key };
+};

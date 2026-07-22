@@ -39,13 +39,15 @@ export async function resolveAlbumCover(song) {
     if (album?.coverImage) return album.coverImage;
   }
 
-if (song.album?.trim() && song.artistId) {
-  const album = await Album.findOne({
-    title: { $regex: new RegExp(`^${song.album.trim()}$`, "i") },
-    artistId: song.artistId,
-  }).select("coverImage").lean();
-  if (album?.coverImage) return album.coverImage;
-}
+  if (song.album?.trim() && song.artistId) {
+    const album = await Album.findOne({
+      title: { $regex: new RegExp(`^${song.album.trim()}$`, "i") },
+      artistId: song.artistId,
+    })
+      .select("coverImage")
+      .lean();
+    if (album?.coverImage) return album.coverImage;
+  }
 
   return null;
 }
@@ -206,7 +208,7 @@ export const createSong = async (req, res) => {
     let audioUrl = req.body.audioUrl || null;
     let imageUrl = req.body.imageUrl || null;
     let audioKey = manualAudioKey;
-    let imagePublicId = null;
+    let imagePublicId = req.body.imagePublicId || null;
     const sourceType = audioFile ? "upload" : manualAudioKey ? "b2key" : "url";
 
     if (audioFile) {
@@ -225,7 +227,7 @@ export const createSong = async (req, res) => {
       const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
       imageUrl = result.url;
       imagePublicId = result.publicId;
-    } else if (imageUrl) {
+    } else if (imageUrl && !imagePublicId) {
       const result = await ensureCloudinaryUrl(imageUrl, "songs");
       if (result) {
         imageUrl = result.url;
@@ -367,6 +369,11 @@ export const updateSong = async (req, res) => {
       const result = await uploadBufferToCloudinary(imageFile.buffer, "songs");
       updateData.imageUrl = result.url;
       updateData.imagePublicId = result.publicId;
+    } else if (req.body.imageUrl && req.body.imagePublicId) {
+      // Ảnh đã được client upload thẳng lên Cloudinary (kèm publicId) -> chỉ lưu, không upload lại
+      await safeDeleteImage(song.imagePublicId, song._id);
+      updateData.imageUrl = req.body.imageUrl;
+      updateData.imagePublicId = req.body.imagePublicId;
     } else if (req.body.imageUrl) {
       const result = await ensureCloudinaryUrl(req.body.imageUrl, "songs");
       if (result) {
@@ -406,14 +413,22 @@ export const deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
     if (!song)
-      return res.status(404).json({ success: false, message: "Không tìm thấy bài hát" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy bài hát" });
 
     if (song.audioKey) await deleteFromB2(song.audioKey);
     if (song.imagePublicId) await deleteFromCloudinary(song.imagePublicId);
 
-    await Artist.updateOne({ _id: song.artistId }, { $pull: { songs: song._id } });
+    await Artist.updateOne(
+      { _id: song.artistId },
+      { $pull: { songs: song._id } },
+    );
     if (song.albumId) {
-      await Album.updateOne({ _id: song.albumId }, { $pull: { songs: song._id } });
+      await Album.updateOne(
+        { _id: song.albumId },
+        { $pull: { songs: song._id } },
+      );
     }
 
     await song.deleteOne();

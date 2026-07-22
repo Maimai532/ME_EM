@@ -115,7 +115,7 @@ export default function Admin_Dashboard() {
             <MissingAlert count={missingData.audio} label="bài thiếu audio" to="/admin/song_admin" />
             <MissingAlert count={missingData.genre} label="bài thiếu thể loại" to="/admin/song_admin" />
             {!missingData.image && !missingData.audio && !missingData.genre && (
-              <p className="dashboard__missing-empty">Dữ liệu đầy đủ 🎉</p>
+              <p className="dashboard__missing-empty">Trống</p>
             )}
           </div>
         </div>

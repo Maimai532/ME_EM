@@ -15,6 +15,110 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// POST /api/users — admin tạo user mới
+export const createUser = async (req, res) => {
+  try {
+    const { username, email, password, role = "user", avatar = "" } = req.body;
+
+    if (!username?.trim() || !email?.trim() || !password?.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Username, email và mật khẩu không được để trống" });
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu phải ít nhất 6 ký tự" });
+    }
+
+    if (!["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Role không hợp lệ" });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.trim().toLowerCase() },
+        { username: username.trim() },
+      ],
+    });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Username hoặc email đã được sử dụng" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
+      password: hashedPassword,
+      role,
+      avatar,
+    });
+
+    const safeUser = await User.findById(user._id).select("-password");
+    res.status(201).json({ message: "Tạo user thành công", user: safeUser });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+// PATCH /api/users/:id — admin cập nhật user
+export const updateUser = async (req, res) => {
+  try {
+    const { username, email, password, role, avatar } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
+
+    if (!username?.trim() || !email?.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Username và email không được để trống" });
+    }
+
+    if (role && !["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Role không hợp lệ" });
+    }
+
+    const duplicate = await User.findOne({
+      _id: { $ne: req.params.id },
+      $or: [
+        { email: email.trim().toLowerCase() },
+        { username: username.trim() },
+      ],
+    });
+
+    if (duplicate) {
+      return res
+        .status(400)
+        .json({ message: "Username hoặc email đã được sử dụng" });
+    }
+
+    user.username = username.trim();
+    user.email = email.trim().toLowerCase();
+    if (role) user.role = role;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    if (password?.trim()) {
+      if (password.length < 6) {
+        return res
+          .status(400)
+          .json({ message: "Mật khẩu phải ít nhất 6 ký tự" });
+      }
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.save();
+
+    const safeUser = await User.findById(user._id).select("-password");
+    res.json({ message: "Cập nhật user thành công", user: safeUser });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
 // DELETE /api/users/:id — xoá user
 export const deleteUser = async (req, res) => {
   try {

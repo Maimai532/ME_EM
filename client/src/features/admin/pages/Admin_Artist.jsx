@@ -1306,7 +1306,7 @@ export default function Admin_Artist() {
   );
 
   return (
-    <AdminPage title="Quản lý nghệ sĩ" actions={headerActions}>
+    <AdminPage title="Quản lý Nghệ sĩ" actions={headerActions}>
       <div className="artist-admin__layout">
         <div className="artist-admin__left">
           {/* <div className="artist-admin-meta">

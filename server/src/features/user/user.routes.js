@@ -3,6 +3,8 @@ import { protect, adminOnly } from "../../shared/middleware/authMiddleware.js";
 import { uploadAvatar } from "../../shared/services/cloudinary.service.js";
 import {
   getAllUsers,
+  createUser,
+  updateUser,
   deleteUser,
   updateUserRole,
   getMe,
@@ -19,6 +21,8 @@ router.get("/me", protect, getMe);
 router.patch("/me", protect, uploadAvatar.single("avatar"), updateMe);
 
 router.get("/", protect, adminOnly, getAllUsers);
+router.post("/", protect, adminOnly, createUser);
+router.patch("/:id", protect, adminOnly, updateUser);
 router.delete("/:id", protect, adminOnly, deleteUser);
 router.patch("/:id/role", protect, adminOnly, updateUserRole);
 router.patch("/me/password", protect, changePassword);
