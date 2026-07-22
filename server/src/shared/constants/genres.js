@@ -24,10 +24,12 @@ const GENRES = [
   "Rock",
   "Pop Rock",
   "Alternative Rock",
+  "Alternative R&B",
   "Indie Rock",
   "Soft Rock",
   "Nu Metal",
   "Alternative Pop",
+  "Dark Pop",
 
   // Indie / Dream
   "Indie",
@@ -54,6 +56,7 @@ const GENRES = [
   "Soul",
   "Funk",
   "Post-Disco",
+  "Disco",
   "Jazz",
   "Jazz Fusion",
   "Blues",

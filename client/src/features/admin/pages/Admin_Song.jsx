@@ -141,6 +141,7 @@ function DetailForm({
   onSaved,
   onClose,
   onDelete,
+   onLoadingChange,
   externalLoading = false,
 }) {
   const safeSong = normalizeSongForm({ ...emptyForm, ...(song || {}) });
@@ -302,6 +303,7 @@ function DetailForm({
 
   async function handleSubmit() {
     setLoading(true);
+    onLoadingChange?.(true);
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
@@ -326,6 +328,7 @@ function DetailForm({
       showToast("Có lỗi!", "error");
     } finally {
       setLoading(false);
+      onLoadingChange?.(false);
     }
   }
 
@@ -888,6 +891,8 @@ function Admin_Song() {
   const [albums, setAlbums] = useState([]);
   const [artistsList, setArtistsList] = useState([]);
   const [showAlbumTextSuggest, setShowAlbumTextSuggest] = useState(false);
+  const [formBusy, setFormBusy] = useState(false);
+const pageBusy = formBusy || deleting;
 
   useEffect(() => {
     document.title = "Songs Management";
@@ -1183,6 +1188,7 @@ function Admin_Song() {
             onClose={() => setActiveSong(null)}
             onDelete={handleDeleteSingle}
             externalLoading={deleting}
+            onLoadingChange={setFormBusy}
           />
         </div>
 
@@ -1313,7 +1319,11 @@ function Admin_Song() {
           )}
         </div>
       </div>
-
+{pageBusy && (
+  <div className="song-admin__page-overlay">
+    <div className="song-admin__page-spinner" />
+  </div>
+)}
       {confirm && (
         <ConfirmModal
           message={confirm.message}
