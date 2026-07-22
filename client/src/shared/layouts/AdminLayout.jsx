@@ -1,6 +1,13 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { LayoutDashboard, Music, ListMusic, Users, LogOut, Mic2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  Music,
+  ListMusic,
+  Users,
+  LogOut,
+  Mic2,
+} from "lucide-react";
 import "../styles/AdminLayout.css";
 import { useEffect } from "react";
 
@@ -10,7 +17,6 @@ const navItems = [
   { to: "/admin/artist_admin", label: "Artists", icon: Mic2 },
   { to: "/admin/section_admin", label: "Sections", icon: ListMusic },
   { to: "/admin/user_admin", label: "Users", icon: Users },
-  
 ];
 
 function AdminLayout() {
@@ -21,7 +27,8 @@ function AdminLayout() {
     logout();
     navigate("/home", { replace: true });
   }
-    useEffect(() => {
+
+  useEffect(() => {
     document.body.setAttribute("data-theme", "admin");
     return () => document.body.removeAttribute("data-theme");
   }, []);
@@ -29,9 +36,10 @@ function AdminLayout() {
   return (
     <div className="admin-layout">
       <aside className="admin-layout__sidebar">
-        <div className="admin-layout__logo-box">
-          <img src="/logo2.png" alt="Logo" className="admin-layout__logo-img" />
-          <span className="admin-layout__logo-text">ME_EM Admin</span>
+        <div className="admin-layout__brand-row">
+          <div className="admin-layout__logo-group">
+            <img src="/logo2.png" alt="" className="admin-layout__logo-img" />
+          </div>
         </div>
 
         <nav className="admin-layout__nav">
@@ -40,6 +48,7 @@ function AdminLayout() {
               key={to}
               to={to}
               end={end}
+              title={label}
               className={({ isActive }) =>
                 isActive
                   ? "admin-layout__nav-link admin-layout__nav-link--active"
@@ -47,15 +56,20 @@ function AdminLayout() {
               }
             >
               <Icon size={18} />
-              {label}
+              <span className="admin-layout__nav-label">{label}</span>
             </NavLink>
           ))}
         </nav>
 
         <div className="admin-layout__logout-box">
-          <button type="button" className="admin-layout__logout-btn" onClick={handleLogout}>
+          <button
+            type="button"
+            className="admin-layout__logout-btn"
+            onClick={handleLogout}
+            title="Logout"
+          >
             <LogOut size={18} />
-            Logout
+            <span className="admin-layout__nav-label">Logout</span>
           </button>
         </div>
       </aside>
